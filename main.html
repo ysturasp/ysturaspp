@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика оценок</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 8px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Статистика оценок по дисциплине</h1>
+        <div class="form-group">
+            <label for="discipline">Введите название дисциплины:</label>
+            <input type="text" id="discipline" placeholder="Например, Иностранный язык">
+            <button onclick="getStatistics()">Получить статистику</button>
+        </div>
+        <div class="result" id="statisticsResult">
+            <!-- Здесь будет отображаться результат -->
+        </div>
+    </div>
+
+    <script>
+        async function getStatistics() {
+            const disciplineInput = document.getElementById('discipline');
+            const discipline = disciplineInput.value.trim();
+
+            if (discipline === '') {
+                alert('Пожалуйста, введите название дисциплины');
+                return;
+            }
+
+            const url = `https://script.google.com/macros/s/AKfycbwtxJy9lOqY-cu6NbBkpSp9hcXlPn4XEIzPNpLuj3wcmjvB5NkWUzMN7CwIuyFf4Hbo/exec?discipline=${encodeURIComponent(discipline)}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayStatistics(data);
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+                displayError('Ошибка при получении данных');
+            }
+        }
+
+        function displayStatistics(data) {
+            const resultDiv = document.getElementById('statisticsResult');
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p>${data.error}</p>`;
+                return;
+            }
+
+            const { average, count5, count4, count3, count2, emptyCount } = data;
+
+            resultDiv.innerHTML = `
+                <p>Средний балл: ${average}</p>
+                <p>Всего оценок проанализировано: ${count5+count4+count3+count2}</p>
+                <p>Количество пятерок: ${count5}</p>
+                <p>Количество четверок: ${count4}</p>
+                <p>Количество троек: ${count3}</p>
+                <p>Количество двоек: ${count2}</p>
+                <p>Количество пустых ячеек: ${emptyCount}</p>
+            `;
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('statisticsResult');
+            resultDiv.innerHTML = `<p>${message}</p>`;
+        }
+    </script>
+</body>
+</html>
