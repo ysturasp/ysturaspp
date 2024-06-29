@@ -7,11 +7,15 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Чтобы предотвратить прокрутку фона во время показа индикатора */
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
         .form-group {
             margin-bottom: 10px;
@@ -24,9 +28,37 @@
         .result {
             margin-top: 20px;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-indicator {
+            width: 100px;
+            height: 100px;
+            border: 8px solid #ccc;
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s infinite ease-in-out;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-indicator"></div>
+    </div>
+
     <div class="container">
         <h1>Статистика оценок по дисциплине</h1>
         <div class="form-group">
@@ -42,16 +74,24 @@
     </div>
 
     <script>
+        let disciplinesLoaded = false;
+
         async function fetchDisciplines() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex'; // Показываем полноэкранный индикатор загрузки
+
             const url = 'https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec';
             
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 populateDisciplines(data);
+                disciplinesLoaded = true; // Устанавливаем флаг после успешной загрузки
+                hideLoadingOverlay(); // Скрываем полноэкранный индикатор загрузки после завершения
             } catch (error) {
                 console.error('Ошибка при получении списка дисциплин:', error);
                 alert('Ошибка при получении списка дисциплин');
+                hideLoadingOverlay(); // Скрываем полноэкранный индикатор загрузки в случае ошибки
             }
         }
 
@@ -74,6 +114,8 @@
         }
 
         async function getStatistics() {
+            if (!disciplinesLoaded) return; // Проверяем, загружены ли дисциплины
+
             const disciplineSelect = document.getElementById('discipline');
             const discipline = disciplineSelect.value;
 
@@ -115,8 +157,13 @@
             resultDiv.innerHTML = `<p>${message}</p>`;
         }
 
-        // Вызов функции для загрузки списка дисциплин при загрузке страницы
-        fetchDisciplines();
+        function hideLoadingOverlay() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'none';
+        }
+
+        // Вызываем функцию для загрузки списка дисциплин после загрузки DOM
+        document.addEventListener('DOMContentLoaded', fetchDisciplines);
     </script>
 </body>
 </html>
