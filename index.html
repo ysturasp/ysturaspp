@@ -30,8 +30,10 @@
     <div class="container">
         <h1>Статистика оценок по дисциплине</h1>
         <div class="form-group">
-            <label for="discipline">Введите название дисциплины:</label>
-            <input type="text" id="discipline" placeholder="Например, Иностранный язык">
+            <label for="discipline">Выберите дисциплину:</label>
+            <select id="discipline">
+                <!-- Опции будут добавлены динамически -->
+            </select>
             <button onclick="getStatistics()">Получить статистику</button>
         </div>
         <div class="result" id="statisticsResult">
@@ -40,16 +42,42 @@
     </div>
 
     <script>
-        async function getStatistics() {
-            const disciplineInput = document.getElementById('discipline');
-            const discipline = disciplineInput.value.trim();
+        async function fetchDisciplines() {
+            const url = 'https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                populateDisciplines(data);
+            } catch (error) {
+                console.error('Ошибка при получении списка дисциплин:', error);
+                alert('Ошибка при получении списка дисциплин');
+            }
+        }
 
-            if (discipline === '') {
-                alert('Пожалуйста, введите название дисциплины');
+        function populateDisciplines(data) {
+            const disciplineSelect = document.getElementById('discipline');
+            
+            if (data.error) {
+                alert(data.error);
                 return;
             }
 
-            const url = `https://script.google.com/macros/s/AKfycbwtxJy9lOqY-cu6NbBkpSp9hcXlPn4XEIzPNpLuj3wcmjvB5NkWUzMN7CwIuyFf4Hbo/exec?discipline=${encodeURIComponent(discipline)}`;
+            data.forEach(discipline => {
+                // Убираем звездочки в конце дисциплин
+                const disciplineName = discipline.replace(' *', '');
+                const option = document.createElement('option');
+                option.textContent = disciplineName;
+                option.value = disciplineName;
+                disciplineSelect.appendChild(option);
+            });
+        }
+
+        async function getStatistics() {
+            const disciplineSelect = document.getElementById('discipline');
+            const discipline = disciplineSelect.value;
+
+            const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
 
             try {
                 const response = await fetch(url);
@@ -73,7 +101,7 @@
 
             resultDiv.innerHTML = `
                 <p>Средний балл: ${average}</p>
-                <p>Всего оценок проанализировано: ${count5+count4+count3+count2}</p>
+                <p>Всего оценок проанализировано: ${count5 + count4 + count3 + count2}</p>
                 <p>Количество пятерок: ${count5}</p>
                 <p>Количество четверок: ${count4}</p>
                 <p>Количество троек: ${count3}</p>
@@ -86,6 +114,9 @@
             const resultDiv = document.getElementById('statisticsResult');
             resultDiv.innerHTML = `<p>${message}</p>`;
         }
+
+        // Вызов функции для загрузки списка дисциплин при загрузке страницы
+        fetchDisciplines();
     </script>
 </body>
 </html>
