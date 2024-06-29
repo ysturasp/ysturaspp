@@ -21,18 +21,26 @@
             height: 100%;
             background-color: rgba(35, 35, 35, 0.8);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            display: none;
+            display: none; /* Initially hidden */
         }
         .loading-indicator {
-            width: 80px;
-            height: 80px;
-            border: 10px solid #2d2d2d;
-            border-top-color: #8B00FF !important;
+            width: 320px;
+            height: 320px;
+            background: url('https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_6631fab38bcdab100e7c214e_6634a992a228f13b4de1505c/orig') no-repeat center center;
+            background-size: cover;
             border-radius: 50%;
-            animation: spin 1s infinite linear;
+        }
+        .loading-text {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.2em;
         }
         .text-primary {
             color: #bc7eef !important;
@@ -43,15 +51,12 @@
             border-color: #8c00ff78 !important;
             box-shadow: 0 0 0 .2rem rgba(59, 13, 103, 0.5) !important;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-indicator"></div>
+        <div class="loading-text">Загрузка, ожидайте...</div>
     </div>
     <div class="container">
         <h1 class="text-center text-primary my-4">Статистика оценок по дисциплине</h1>
