@@ -368,6 +368,8 @@
         }
 
         function displayStatistics(data) {
+            const disciplineSelect = document.getElementById('discipline');
+            const discipline = disciplineSelect.value;
             const resultDiv = document.getElementById('statisticsResult');
 
             if (data.error) {
@@ -385,6 +387,25 @@
             };
 
             const statisticsHTML = `
+                <div class="card-deck">
+                    <div class="col text-center mb-4">
+                        <h3>Статистика по предмету "${discipline}"</h3>
+                    </div>
+                </div>
+                <div class="card-deck">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body text-center">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5184/5184373.png" class="icon-square mb-2">
+                            <p class="card-text">Средний балл: ${average}</p>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-secondary mb-3">
+                        <div class="card-body text-center">
+                            <img src="https://cdn-icons-png.flaticon.com/512/15873/15873462.png" class="icon-square mb-2">
+                            <p class="card-text">Всего оценок проанализировано: ${count5 + count4 + count3 + count2}</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="card-deck">
                     <div class="card text-white bg-success mb-3">
                         <div class="card-body text-center">
@@ -411,26 +432,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-deck">
-                    <div class="card text-white bg-info mb-3">
-                        <div class="card-body text-center">
-                            <img src="https://cdn-icons-png.flaticon.com/512/5184/5184373.png" class="icon-square mb-2">
-                            <p class="card-text">Средний балл: ${average}</p>
-                        </div>
-                    </div>
-                    <div class="card text-white bg-secondary mb-3">
-                        <div class="card-body text-center">
-                            <img src="https://cdn-icons-png.flaticon.com/512/15873/15873462.png" class="icon-square mb-2">
-                            <p class="card-text">Всего оценок проанализировано: ${count5 + count4 + count3 + count2}</p>
-                        </div>
-                    </div>
-                </div>
             `;
 
             resultDiv.innerHTML = statisticsHTML;
         }
-
-
 
         function displayError(message) {
             const resultDiv = document.getElementById('statisticsResult');
