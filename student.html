@@ -109,20 +109,16 @@
 
         $(document).ready(function() {
             function fetchMessages() {
-                // Показываем данные из кэша, если они есть
                 var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
                 displayMessages(cachedMessages);
 
-                // Запрашиваем новые данные с сервера
                 $.ajax({
                     url: 'https://script.google.com/macros/s/AKfycbzw_OiqEauU7yohtpaW7ocKbouCR6F4MsQ-AVCnjGxPotKWLc0bYxP1Y9URSoHncD8yOA/exec',
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        // Сравниваем полученные данные с кэшем
                         var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
                         if (JSON.stringify(response) !== JSON.stringify(cachedMessages)) {
-                            // Если данные отличаются, обновляем кэш и отображаем новые сообщения
                             localStorage.setItem('chatMessages', JSON.stringify(response));
                             displayMessages(response);
                         }
@@ -156,7 +152,7 @@
                     success: function(response) {
                         $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
                         $('#chat-input').val('');
-                        fetchMessages(); // После отправки нового сообщения обновляем данные
+                        fetchMessages();
                     },
                     error: function(error) {
                         alert('Ошибка при отправке сообщения');
@@ -164,7 +160,7 @@
                 });
             });
 
-            fetchMessages(); // Вызываем fetchMessages при загрузке страницы
+            fetchMessages();
         });
     </script>
 </body>
