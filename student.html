@@ -75,7 +75,7 @@
         <h1 class="text-center text-primary my-4">Информация для студента</h1>
         <div class="intro">
             <p>Всем привет, тут можно писать всё, что угодно. В рамках приличия, есстественно.</p>
-             <p>Администрация сайта и разработчики не несут ответственности за оставленные пользователями сообщения</p>
+            <p>Администрация сайта и разработчики не несут ответственности за оставленные пользователями сообщения</p>
         </div>
         <a href="/" class="btn btn-primary mt-4">Вернуться на главную страницу</a>
         
@@ -96,78 +96,76 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
     <script>
-    VANTA.BIRDS({
-      el: "#vanta-background",
-      mouseControls: true,
-      touchControls: false,
-      gyroControls: true,
-      minHeight: 200.00,
-      minWidth: 200.00,
-      scale: 1.00,
-      scaleMobile: 1.00
-    });
+        VANTA.BIRDS({
+            el: "#vanta-background",
+            mouseControls: true,
+            touchControls: false,
+            gyroControls: true,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00
+        });
 
-    $(document).ready(function() {
-        function fetchMessages() {
-            var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
-            if (cachedMessages && Array.isArray(cachedMessages)) {
+        $(document).ready(function() {
+            function fetchMessages() {
+                // Показываем данные из кэша, если они есть
+                var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
                 displayMessages(cachedMessages);
-            }
 
-            var cacheExpiration = 300; 
-            var lastCacheTime = localStorage.getItem('chatMessagesTime');
-            var currentTime = Math.floor(Date.now() / 1000);
-
-            if (!lastCacheTime || (currentTime - lastCacheTime > cacheExpiration)) {
+                // Запрашиваем новые данные с сервера
                 $.ajax({
                     url: 'https://script.google.com/macros/s/AKfycbzw_OiqEauU7yohtpaW7ocKbouCR6F4MsQ-AVCnjGxPotKWLc0bYxP1Y9URSoHncD8yOA/exec',
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        localStorage.setItem('chatMessages', JSON.stringify(response));
-                        localStorage.setItem('chatMessagesTime', currentTime);
-                        displayMessages(response);
+                        // Сравниваем полученные данные с кэшем
+                        var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
+                        if (JSON.stringify(response) !== JSON.stringify(cachedMessages)) {
+                            // Если данные отличаются, обновляем кэш и отображаем новые сообщения
+                            localStorage.setItem('chatMessages', JSON.stringify(response));
+                            displayMessages(response);
+                        }
                     },
                     error: function(error) {
                         alert('Ошибка при получении сообщений');
                     }
                 });
             }
-        }
 
-        function displayMessages(messages) {
-            $('#chat-messages').empty();
-            if (Array.isArray(messages) && messages.length > 0) {
-                messages.forEach(function(message) {
-                    $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
-                });
-            } else {
-                $('#chat-messages').append('<div class="chat-message">Нет сообщений для отображения</div>');
-            }
-        }
-
-        $('#chat-form').on('submit', function(e) {
-            e.preventDefault();
-            var message = $('#chat-input').val();
-            $.ajax({
-                url: 'https://script.google.com/macros/s/AKfycbzw_OiqEauU7yohtpaW7ocKbouCR6F4MsQ-AVCnjGxPotKWLc0bYxP1Y9URSoHncD8yOA/exec',
-                type: 'POST',
-                data: {
-                    text: message
-                },
-                success: function(response) {
-                    $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
-                    $('#chat-input').val('');
-                    fetchMessages();
-                },
-                error: function(error) {
-                    alert('Ошибка при отправке сообщения');
+            function displayMessages(messages) {
+                $('#chat-messages').empty();
+                if (Array.isArray(messages) && messages.length > 0) {
+                    messages.forEach(function(message) {
+                        $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
+                    });
+                } else {
+                    $('#chat-messages').append('<div class="chat-message">Нет сообщений для отображения</div>');
                 }
-            });
-        });
+            }
 
-        fetchMessages();
-    });
+            $('#chat-form').on('submit', function(e) {
+                e.preventDefault();
+                var message = $('#chat-input').val();
+                $.ajax({
+                    url: 'https://script.google.com/macros/s/AKfycbzw_OiqEauU7yohtpaW7ocKbouCR6F4MsQ-AVCnjGxPotKWLc0bYxP1Y9URSoHncD8yOA/exec',
+                    type: 'POST',
+                    data: {
+                        text: message
+                    },
+                    success: function(response) {
+                        $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
+                        $('#chat-input').val('');
+                        fetchMessages(); // После отправки нового сообщения обновляем данные
+                    },
+                    error: function(error) {
+                        alert('Ошибка при отправке сообщения');
+                    }
+                });
+            });
+
+            fetchMessages(); // Вызываем fetchMessages при загрузке страницы
+        });
     </script>
 </body>
 </html>
