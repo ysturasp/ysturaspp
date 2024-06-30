@@ -132,13 +132,15 @@
             function displayMessages(messages) {
                 $('#chat-messages').empty();
                 if (Array.isArray(messages) && messages.length > 0) {
+                    messages.reverse();
                     messages.forEach(function(message) {
-                        $('#chat-messages').append('<div class="chat-message">' + message + '</div>');
+                        $('#chat-messages').prepend('<div class="chat-message">' + message + '</div>');
                     });
                 } else {
                     $('#chat-messages').append('<div class="chat-message">Нет сообщений для отображения</div>');
                 }
             }
+
 
             $('#chat-form').on('submit', function(e) {
                 e.preventDefault();
