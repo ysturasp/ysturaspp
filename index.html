@@ -61,15 +61,22 @@
             color: #fff;
             font-size: 1.2em;
         }
-        .text-primary {
-            color: #bc7eef !important;
-        }
+            .text-primary {
+                color: #bc7eef !important;
+            }
         .btn-primary {
             color: #fff;
             background-color: #8B00FF !important;
             border-color: #8c00ff78 !important;
             box-shadow: 0 0 0 .2rem rgba(59, 13, 103, 0.5) !important;
         }
+        .icon-square {
+            width: 70px;
+            height: 70px;
+            margin-right: 0 auto;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 <body>
@@ -84,6 +91,8 @@
         <div class="intro">
             <p>Добро пожаловать на сайт «Статистика оценок ЯГТУ»!</p>
             <p>Этот сайт создан для студентов (пока что только ИЦС) Ярославского государственного технического университета (ЯГТУ), чтобы помочь вам узнать, насколько сложны различные дисциплины, основываясь на среднем балле студентов, которые уже прошли эти курсы.</p>
+            
+            <p><a href="student.html" class="btn btn-primary">Перейти на страницу анонимного чата</a></p>
             <p>PS на самом деле это все выдумка, любые совпадения случайны</p>
         </div>
         <div class="form-group">
@@ -333,21 +342,28 @@
         async function getStatistics() {
             const disciplineSelect = document.getElementById('discipline');
             const discipline = disciplineSelect.value;
-
-            const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
+            const cachedData = localStorage.getItem(discipline);
             
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.style.display = 'flex';
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                displayStatistics(data);
-            } catch (error) {
-                console.error('Ошибка при получении данных:', error);
-                displayError('Ошибка при получении данных');
-            } finally {
+            if (cachedData) {
+                displayStatistics(JSON.parse(cachedData));
                 loadingOverlay.style.display = 'none';
+            } else {
+                const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    localStorage.setItem(discipline, JSON.stringify(data));
+                    displayStatistics(data);
+                } catch (error) {
+                    console.error('Ошибка при получении данных:', error);
+                    displayError('Ошибка при получении данных');
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
             }
         }
 
@@ -361,15 +377,60 @@
 
             const { average, count5, count4, count3, count2 } = data;
 
-            resultDiv.innerHTML = `
-                <p>Средний балл: ${average}</p>
-                <p>Всего оценок проанализировано: ${count5 + count4 + count3 + count2}</p>
-                <p>Количество пятерок: ${count5}</p>
-                <p>Количество четверок: ${count4}</p>
-                <p>Количество троек: ${count3}</p>
-                <p>Количество двоек: ${count2}</p>
+            const icons = {
+                count5: 'https://cdn-icons-png.flaticon.com/512/6431/6431061.png',
+                count4: 'https://cdn-icons-png.flaticon.com/512/6431/6431202.png',
+                count3: 'https://cdn-icons-png.flaticon.com/512/6431/6431195.png',
+                count2: 'https://cdn-icons-png.flaticon.com/512/6431/6431189.png'
+            };
+
+            const statisticsHTML = `
+                <div class="card-deck">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-body text-center">
+                            <img src="${icons.count5}" class="icon-square mb-2">
+                            <p class="card-text">Пятерок: ${count5}</p>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-body text-center">
+                            <img src="${icons.count4}" class="icon-square mb-2">
+                            <p class="card-text">Четверок: ${count4}</p>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-body text-center">
+                            <img src="${icons.count3}" class="icon-square mb-2">
+                            <p class="card-text">Троек: ${count3}</p>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-body text-center">
+                            <img src="${icons.count2}" class="icon-square mb-2">
+                            <p class="card-text">Двоек: ${count2}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-deck">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body text-center">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5184/5184373.png" class="icon-square mb-2">
+                            <p class="card-text">Средний балл: ${average}</p>
+                        </div>
+                    </div>
+                    <div class="card text-white bg-secondary mb-3">
+                        <div class="card-body text-center">
+                            <img src="https://cdn-icons-png.flaticon.com/512/15873/15873462.png" class="icon-square mb-2">
+                            <p class="card-text">Всего оценок проанализировано: ${count5 + count4 + count3 + count2}</p>
+                        </div>
+                    </div>
+                </div>
             `;
+
+            resultDiv.innerHTML = statisticsHTML;
         }
+
+
 
         function displayError(message) {
             const resultDiv = document.getElementById('statisticsResult');
@@ -378,18 +439,18 @@
     </script>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
-      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();
+    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-      ym(97705826, "init", {
-          clickmap:true,
-          trackLinks:true,
-          accurateTrackBounce:true,
-          webvisor:true
-      });
+    ym(97705826, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+    });
     </script>
     <noscript><div><img src="https://mc.yandex.ru/watch/97705826" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
     <!-- /Yandex.Metrika counter -->
@@ -402,8 +463,8 @@
     VANTA.BIRDS({
       el: "#vanta-background",
       mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
+      touchControls: false,
+      gyroControls: true,
       minHeight: 200.00,
       minWidth: 200.00,
       scale: 1.00,
