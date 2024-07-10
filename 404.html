@@ -1,13 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found</title>
+    <meta name="description" content="Узнайте статистику оценок студентов ЯГТУ, средние баллы и распределение оценок по различным дисциплинам. ysturasp">
+    <title>Упс.. Ошибочка - ystuRASP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark .bg-slate-800 {
+            background-color: #1e293b;
+        }
+
+        .dark .text-white {
+            color: #ffffff;
+        }
+
+        .dark .text-slate-400 {
+            color: #94a3b8;
+        }
+
+        .bg-slate-900 {
+            background-color: #111827;
+        }
+
+        .hover\\:bg-blue-700:hover {
+            background-color: #1e40af;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .icon-square {
+            width: 70px;
+            height: 70px;
+            margin-right: 0 auto;
+            vertical-align: middle;
+        }
+
+        .loading-indicator {
+            width: 320px;
+            height: 320px;
+            background: url('https://ustaliy.ru/wp-content/uploads/2020/04/orig-5.gif') no-repeat center center;
+            background-size: cover;
+            border-radius: 20%;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1e293bc4;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    </style>
 </head>
-<body>
-    <h1>Page Not Found</h1>
-    <p>Sorry, the page you are looking for does not exist.</p>
-    <p><a href="/">Go to Home</a></p>
+<body class="bg-slate-900 text-gray-300 antialiased">
+    <header class="container mx-auto sticky top-4 px-3 z-10">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(5px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+            <nav class="hidden md:flex gap-x-4">
+                <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
+                <a href="/about/" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+            </nav>
+            <div class="relative md:hidden">
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
+                    <svg class="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="/student" class="p-2 bg-blue-700 text-white rounded-lg text-xs md:text-sm hover:bg-blue-600 transition-all">Чатик для студентов 👋🏻</a>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
+            <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
+            <a href="/about/" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 py-6 md:py-8 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="flex flex-col gap-y-3 max-w-full md:max-w-[27rem]">
+                <h1 class="text-3xl md:text-4xl font-bold text-white">👋🏻 Страница не найдена!</h1>
+                <p class="text-base md:text-lg text-slate-400">К сожалению, запрашиваемая вами страница не существует. Похоже, что она еще не создана или у нас небольшие работы</p>
+                <a href="/" class="mt-4 p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all">Вернуться на главную</a>
+            </div>
+            <div class="flex justify-center md:justify-end mt-4 md:mt-0">
+                <div class="loading-indicator"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
