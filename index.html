@@ -520,7 +520,7 @@
                 count2: 'https://cdn-icons-png.flaticon.com/512/6431/6431189.png'
             };
 
-            let emoji = average > 4 ? "😍" : "😭";
+            let emoji = average >= 4 ? "😍" : "😭";
             let warningMessage = totalCount < 25 ? "<div class='bg-red-500 text-white font-bold p-2 rounded-lg mb-4'>⚠️⚠️⚠️ Данных недостаточно, статистика может быть неточна ⚠️⚠️⚠️</div>" : "";
 
             const statisticsHTML = `
