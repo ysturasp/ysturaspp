@@ -370,9 +370,9 @@
             const stats = await getStatistics(discipline);
             if (stats) {
                 const average = stats.average.toFixed(2);
-                element.innerHTML += `<p class="text-sm text-yellow-400">Средний балл: ${average}</p>`;
+                element.innerHTML += `<a href="/" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
             } else {
-                element.innerHTML += `<p class="text-sm text-red-500">Нет данных по среднему баллу</p>`;
+                element.innerHTML += `<a href="/" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
             }
         }
 
@@ -412,9 +412,9 @@
                 const stats = await getStatistics(formattedDiscipline);
                 if (stats) {
                     const average = stats.average.toFixed(2);
-                    element.innerHTML += `<p class="text-sm text-yellow-400">Средний балл: ${average}</p>`;
+                    element.innerHTML += `<a href="/" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
                 } else {
-                    element.innerHTML += `<p class="text-sm text-red-500">Нет данных по среднему баллу</p>`;
+                    element.innerHTML += `<a href="/" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
                 }
                 displayedLessons.add(formattedDiscipline);
             }
