@@ -228,252 +228,299 @@
     </footer>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-        const instituteSelect = document.getElementById('institute-select');
-        const groupSelect = document.getElementById('group-select');
-        const weekSelect = document.getElementById('week-select');
-        const lastGroup = localStorage.getItem('lastGroup');
-        const lastWeek = localStorage.getItem('lastWeek');
+            const instituteSelect = document.getElementById('institute-select');
+            const groupSelect = document.getElementById('group-select');
+            const weekSelect = document.getElementById('week-select');
+            const lastGroup = localStorage.getItem('lastGroup');
+            const lastWeek = localStorage.getItem('lastWeek');
 
-        try {
-            const response = await fetch('https://parser.ystuty.ru/api/ystu/schedule/institutes');
-            const data = await response.json();
-            const institutes = data.items;
-
-            instituteSelect.innerHTML += institutes.map(institute => `<option value="${institute.name}">${institute.name}</option>`).join('');
-
-            instituteSelect.addEventListener('change', () => {
-                const selectedInstitute = instituteSelect.value;
-                const institute = institutes.find(inst => inst.name === selectedInstitute);
-                if (institute) {
-                    groupSelect.innerHTML = institute.groups.map(group => `<option value="${group}">${group}</option>`).join('');
-                } else {
-                    groupSelect.innerHTML = '<option value="">Сначала выберите институт</option>';
-                }
-            });
-
-            if (lastGroup) {
-                const savedInstitute = institutes.find(inst => inst.groups.includes(lastGroup));
-                if (savedInstitute) {
-                    instituteSelect.value = savedInstitute.name;
-                    groupSelect.innerHTML = savedInstitute.groups.map(group => `<option value="${group}">${group}</option>`).join('');
-                    groupSelect.value = lastGroup;
-                }
-            }
-
-            if (lastWeek) {
-                weekSelect.value = lastWeek;
-            }
-        } catch (error) {
-            console.error('Ошибка при получении списка институтов:', error);
-            instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
-        }
-    });
-
-    function formatDate(isoDate) {
-        const date = new Date(isoDate);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    }
-
-    function getDayName(dayNumber) {
-        const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
-        return daysOfWeek[dayNumber];
-    }
-
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    mobileMenuBtn.addEventListener('click', function() {
-        mobileMenu.classList.toggle('hidden');
-    });
-
-    document.getElementById('schedule-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const group = document.getElementById('group-select').value;
-        const week = parseInt(document.getElementById('week-select').value, 10);
-
-        if (!group || !week) {
-            alert('Пожалуйста, выберите институт, группу и неделю.');
-            return;
-        }
-
-        localStorage.setItem('lastGroup', group);
-        localStorage.setItem('lastWeek', week);
-
-        const scheduleContainer = document.getElementById('schedule');
-        scheduleContainer.innerHTML = '';
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        loadingOverlay.style.display = 'flex';
-
-        const cacheKey = `${group}_${week}`;
-        const cachedData = localStorage.getItem(cacheKey);
-        const cacheDuration = 1000 * 60 * 60 * 24; // 24 часа
-
-        let scheduleData;
-        let fetchData = true;
-
-        if (cachedData) {
-            const parsedData = JSON.parse(cachedData);
-            if (Date.now() - parsedData.timestamp < cacheDuration) {
-                scheduleData = parsedData.data;
-                fetchData = false;
-            }
-        }
-
-        if (fetchData) {
             try {
-                const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`);
-                scheduleData = await response.json();
-                localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: scheduleData }));
-            } catch (error) {
-                console.error('Ошибка при получении расписания:', error);
-                scheduleContainer.innerHTML = '<p class="text-red-500">Ошибка при получении расписания.</p>';
-                loadingOverlay.style.display = 'none';
-                return;
-            }
-        }
+                const response = await fetch('https://parser.ystuty.ru/api/ystu/schedule/institutes');
+                const data = await response.json();
+                const institutes = data.items;
 
-        const filteredWeek = scheduleData.items.find(item => item.number === week);
+                instituteSelect.innerHTML += institutes.map(institute => `<option value="${institute.name}">${institute.name}</option>`).join('');
 
-        const lessonTypes = {
-            0: 'none',
-            2: 'Лекция',
-            4: 'Практика',
-            8: 'Лабораторная работа',
-            1: 'Курсовой проект',
-            5: 'Консультация',
-            6: 'Лекция + Практика',
-            7: 'Дифференцированный зачет',
-            3: 'Экзамен',
-            9: 'Библиотека',
-            10: 'Лекция + Лабораторная работа',
-            11: 'Организационное собрание',
-            12: 'Не поддерживается'
-        };
-
-        if (filteredWeek) {
-            const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-            filteredWeek.days.forEach(day => {
-                const dayElement = document.createElement('div');
-                dayElement.className = 'p-4 bg-slate-900 rounded-lg';
-
-                const dayInfo = day.info;
-                const lessons = day.lessons.filter(lesson => {
-                    const hidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
-                    return !hidden;
+                instituteSelect.addEventListener('change', () => {
+                    const selectedInstitute = instituteSelect.value;
+                    const institute = institutes.find(inst => inst.name === selectedInstitute);
+                    if (institute) {
+                        groupSelect.innerHTML = institute.groups.map(group => `<option value="${group}">${group}</option>`).join('');
+                    } else {
+                        groupSelect.innerHTML = '<option value="">Сначала выберите институт</option>';
+                    }
                 });
 
-                const dayName = getDayName(new Date(dayInfo.date).getDay() - 1);
-                const formattedDate = formatDate(dayInfo.date);
+                if (lastGroup) {
+                    const savedInstitute = institutes.find(inst => inst.groups.includes(lastGroup));
+                    if (savedInstitute) {
+                        instituteSelect.value = savedInstitute.name;
+                        groupSelect.innerHTML = savedInstitute.groups.map(group => `<option value="${group}">${group}</option>`).join('');
+                        groupSelect.value = lastGroup;
+                    }
+                }
 
-                dayElement.innerHTML = `
-                    <h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>
-                    ${lessons.map(lesson => `
-                        <div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
-                            <div>
-                                <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
-                                <p class="text-sm text-slate-400">${lesson.timeRange}</p>
-                                <p class="text-sm text-slate-400">${lesson.auditoryName}</p>
-                                <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
-                                ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    `).join('')}
-                `;
+                if (lastWeek) {
+                    weekSelect.value = lastWeek;
+                }
+            } catch (error) {
+                console.error('Ошибка при получении списка институтов:', error);
+                instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
+            }
+        });
 
-                scheduleContainer.appendChild(dayElement);
-            });
-
-            updateHiddenSubjectsSection(group);
-        } else {
-            scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
+        function formatDate(isoDate) {
+            const date = new Date(isoDate);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
         }
 
-        loadingOverlay.style.display = 'none';
-    });
+        function getDayName(dayNumber) {
+            const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+            return daysOfWeek[dayNumber];
+        }
 
-    function toggleSubjectVisibility(group, subjectName, lessonType, teacherName, isVisible) {
-        let hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-        if (!isVisible) {
-            if (!hiddenSubjects[subjectName]) {
-                hiddenSubjects[subjectName] = [];
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        function toggleSubjectVisibility(group, subjectName, lessonType, teacherName, isVisible) {
+            let hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
+            if (!isVisible) {
+                if (!hiddenSubjects[subjectName]) {
+                    hiddenSubjects[subjectName] = [];
+                }
+                if (!hiddenSubjects[subjectName].some(h => h.type === lessonType && h.teacher === (teacherName || ''))) {
+                    hiddenSubjects[subjectName].push({ type: lessonType, teacher: teacherName || '' });
+                }
+            } else {
+                if (hiddenSubjects[subjectName]) {
+                    hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(h => !(h.type === lessonType && h.teacher === (teacherName || '')));
+                    if (hiddenSubjects[subjectName].length === 0) {
+                        delete hiddenSubjects[subjectName];
+                    }
+                }
             }
-            if (!hiddenSubjects[subjectName].some(h => h.type === lessonType && h.teacher === (teacherName || ''))) {
-                hiddenSubjects[subjectName].push({ type: lessonType, teacher: teacherName || '' });
+            localStorage.setItem(`hiddenSubjects_${group}`, JSON.stringify(hiddenSubjects));
+            document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+        }
+
+        function updateHiddenSubjectsSection(group) {
+            const hiddenSubjectsSection = document.getElementById('hidden-subjects-section');
+            const hiddenSubjectsContainer = document.getElementById('hidden-subjects');
+            const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
+
+            const lessonTypes = {
+                0: 'none',
+                2: 'Лекция',
+                4: 'Практика',
+                8: 'Лабораторная работа',
+                1: 'Курсовой проект',
+                5: 'Консультация',
+                6: 'Лекция + Практика',
+                7: 'Дифференцированный зачет',
+                3: 'Экзамен',
+                9: 'Библиотека',
+                10: 'Лекция + Лабораторная работа',
+                11: 'Организационное собрание',
+                12: 'Не поддерживается'
+            };
+
+            hiddenSubjectsContainer.innerHTML = '';
+            for (let subject in hiddenSubjects) {
+                hiddenSubjects[subject].forEach(item => {
+                    const subjectElement = document.createElement('div');
+                    subjectElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center';
+                    subjectElement.innerHTML = `
+                        <p class="text-lg font-bold text-white">${subject} (${lessonTypes[item.type]}, ${item.teacher})</p>
+                        <label class="switch">
+                            <input type="checkbox" onchange="showSubject('${group}', '${subject}', ${item.type}, '${item.teacher}')">
+                            <span class="slider round"></span>
+                        </label>
+                    `;
+                    hiddenSubjectsContainer.appendChild(subjectElement);
+                });
             }
-        } else {
+
+            if (Object.keys(hiddenSubjects).length > 0) {
+                hiddenSubjectsSection.classList.remove('hidden');
+            } else {
+                hiddenSubjectsSection.classList.add('hidden');
+            }
+        }
+
+        function showSubject(group, subjectName, lessonType, teacherName) {
+            let hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
             if (hiddenSubjects[subjectName]) {
-                hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(h => !(h.type === lessonType && h.teacher === (teacherName || '')));
+                hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(h => !(h.type === lessonType && h.teacher === teacherName));
                 if (hiddenSubjects[subjectName].length === 0) {
                     delete hiddenSubjects[subjectName];
                 }
             }
-        }
-        localStorage.setItem(`hiddenSubjects_${group}`, JSON.stringify(hiddenSubjects));
-        document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
-    }
-
-    function updateHiddenSubjectsSection(group) {
-        const hiddenSubjectsSection = document.getElementById('hidden-subjects-section');
-        const hiddenSubjectsContainer = document.getElementById('hidden-subjects');
-        const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-
-        const lessonTypes = {
-            0: 'none',
-            2: 'Лекция',
-            4: 'Практика',
-            8: 'Лабораторная работа',
-            1: 'Курсовой проект',
-            5: 'Консультация',
-            6: 'Лекция + Практика',
-            7: 'Дифференцированный зачет',
-            3: 'Экзамен',
-            9: 'Библиотека',
-            10: 'Лекция + Лабораторная работа',
-            11: 'Организационное собрание',
-            12: 'Не поддерживается'
-        };
-
-        hiddenSubjectsContainer.innerHTML = '';
-        for (let subject in hiddenSubjects) {
-            hiddenSubjects[subject].forEach(item => {
-                const subjectElement = document.createElement('div');
-                subjectElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center';
-                subjectElement.innerHTML = `
-                    <p class="text-lg font-bold text-white">${subject} (${lessonTypes[item.type]}, ${item.teacher})</p>
-                    <label class="switch">
-                        <input type="checkbox" onchange="showSubject('${group}', '${subject}', ${item.type}, '${item.teacher}')">
-                        <span class="slider round"></span>
-                    </label>
-                `;
-                hiddenSubjectsContainer.appendChild(subjectElement);
-            });
+            localStorage.setItem(`hiddenSubjects_${group}`, JSON.stringify(hiddenSubjects));
+            document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
         }
 
-        if (Object.keys(hiddenSubjects).length > 0) {
-            hiddenSubjectsSection.classList.remove('hidden');
-        } else {
-            hiddenSubjectsSection.classList.add('hidden');
-        }
-    }
-
-    function showSubject(group, subjectName, lessonType, teacherName) {
-        let hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-        if (hiddenSubjects[subjectName]) {
-            hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(h => !(h.type === lessonType && h.teacher === teacherName));
-            if (hiddenSubjects[subjectName].length === 0) {
-                delete hiddenSubjects[subjectName];
+        async function displayAverageScore(discipline, element) {
+            const stats = await getStatistics(discipline);
+            if (stats) {
+                const average = stats.average.toFixed(2);
+                element.innerHTML += `<p class="text-sm text-yellow-400">Средний балл: ${average}</p>`;
+            } else {
+                element.innerHTML += `<p class="text-sm text-red-500">Нет данных по среднему баллу</p>`;
             }
         }
-        localStorage.setItem(`hiddenSubjects_${group}`, JSON.stringify(hiddenSubjects));
-        document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
-    }
+
+        async function getStatistics(discipline) {
+            const cachedData = localStorage.getItem(discipline);
+
+            if (cachedData) {
+                console.log(`Using cached data for discipline: ${discipline}`);
+                return JSON.parse(cachedData);
+            } else {
+                const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
+
+                try {
+                    console.log(`Fetching data for discipline: ${discipline} from API`);
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.error) {
+                        console.error(`API error for discipline ${discipline}: ${data.error}`);
+                        return null;
+                    }
+                    localStorage.setItem(discipline, JSON.stringify(data));
+                    return data;
+                } catch (error) {
+                    console.error(`Fetching error for discipline ${discipline}:`, error);
+                    return null;
+                }
+            }
+        }
+
+        function formatDisciplineName(discipline) {
+            return discipline.replace(/\s*\(.*?\)\s*/g, '').trim();
+        }
+
+        async function displayAverageScore(discipline, element, displayedLessons) {
+            const formattedDiscipline = formatDisciplineName(discipline);
+            if (!displayedLessons.has(formattedDiscipline)) {
+                const stats = await getStatistics(formattedDiscipline);
+                if (stats) {
+                    const average = stats.average.toFixed(2);
+                    element.innerHTML += `<p class="text-sm text-yellow-400">Средний балл: ${average}</p>`;
+                } else {
+                    element.innerHTML += `<p class="text-sm text-red-500">Нет данных по среднему баллу</p>`;
+                }
+                displayedLessons.add(formattedDiscipline);
+            }
+        }
+
+        document.getElementById('schedule-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const group = document.getElementById('group-select').value;
+            const week = parseInt(document.getElementById('week-select').value, 10);
+
+            if (!group || !week) {
+                alert('Пожалуйста, выберите институт, группу и неделю.');
+                return;
+            }
+
+            localStorage.setItem('lastGroup', group);
+            localStorage.setItem('lastWeek', week);
+
+            const scheduleContainer = document.getElementById('schedule');
+            scheduleContainer.innerHTML = '';
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            const cacheKey = `${group}_${week}`;
+            const cachedData = localStorage.getItem(cacheKey);
+            const cacheDuration = 1000 * 60 * 60 * 24; // 24 часа
+
+            let scheduleData;
+            let fetchData = true;
+
+            if (cachedData) {
+                const parsedData = JSON.parse(cachedData);
+                if (Date.now() - parsedData.timestamp < cacheDuration) {
+                    scheduleData = parsedData.data;
+                    fetchData = false;
+                }
+            }
+
+            if (fetchData) {
+                try {
+                    const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`);
+                    scheduleData = await response.json();
+                    localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: scheduleData }));
+                } catch (error) {
+                    console.error('Ошибка при получении расписания:', error);
+                    scheduleContainer.innerHTML = '<p class="text-red-500">Ошибка при получении расписания.</p>';
+                    loadingOverlay.style.display = 'none';
+                    return;
+                }
+            }
+
+            const filteredWeek = scheduleData.items.find(item => item.number === week);
+
+            if (filteredWeek) {
+                const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
+                const displayedLessons = new Set();
+
+                filteredWeek.days.forEach(day => {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'p-4 bg-slate-900 rounded-lg';
+
+                    const dayInfo = day.info;
+                    const lessons = day.lessons.filter(lesson => {
+                        const hidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
+                        return !hidden;
+                    });
+
+                    const dayName = getDayName(new Date(dayInfo.date).getDay() - 1);
+                    const formattedDate = formatDate(dayInfo.date);
+
+                    dayElement.innerHTML = `
+                        <h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>
+                        ${lessons.map(lesson => `
+                            <div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
+                                <div>
+                                    <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
+                                    <p class="text-sm text-slate-400">${lesson.timeRange}</p>
+                                    <p class="text-sm text-slate-400">${lesson.auditoryName}</p>
+                                    <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
+                                    ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
+                                    <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        `).join('')}
+                    `;
+
+                    scheduleContainer.appendChild(dayElement);
+
+                    lessons.forEach(lesson => {
+                        const avgElementId = `avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}`;
+                        const avgElement = document.getElementById(avgElementId);
+                        displayAverageScore(lesson.lessonName, avgElement, displayedLessons);
+                    });
+                });
+
+                updateHiddenSubjectsSection(group);
+            } else {
+                scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
+            }
+
+            loadingOverlay.style.display = 'none';
+        });
     </script>
     <script>
         if ('serviceWorker' in navigator) {
