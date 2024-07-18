@@ -462,6 +462,7 @@
                 "Электротехника и электроника"
             ];
             populateDisciplines(disciplines);
+            checkUrlParameters();
         });
 
         function populateDisciplines(data) {
@@ -601,6 +602,15 @@
         mobileMenuBtn.addEventListener('click', function() {
             mobileMenu.classList.toggle('hidden');
         });
+
+        function checkUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        if (subject) {
+            const disciplineSelect = document.getElementById('discipline');
+            disciplineSelect.value = subject;
+            getStatistics();
+        }
     </script>
     
     <!-- Yandex.Metrika counter -->
