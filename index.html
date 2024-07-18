@@ -2,8 +2,8 @@
 <html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Узнайте статистику оценок студентов ЯГТУ, средние баллы и распределение оценок по различным дисциплинам. ysturasp">
     <title>ystuRASP. Оценки студентов ЯГТУ</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -75,7 +75,6 @@
             align-items: flex-end;
             z-index: 50;
         }
-
         .bg-gray-800.text-white.px-4.py-2.rounded-lg.shadow-md {
             font-size: 13px;
             background-color: #020d1f97;
@@ -86,22 +85,19 @@
             transition: bottom 0.3s ease;
             width: 375px;
         }
-
         #cookie-notification-1, #cookie-notification-2 {
             border: 1px solid #ffffff;
             background-color: rgba(2, 13, 31, 0.6);
             margin-bottom: 0px;
             border-radius: 8px; 
             backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(4px);
         }
-
         #cookie-notification-1 p,
         #cookie-notification-2 p {
             color: white;
             font-size: 16px;
         }
-
         #cookie-notification-1 button,
         #cookie-notification-2 button {
             background-color: #1a73e8;
@@ -112,20 +108,26 @@
             cursor: pointer;
             border-radius: 4px;
         }
-
         #cookie-notification-1 button:hover,
         #cookie-notification-2 button:hover {
             background-color: #0d47a1;
         }
-
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
     <header class="container mx-auto sticky top-4 px-3 z-10">
-        <div style="background-color: #1e293bad; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(2px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden md:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
-                <a href="/about/" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all">Расписание</a>
             </nav>
             <div class="relative md:hidden">
                 <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
@@ -140,7 +142,8 @@
         </div>
         <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
             <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
-            <a href="/about/" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
         </div>
     </header>
 
@@ -157,7 +160,49 @@
               </a>
             </div>
         </section>
-        
+
+        <section>
+            <h2 class="text-4xl font-semibold text-white mb-4">📅 А мы теперь и расписание показываем!</h2>
+            <div class="flex flex-wrap justify-center gap-6 p-6">
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp1.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Удобный просмотр</h3>
+                    <p class="text-slate-400 mb-4">Теперь на нашем сайте вы можете не только узнать статистику оценок, но и посмотреть расписание в удобном виде!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                    <a href="/rasp" class="text-blue-500 hover:text-blue-400">Перейти</a>
+                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp2.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Настройка под себя</h3>
+                    <p class="text-slate-400 mb-4">Скрывайте ненужные предметы, создавайте свое идеальное расписание!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                    <a href="/rasp" class="text-blue-500 hover:text-blue-400">Перейти</a>
+                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp3.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Средний балл предметов</h3>
+                    <p class="text-slate-400 mb-4">Сразу узнавайте средний балл по предмету прямо в расписании и распределяйте нагрузку правильно!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                    <a href="/rasp" class="text-blue-500 hover:text-blue-400">Перейти</a>
+                </div>
+            </div>
+        </section>
+
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-4xl font-semibold text-white mb-4">👨‍💻 Статистика оценок</h2>
             <div class="form-group">
@@ -484,134 +529,133 @@
             loadingOverlay.classList.remove('hidden');
 
             if (cachedData) {
-                    displayStatistics(JSON.parse(cachedData));
-                    loadingOverlay.classList.add('hidden');
-                } else {
-                    const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
-    
-                    try {
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        localStorage.setItem(discipline, JSON.stringify(data));
-                        displayStatistics(data);
-                    } catch (error) {
-                        console.error('Ошибка при получении данных:', error);
-                        displayError('Ошибка при получении данных');
-                    } finally {
-                        loadingOverlay.classList.add('hidden');
-                    }
-                }
-            }
+                displayStatistics(JSON.parse(cachedData));
+                loadingOverlay.classList.add('hidden');
+            } else {
+                const url = `https://script.google.com/macros/s/AKfycbxKTxXDptI0cEPiE09YTFdIKzt9Y5ucCwZu_9lL1TLraBTEh3WPDSO5NoTE-_mXdJu5/exec?discipline=${encodeURIComponent(discipline)}`;
 
-            function displayStatistics(data) {
-                const disciplineSelect = document.getElementById('discipline');
-                const discipline = disciplineSelect.value;
-                const resultDiv = document.getElementById('statisticsResult');
-    
-                if (data.error) {
-                    resultDiv.innerHTML = `<p>${data.error}</p>`;
-                    return;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    localStorage.setItem(discipline, JSON.stringify(data));
+                    displayStatistics(data);
+                } catch (error) {
+                    console.error('Ошибка при получении данных:', error);
+                    displayError('Ошибка при получении данных');
+                } finally {
+                    loadingOverlay.classList.add('hidden');
                 }
-    
-                const { average, count5, count4, count3, count2 } = data;
-                const totalCount = count5 + count4 + count3 + count2;
-                const icons = {
-                    count5: 'https://cdn-icons-png.flaticon.com/512/6431/6431061.png',
-                    count4: 'https://cdn-icons-png.flaticon.com/512/6431/6431202.png',
-                    count3: 'https://cdn-icons-png.flaticon.com/512/6431/6431195.png',
-                    count2: 'https://cdn-icons-png.flaticon.com/512/6431/6431189.png'
-                };
-    
-                let emoji = average >= 4 ? "😍" : "😭";
-                let warningMessage = totalCount < 25 ? "<div class='bg-red-500 text-white font-bold p-2 rounded-lg mb-4'>⚠️⚠️⚠️ Данных недостаточно, статистика может быть неточна ⚠️⚠️⚠️</div>" : "";
-    
-                const statisticsHTML = `
-                    <div style="text-align: center;">
-                        <h3 class="text-3xl font-bold mb-4">Статистика по предмету "${discipline}"</h3>
-                    </div>
-                    ${warningMessage}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h2 class="text-2xl font-bold mb-2">Средний балл ${emoji}</h2>
-                            <p class="text-slate-300 text-2xl">${average}</p>
-                        </div>
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h2 class="text-2xl font-bold mb-2">Всего оценок проанализировано</h2>
-                            <p class="text-slate-300 text-2xl">${totalCount}</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h3 class="text-xl font-bold mb-2">Пятерок</h3>
-                            <p class="text-slate-300 text-2xl">${count5}</p>
-                        </div>
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h3 class="text-xl font-bold mb-2">Четверок</h3>
-                            <p class="text-slate-300 text-2xl">${count4}</p>
-                        </div>
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h3 class="text-xl font-bold mb-2">Троек</h3>
-                            <p class="text-slate-300 text-2xl">${count3}</p>
-                        </div>
-                        <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                            <h3 class="text-xl font-bold mb-2">Двоек</h3>
-                            <p class="text-slate-300 text-2xl">${count2}</p>
-                        </div>
-                    </div>
-                    <div class="mt-8">
-                        <canvas id="gradesChart" style="width: 400px; height: 200px;"></canvas>
-                    </div>
-                `;
-    
-                resultDiv.innerHTML = statisticsHTML;
-    
-                const ctx = document.getElementById('gradesChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Пятерки', 'Четверки', 'Тройки', 'Двойки'],
-                        datasets: [{
-                            label: 'Количество оценок',
-                            data: [count5, count4, count3, count2],
-                            backgroundColor: ['#4caf50', '#2196f3', '#ffeb3b', '#f44336'],
-                            borderColor: ['#388e3c', '#1976d2', '#fbc02d', '#d32f2f'],
-                            borderWidth: 3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-    
-    
-            function displayError(message) {
-                const resultDiv = document.getElementById('statisticsResult');
-                resultDiv.innerHTML = `<p class="text-red-500">${message}</p>`;
-            }
-    
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-    
-            mobileMenuBtn.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-    
-            function checkUrlParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const subject = urlParams.get('subject');
-            if (subject) {
-                const disciplineSelect = document.getElementById('discipline');
-                disciplineSelect.value = subject;
-                getStatistics();
             }
         }
+
+        function displayStatistics(data) {
+            const disciplineSelect = document.getElementById('discipline');
+            const discipline = disciplineSelect.value;
+            const resultDiv = document.getElementById('statisticsResult');
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p>${data.error}</p>`;
+                return;
+            }
+
+            const { average, count5, count4, count3, count2 } = data;
+            const totalCount = count5 + count4 + count3 + count2;
+            const icons = {
+                count5: 'https://cdn-icons-png.flaticon.com/512/6431/6431061.png',
+                count4: 'https://cdn-icons-png.flaticon.com/512/6431/6431202.png',
+                count3: 'https://cdn-icons-png.flaticon.com/512/6431/6431195.png',
+                count2: 'https://cdn-icons-png.flaticon.com/512/6431/6431189.png'
+            };
+
+            let emoji = average >= 4 ? "😍" : "😭";
+            let warningMessage = totalCount < 25 ? "<div class='bg-red-500 text-white font-bold p-2 rounded-lg mb-4'>⚠️⚠️⚠️ Данных недостаточно, статистика может быть неточна ⚠️⚠️⚠️</div>" : "";
+
+            const statisticsHTML = `
+                <div style="text-align: center;">
+                    <h3 class="text-3xl font-bold mb-4">Статистика по предмету "${discipline}"</h3>
+                </div>
+                ${warningMessage}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h2 class="text-2xl font-bold mb-2">Средний балл ${emoji}</h2>
+                        <p class="text-slate-300 text-2xl">${average}</p>
+                    </div>
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h2 class="text-2xl font-bold mb-2">Всего оценок проанализировано</h2>
+                        <p class="text-slate-300 text-2xl">${totalCount}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h3 class="text-xl font-bold mb-2">Пятерок</h3>
+                        <p class="text-slate-300 text-2xl">${count5}</p>
+                    </div>
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h3 class="text-xl font-bold mb-2">Четверок</h3>
+                        <p class="text-slate-300 text-2xl">${count4}</p>
+                    </div>
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h3 class="text-xl font-bold mb-2">Троек</h3>
+                        <p class="text-slate-300 text-2xl">${count3}</p>
+                    </div>
+                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                        <h3 class="text-xl font-bold mb-2">Двоек</h3>
+                        <p class="text-slate-300 text-2xl">${count2}</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <canvas id="gradesChart" style="width: 400px; height: 200px;"></canvas>
+                </div>
+            `;
+
+            resultDiv.innerHTML = statisticsHTML;
+
+            const ctx = document.getElementById('gradesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Пятерки', 'Четверки', 'Тройки', 'Двойки'],
+                    datasets: [{
+                        label: 'Количество оценок',
+                        data: [count5, count4, count3, count2],
+                        backgroundColor: ['#4caf50', '#2196f3', '#ffeb3b', '#f44336'],
+                        borderColor: ['#388e3c', '#1976d2', '#fbc02d', '#d32f2f'],
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('statisticsResult');
+            resultDiv.innerHTML = `<p class="text-red-500">${message}</p>`;
+        }
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        function checkUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const subject = urlParams.get('subject');
+        if (subject) {
+            const disciplineSelect = document.getElementById('discipline');
+            disciplineSelect.value = subject;
+            getStatistics();
+        }
+    }
     </script>
     
     <!-- Yandex.Metrika counter -->
