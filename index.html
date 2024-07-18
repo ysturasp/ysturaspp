@@ -7,6 +7,8 @@
     <meta name="description" content="Узнайте статистику оценок студентов ЯГТУ, средние баллы и распределение оценок по различным дисциплинам. ysturasp">
     <title>ystuRASP. Оценки студентов ЯГТУ</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -119,15 +121,28 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
         }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
     <header class="container mx-auto sticky top-4 px-3 z-10">
-        <div style="background-color: #1e293bad; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden md:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
-                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
                 <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all">Расписание</a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
             </nav>
             <div class="relative md:hidden">
                 <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
@@ -142,8 +157,8 @@
         </div>
         <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
             <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
-            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
             <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
         </div>
     </header>
 
@@ -159,7 +174,7 @@
                   <p class="mt-2 text-lg font-semibold text-gray-400 hover:text-gray-100">Наш бусти - все самые актуальные новости и изменения на сайте</p>
               </a>
             </div>
-        </section>
+        </section>        
 
         <section>
             <h2 class="text-4xl font-semibold text-white mb-4">📅 А мы теперь и расписание показываем!</h2>
@@ -269,15 +284,9 @@
         <div id="cookie-notification-1" class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md mt-3">
             <p class="block mb-2">Наш сайт может собирать некоторую статистику о пользователях <button id="accept-cookies-1" class="ml-2 bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg">Ок</button> </p>
         </div>
-    </div>
+    </div>    
     
     <script>
-        function acceptCookies(notificationId) {
-            var notification = document.getElementById(`cookie-notification-${notificationId}`);
-            notification.style.display = 'none';
-            localStorage.setItem(`cookieAccepted-${notificationId}`, 'true');
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const cookieNotification1 = document.getElementById('accept-cookies-1');
             const cookieNotification2 = document.getElementById('accept-cookies-2');
@@ -294,11 +303,12 @@
             const cookieAccepted2 = localStorage.getItem('cookieAccepted-2');
 
             if (!cookieAccepted1) {
-                document.getElementById('cookie-notification-1').style.display = 'block';
+                showNotification('cookie-notification-1');
             }
             if (!cookieAccepted2) {
-                document.getElementById('cookie-notification-2').style.display = 'block';
+                showNotification('cookie-notification-2');
             }
+            
             const disciplines = [
                 "CRM-системы",
                 "Web - технологии",
@@ -522,6 +532,24 @@
             checkUrlParameters();
         });
 
+        function showNotification(notificationId) {
+            const notification = document.getElementById(notificationId);
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 1000);
+            }, 10000);
+        }
+
+        function acceptCookies(notificationId) {
+            var notification = document.getElementById(`cookie-notification-${notificationId}`);
+            notification.style.display = 'none';
+            localStorage.setItem(`cookieAccepted-${notificationId}`, 'true');
+        }
+
         function populateDisciplines(data) {
             const disciplineSelect = document.getElementById('discipline');
             data.forEach(discipline => {
@@ -660,14 +688,14 @@
         });
 
         function checkUrlParameters() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const subject = urlParams.get('subject');
-        if (subject) {
-            const disciplineSelect = document.getElementById('discipline');
-            disciplineSelect.value = subject;
-            getStatistics();
+            const urlParams = new URLSearchParams(window.location.search);
+            const subject = urlParams.get('subject');
+            if (subject) {
+                const disciplineSelect = document.getElementById('discipline');
+                disciplineSelect.value = subject;
+                getStatistics();
+            }
         }
-    }
     </script>
     
     <!-- Yandex.Metrika counter -->
