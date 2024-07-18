@@ -129,11 +129,9 @@
                 opacity: 0;
             }
         }
-
         .fade-out {
             animation: fadeOut 1s forwards;
         }
-
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -278,7 +276,7 @@
     </footer>
 
     <div class="fixed ml-4 bottom-4 right-4">
-<!--         <div id="cookie-notification-2" class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md">
+        <!-- <div id="cookie-notification-2" class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md">
             <p class="block mb-2">🔔 Мы сильно поменяли дизайн нашего сайта <button id="accept-cookies-2" class="ml-2 bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg">👍</button></p>
         </div> -->
         <div id="cookie-notification-1" class="bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md mt-3">
@@ -289,15 +287,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const cookieNotification1 = document.getElementById('accept-cookies-1');
-            const cookieNotification2 = document.getElementById('accept-cookies-2');
+            // const cookieNotification2 = document.getElementById('accept-cookies-2');
 
             cookieNotification1.addEventListener('click', function() {
                 acceptCookies(1);
             });
 
-            cookieNotification2.addEventListener('click', function() {
-                acceptCookies(2);
-            });
+            // cookieNotification2.addEventListener('click', function() {
+            //     acceptCookies(2);
+            // });
 
             const cookieAccepted1 = localStorage.getItem('cookieAccepted-1');
             const cookieAccepted2 = localStorage.getItem('cookieAccepted-2');
@@ -305,9 +303,9 @@
             if (!cookieAccepted1) {
                 showNotification('cookie-notification-1');
             }
-            if (!cookieAccepted2) {
-                showNotification('cookie-notification-2');
-            }
+            // if (!cookieAccepted2) {
+            //     showNotification('cookie-notification-2');
+            // }
             
             const disciplines = [
                 "CRM-системы",
