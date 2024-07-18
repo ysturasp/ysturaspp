@@ -121,11 +121,11 @@
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
     <header class="container mx-auto sticky top-4 px-3 z-10">
-        <div style="background-color: #1e293bad; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden md:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
-                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
                 <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all">Расписание</a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
             </nav>
             <div class="relative md:hidden">
                 <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
@@ -140,10 +140,11 @@
         </div>
         <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
             <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
-            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
             <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
         </div>
     </header>
+    
     <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-4xl font-semibold text-white mb-4">📅 Расписание занятий</h2>
@@ -186,6 +187,13 @@
                 </div>
                 <button type="submit" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all">Показать расписание</button>
             </form>
+            <div class="flex justify-end items-center mt-4">
+                <label class="switch">
+                    <input id="average-toggle" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+                <span class="ml-2 text-white">Показать средние баллы</span>
+            </div>
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
         </section>
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
@@ -233,6 +241,7 @@
             const weekSelect = document.getElementById('week-select');
             const lastGroup = localStorage.getItem('lastGroup');
             const lastWeek = localStorage.getItem('lastWeek');
+            const averageToggle = document.getElementById('average-toggle');
 
             try {
                 const response = await fetch('https://parser.ystuty.ru/api/ystu/schedule/institutes');
@@ -267,8 +276,14 @@
                 console.error('Ошибка при получении списка институтов:', error);
                 instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
             }
-        });
 
+            averageToggle.addEventListener('change', () => {
+                const averageElements = document.querySelectorAll('.average-score');
+                averageElements.forEach(element => {
+                    element.style.display = averageToggle.checked ? 'inline' : 'none';
+                });
+            });
+        });
         function formatDate(isoDate) {
             const date = new Date(isoDate);
             const day = String(date.getDate()).padStart(2, '0');
@@ -410,12 +425,21 @@
             const formattedDiscipline = formatDisciplineName(discipline);
             if (!displayedLessons.has(formattedDiscipline)) {
                 const stats = await getStatistics(formattedDiscipline);
+                const averageElement = document.createElement('a');
+                averageElement.className = 'text-sm text-yellow-400 average-score';
+                averageElement.style.display = document.getElementById('average-toggle').checked ? 'inline' : 'none';
                 if (stats) {
                     const average = stats.average.toFixed(2);
-                    element.innerHTML += `<a href="/?subject=${encodeURIComponent(formattedDiscipline)}" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
+                    averageElement.innerHTML = ` Средний балл: ${average} ℹ️`;
+                    averageElement.href = `/?subject=${encodeURIComponent(formattedDiscipline)}`;
+                    averageElement.title = 'узнать более подробную статистику по предмету';
                 } else {
-                    element.innerHTML += `<a href="/?subject=${encodeURIComponent(formattedDiscipline)}" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
+                    averageElement.innerHTML = ` Нет данных по среднему баллу ℹ️`;
+                    averageElement.href = `/?subject=${encodeURIComponent(formattedDiscipline)}`;
+                    averageElement.title = 'узнать более подробную статистику по предмету';
+                    averageElement.className = 'text-sm text-red-500 average-score';
                 }
+                element.appendChild(averageElement);
                 displayedLessons.add(formattedDiscipline);
             }
         }
