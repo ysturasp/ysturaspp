@@ -412,13 +412,14 @@
                 const stats = await getStatistics(formattedDiscipline);
                 if (stats) {
                     const average = stats.average.toFixed(2);
-                    element.innerHTML += `<a href="/" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
+                    element.innerHTML += `<a href="/?subject=${encodeURIComponent(formattedDiscipline)}" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
                 } else {
-                    element.innerHTML += `<a href="/" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
+                    element.innerHTML += `<a href="/?subject=${encodeURIComponent(formattedDiscipline)}" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
                 }
                 displayedLessons.add(formattedDiscipline);
             }
         }
+
 
         document.getElementById('schedule-form').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -485,12 +486,29 @@
                     const dayName = getDayName(new Date(dayInfo.date).getDay() - 1);
                     const formattedDate = formatDate(dayInfo.date);
 
+                    const lessonTypes = {
+                        0: 'none',
+                        2: 'Лекция',
+                        4: 'Практика',
+                        8: 'Лабораторная работа',
+                        1: 'Курсовой проект',
+                        5: 'Консультация',
+                        6: 'Лекция + Практика',
+                        7: 'Дифференцированный зачет',
+                        3: 'Экзамен',
+                        9: 'Библиотека',
+                        10: 'Лекция + Лабораторная работа',
+                        11: 'Организационное собрание',
+                        12: 'Не поддерживается'
+                    };
+
                     dayElement.innerHTML = `
                         <h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>
                         ${lessons.map(lesson => `
                             <div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
                                 <div>
                                     <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
+                                    <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
                                     <p class="text-sm text-slate-400">${lesson.timeRange}</p>
                                     <p class="text-sm text-slate-400">${lesson.auditoryName}</p>
                                     <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
