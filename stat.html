@@ -130,20 +130,33 @@
                 opacity: 0;
             }
         }
-
         .fade-out {
             animation: fadeOut 1s forwards;
         }
-
         .combobox-options {
             display: none;
-            max-height: 150px; /* Макс. высота для скролла */
-            overflow-y: auto; /* Добавление скролла */
+            max-height: 300px;
+            overflow-y: auto; 
         }
         .combobox-options.active {
             display: block;
         }
+        .clear-button {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: gray;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
 
+        .relative input:not(:placeholder-shown) + .clear-button {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -176,11 +189,11 @@
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-4xl font-semibold text-white mb-4">👨‍💻 Статистика оценок</h2>
             <div class="form-group">
-                <label for="discipline" class="block mb-2 text-sm font-medium text-slate-400">Выберите дисциплину:</label>
+                <label for="combobox-input" class="block mb-2 text-sm font-medium text-slate-400">Выберите дисциплину:</label>
                 <div class="relative">
                     <input id="combobox-input" type="text" class="block w-full p-2.5 bg-slate-900 border border-gray-600 rounded-lg text-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Выберите дисциплину...">
+                    <button id="clear-button" class="clear-button">&times;</button>
                     <ul id="combobox-options" class="absolute w-full bg-slate-900 border border-gray-600 rounded-lg mt-1 overflow-hidden combobox-options">
-                        <!-- Опции будут добавлены динамически -->
                     </ul>
                 </div>
                 <button class="btn btn-primary btn-block mt-3 p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all" onclick="getStatistics()">Получить статистику</button>
@@ -448,6 +461,7 @@
 
             const inputElement = document.getElementById('combobox-input');
             const optionsElement = document.getElementById('combobox-options');
+            const clearButton = document.getElementById('clear-button');
 
             function updateOptions(query = '') {
                 optionsElement.innerHTML = '';
@@ -460,6 +474,7 @@
                     optionElement.addEventListener('click', function() {
                         inputElement.value = discipline;
                         optionsElement.classList.remove('active');
+                        clearButton.style.display = 'block';
                     });
                     optionsElement.appendChild(optionElement);
                 });
@@ -472,6 +487,11 @@
 
             inputElement.addEventListener('input', function() {
                 updateOptions(this.value);
+                if (this.value === '') {
+                    clearButton.style.display = 'none';
+                } else {
+                    clearButton.style.display = 'block';
+                }
             });
 
             document.addEventListener('click', function(event) {
@@ -484,6 +504,12 @@
                 event.stopPropagation();
                 optionsElement.classList.add('active');
                 updateOptions(this.value);
+            });
+
+            clearButton.addEventListener('click', function() {
+                inputElement.value = '';
+                optionsElement.classList.remove('active');
+                clearButton.style.display = 'none';
             });
 
             updateOptions();
@@ -562,7 +588,7 @@
                         <p class="text-slate-300 text-2xl">${count3}</p>
                     </div>
                     <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
-                                                <h3 class="text-xl font-bold mb-2">Двоек</h3>
+                        <h3 class="text-xl font-bold mb-2">Двоек</h3>
                         <p class="text-slate-300 text-2xl">${count2}</p>
                     </div>
                 </div>
