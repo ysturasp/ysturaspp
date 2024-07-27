@@ -700,11 +700,24 @@
             resultDiv.innerHTML = `<p class="text-red-500">${message}</p>`;
         }
 
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        const header = document.querySelector('header');
 
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuButton.addEventListener('click', function() {
             mobileMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.add('hidden');
+            });
         });
 
         function checkUrlParameters() {
