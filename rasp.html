@@ -120,7 +120,7 @@
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
-    <header class="container mx-auto sticky top-4 px-3 z-10">
+    <header class="container mx-auto sticky top-4 px-3 z-50">
         <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden md:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
@@ -299,11 +299,24 @@
             return daysOfWeek[dayNumber];
         }
 
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        const header = document.querySelector('header');
 
-        mobileMenuBtn.addEventListener('click', function() {
+        mobileMenuButton.addEventListener('click', function() {
             mobileMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.add('hidden');
+            });
         });
 
         function toggleSubjectVisibility(group, subjectName, lessonType, teacherName, isVisible) {

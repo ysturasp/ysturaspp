@@ -57,11 +57,13 @@
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
-    <header class="container mx-auto sticky top-4 px-3 z-10">
-        <div style="background-color: #1e293bad; backdrop-filter: blur(5px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+    <header class="container mx-auto sticky top-4 px-3 z-50">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden md:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
-                <a href="/about/" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all">Расписание</a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+                <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all">Экспорт/Импорт</a>
             </nav>
             <div class="relative md:hidden">
                 <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
@@ -71,12 +73,14 @@
                 </button>
             </div>
             <div class="flex gap-x-2">
-                <a href="/" class="p-2 bg-blue-700 text-white rounded-lg text-xs md:text-sm hover:bg-blue-600 transition-all">👉 Вернуться на главную страницу</a>
+                <a href="/student" class="p-2 bg-blue-700 text-white rounded-lg text-xs md:text-sm hover:bg-blue-600 transition-all">Чатик для студентов 👋🏻</a>
             </div>
         </div>
         <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
             <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
-            <a href="/about/" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Экспорт/Импорт</a>
         </div>
     </header>
 
@@ -132,6 +136,26 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const header = document.querySelector('header');
+
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
         $(document).ready(function() {
             function fetchMessages() {
                 var cachedMessages = JSON.parse(localStorage.getItem('chatMessages'));
