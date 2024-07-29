@@ -254,28 +254,20 @@
         </div>
     </div>
 
-    <div id="ad-container" style="display:none;">
-        <div class="relative z-5 mx-6 mt-6 p-6 bg-blue-800 text-white rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
-            <h1 class="text-2xl font-extrabold">🥹 Возможно Вас заинтересует</h1>
-            <p class="text-sm mb-4">Благодаря рекламе наш сайт пытается существовать. Если у Вас есть возможность и хотели бы поблагодарить разработчиков напрямую, welcome на <a class="text-white font-extrabold" href="https://boosty.to/ysturasp.me">boosty</a></p>
-            <div class="z-5 ml-4 mr-4 mt-4" id="yandex_rtb_R-A-10371018-1"></div>
-        </div>
+    <div class="relative z-5 mx-6 mt-6 p-6 bg-blue-800 text-white rounded-lg shadow-xl transition-transform duration-300 hover:scale-105">
+        <h1 class="text-2xl font-extrabold">🥹 Возможно Вас заинтересует</h1>
+        <p class="text-sm mb-4">Благодаря рекламе наш сайт пытается существовать. Если у Вас есть возможность и хотели бы поблагодарить разработчиков напрямую, welcome на <a class="text-white font-extrabold" href="https://boosty.to/ysturasp.me">boosty</a></p>
+        <div class="z-5 ml-4 mr-4 mt-4" id="yandex_rtb_R-A-10371018-1"></div>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var adContainer = document.getElementById('ad-container');
-            adContainer.style.display = 'block';
-    
-            window.yaContextCb.push(() => {
-                Ya.Context.AdvManager.render({
-                    "blockId": "R-A-10371018-1",
-                    "renderTo": "yandex_rtb_R-A-10371018-1"
-                });
-            });
-        });
-    </script>
 
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-10371018-1",
+            "renderTo": "yandex_rtb_R-A-10371018-1"
+        })
+    })
+    </script>
 
     <footer class="bg-slate-800 py-6 mt-12">
       <div class="container mx-auto px-4">
