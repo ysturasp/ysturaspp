@@ -5,6 +5,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Расписание занятий студентов ЯГТУ">
+    <link rel="apple-touch-icon" href="favicon.png" />
     <title>ystuRASP. Расписание занятий</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -202,13 +203,73 @@
             <h2 class="text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
             <div id="hidden-subjects" class="grid grid-cols-1 gap-4"></div>
         </section>
+        <section>
+            <h2 class="text-3xl md:text-4xl font-semibold text-white mt-6">😎 Поясняем за наши топовые фичи</h2>
+            <div class="flex flex-wrap justify-center gap-6 p-6">
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp1.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Удобный просмотр</h3>
+                    <p class="text-slate-400 mb-4">Крутой стильный современный дизайн, адаптированный под любое устройство, удобно будет всем!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp2.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Настройка под себя</h3>
+                    <p class="text-slate-400 mb-4">Скрывайте ненужные предметы, создавайте свое идеальное расписание!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img src="rasp3.png" alt="">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Средний балл предметов</h3>
+                    <p class="text-slate-400 mb-4">Сразу узнавайте средний балл по предмету прямо в расписании и распределяйте нагрузку правильно!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
+                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+                        <img style="margin: 0 auto; padding-left: 20px;" src="rasp4.png" alt="" width="80%">
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Полная конфиденциальность</h3>
+                    <p class="text-slate-400 mb-4">Вам не требуется регистрироваться у нас на сайте для скрытия предметов из расписания, эту информацию мы храним локально на Вашем устройстве. Доступ к ней имеете только Вы!</p>
+                    <div class="flex flex-wrap justify-center gap-2 mb-4">
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Расписание</span>
+                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="bg-slate-800 rounded-lg p-6 mt-8">
+            <h2 class="text-xl text-center font-semibold text-white mb-2">
+            <a href="https://github.com/YSTUty">
+                YSTUtu
+                <img class="h-6 inline" src="github.png" alt="GitHub">
+            </a>
+            </h2>
+            <p class="text-sm text-center text-slate-400">Благодарим <a class="font-bold text-white" href="https://github.com/YSTUty">автора</a> парсера и прекрасной апишки, благодаря которым наш сервис получает расписание!</p>
+        </section>
     </main>
+
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-indicator"></div>
             <div class="loading-text">Загрузка, ожидайте...</div>
         </div>
     </div>
+
     <footer class="bg-slate-800 py-6 mt-12">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-between items-center">
@@ -236,6 +297,7 @@
             </div>
         </div>
     </footer>
+
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const instituteSelect = document.getElementById('institute-select');
