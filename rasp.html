@@ -473,9 +473,9 @@
             const stats = await getStatistics(discipline);
             if (stats) {
                 const average = stats.average.toFixed(2);
-                element.innerHTML += `<a href="/" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
+                element.innerHTML += `<a href="/stat" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
             } else {
-                element.innerHTML += `<a href="/" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
+                element.innerHTML += `<a href="/stat" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
             }
         }
 
@@ -519,11 +519,11 @@
                 if (stats) {
                     const average = stats.average.toFixed(2);
                     averageElement.innerHTML = ` Средний балл: ${average} ℹ️`;
-                    averageElement.href = `/?subject=${encodeURIComponent(formattedDiscipline)}`;
+                    averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
                     averageElement.title = 'узнать более подробную статистику по предмету';
                 } else {
                     averageElement.innerHTML = ` Нет данных по среднему баллу ℹ️`;
-                    averageElement.href = `/?subject=${encodeURIComponent(formattedDiscipline)}`;
+                    averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
                     averageElement.title = 'узнать более подробную статистику по предмету';
                     averageElement.className = 'text-sm text-red-500 average-score';
                 }
