@@ -118,6 +118,12 @@
         .slider.round:before {
             border-radius: 50%;
         }
+        #warningModal {
+            z-index: 10000;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            background-color: rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -281,6 +287,20 @@
         </div>
     </div>
 
+    <div id="warningModal" class="fixed inset-0 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-gray-600 rounded-lg p-4 ml-4 mr-4 max-w-md mx-auto text-center">
+                <h3 class="text-lg leading-6 font-medium text-white">Это же просто эмодзи 🙃</h3>
+                <div class="mt-4">
+                    <p class="text-slate-400">Пожалуйста, выберите неделю в соответствующем поле</p>
+                </div>
+                <div class="mt-6">
+                    <button id="closeModalBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-200 rounded-lg hover:bg-blue-300">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-slate-800 py-6 mt-12">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-between items-center">
@@ -358,7 +378,32 @@
                     element.style.display = averageToggle.checked ? 'inline' : 'none';
                 });
             });
+
+            const calendarIcon = document.querySelector('h2.text-4xl');
+            const modal = document.getElementById('warningModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalContent = modal.querySelector('.bg-gray-600');
+
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
+            modal.addEventListener('click', (event) => {
+                if (!modalContent.contains(event.target)) {
+                    modal.classList.add('hidden');
+                }
+            });
+
+            calendarIcon.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
         });
+
         function formatDate(isoDate) {
             const date = new Date(isoDate);
             const day = String(date.getDate()).padStart(2, '0');
