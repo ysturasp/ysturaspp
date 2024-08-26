@@ -68,6 +68,11 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            z-index: 10000;
+            position: relative;
+        }
+        .loading-overlay {
+            z-index: 10000;
         }
         .fixed.ml-4.bottom-4.right-4 {
             position: fixed;
@@ -133,14 +138,6 @@
         .fade-out {
             animation: fadeOut 1s forwards;
         }
-        .combobox-options {
-            display: none;
-            max-height: 300px;
-            overflow-y: auto; 
-        }
-        .combobox-options.active {
-            display: block;
-        }
         .clear-button {
             display: none;
             position: absolute;
@@ -148,15 +145,88 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            background: #121827;
             border: none;
             color: gray;
-            font-size: 1.2rem;
+            font-size: 2rem;
             cursor: pointer;
+            z-index: 9999;
         }
 
         .relative input:not(:placeholder-shown) + .clear-button {
             display: block;
+        }
+        .ambient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(30, 30, 30, 0.7);
+            z-index: 9998;
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+            pointer-events: none;
+        }
+        .ambient-focuss {
+            position: relative;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(1, 21, 51, 0.931);
+            box-shadow: 0 0 200px rgb(0, 57, 117);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+        }
+        .ambient-focus {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(1, 21, 51, 0.931);
+            box-shadow: 0 0 200px rgb(0, 57, 117);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+        }
+        .relative .combobox-options {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            z-index: 10000;
+        }
+        input {
+            transition: all 0.4s ease-in-out;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+        }
+        .ambient-overlay {
+            transition: backdrop-filter 0.6s ease-in-out, background 0.6s ease-in-out;
+        }
+        .ambient-focus {
+            transition: box-shadow 0.6s ease-in-out, backdrop-filter 0.6s ease-in-out;
+        }
+        .combobox-options {
+            max-height: 300px;
+            overflow-y: auto; 
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            max-height: 0;
+            overflow: scroll;
+        }
+        .combobox-options.active {
+            opacity: 1;
+            transform: translateY(0);
+            max-height: 300px;
+        }
+        .combobox-options li {
+            border-radius: 10px;
+            transition: background-color 0.3s ease-in-out;
+        }
+        .combobox-options li:hover {
+            border-radius: 10px;
+            background-color: #0072e461;
         }
     </style>
 </head>
@@ -203,6 +273,13 @@
             </div>
             <div class="result mt-4" id="statisticsResult"></div>
         </section>
+
+        <section class="bg-slate-800 rounded-lg p-6 mt-8">
+            <h2 class="text-2xl font-semibold text-white mb-4">👀 Вы недавно смотрели</h2>
+            <div id="recentlyViewed" class="space-y-4">
+            </div>
+        </section>
+        
     </main>
 
     <div class="loading-overlay fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden" id="loadingOverlay">
@@ -465,6 +542,19 @@
             const inputElement = document.getElementById('combobox-input');
             const optionsElement = document.getElementById('combobox-options');
             const clearButton = document.getElementById('clear-button');
+            const overlay = document.createElement('div');
+            overlay.classList.add('ambient-overlay', 'hidden');
+            document.body.appendChild(overlay);
+            const inputField = document.getElementById('combobox-input');
+
+            inputField.addEventListener('focus', () => {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: inputField.getBoundingClientRect().top + window.pageYOffset - 28, 
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            });
 
             function updateOptions(query = '') {
                 optionsElement.innerHTML = '';
@@ -474,7 +564,7 @@
                     const optionElement = document.createElement('li');
                     optionElement.textContent = discipline;
                     optionElement.classList.add('p-2', 'cursor-pointer', 'hover:bg-gray-700');
-                    optionElement.addEventListener('click', function() {
+                    optionElement.addEventListener('mousedown', function () {
                         inputElement.value = discipline;
                         optionsElement.classList.remove('active');
                         clearButton.style.display = 'block';
@@ -483,12 +573,15 @@
                 });
             }
 
-            inputElement.addEventListener('focus', function() {
+            inputElement.addEventListener('focus', function () {
+                overlay.classList.remove('hidden');
+                inputElement.classList.add('ambient-focuss');
+                optionsElement.classList.add('ambient-focus');
                 optionsElement.classList.add('active');
                 updateOptions(this.value);
             });
 
-            inputElement.addEventListener('input', function() {
+            inputElement.addEventListener('input', function () {
                 updateOptions(this.value);
                 if (this.value === '') {
                     clearButton.style.display = 'none';
@@ -497,19 +590,26 @@
                 }
             });
 
-            document.addEventListener('click', function(event) {
-                if (!inputElement.contains(event.target) && !optionsElement.contains(event.target)) {
-                    optionsElement.classList.remove('active');
-                }
-            });
-
-            inputElement.addEventListener('click', function(event) {
+            inputElement.addEventListener('click', function (event) {
                 event.stopPropagation();
                 optionsElement.classList.add('active');
                 updateOptions(this.value);
             });
 
-            clearButton.addEventListener('click', function() {
+            document.addEventListener('click', function (event) {
+                if (!inputElement.contains(event.target) && !optionsElement.contains(event.target)) {
+                    optionsElement.classList.remove('active');
+                    overlay.classList.add('hidden');
+                    inputElement.classList.remove('ambient-focuss');
+                    optionsElement.classList.remove('ambient-focus');
+                }
+            });
+
+            document.querySelector('#combobox-options').addEventListener('click', function() {
+                document.querySelector('.ambient-overlay').style.display = 'none';
+            });
+
+            clearButton.addEventListener('click', function () {
                 inputElement.value = '';
                 optionsElement.classList.remove('active');
                 clearButton.style.display = 'none';
@@ -518,6 +618,58 @@
             updateOptions();
             checkUrlParameters();
         });
+
+        function addToRecentlyViewed(discipline, stats) {
+            let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+            recentlyViewed = recentlyViewed.filter(item => item.discipline !== discipline);
+
+            recentlyViewed.unshift({ discipline, stats });
+
+            if (recentlyViewed.length > 5) {
+                recentlyViewed.pop();
+            }
+
+            localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+            displayRecentlyViewed();
+        }
+
+        function displayRecentlyViewed() {
+            const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+            const container = document.getElementById('recentlyViewed');
+            container.innerHTML = '';
+
+            recentlyViewed.forEach(item => {
+                const { discipline, stats } = item;
+                
+                const average = stats.average.toFixed(2);
+                const totalCount = stats.count5 + stats.count4 + stats.count3 + stats.count2;
+
+                const element = document.createElement('div');
+                element.className = 'rounded-lg bg-slate-700 text-white';
+
+                element.innerHTML = `
+                    <div class="flex p-4 bg-gray-700 rounded-lg justify-between items-center">
+                        <div>
+                            <h3 class="text-sm md:text:xl font-bold">${discipline}</h3>
+                            <p>Средний балл: ${average}</p>
+                            <p>Оценок: ${totalCount}</p>
+                        </div>
+                        <button class="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-600" onclick="viewAgain('${discipline}')">Посмотреть снова</button>
+                    </div>
+                `;
+
+                container.appendChild(element);
+            });
+        }
+
+        function viewAgain(discipline) {
+            const inputElement = document.getElementById('combobox-input');
+            inputElement.value = discipline;
+            getStatistics();
+        }
+
+        document.addEventListener('DOMContentLoaded', displayRecentlyViewed);
 
         async function getStatistics() {
             const disciplineSelect = document.getElementById('combobox-input');
@@ -528,7 +680,9 @@
             loadingOverlay.classList.remove('hidden');
 
             if (cachedData) {
-                displayStatistics(JSON.parse(cachedData));
+                const data = JSON.parse(cachedData);
+                displayStatistics(data);
+                addToRecentlyViewed(discipline, data);
                 loadingOverlay.classList.add('hidden');
             } else {
                 const url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
@@ -538,6 +692,7 @@
                     const data = await response.json();
                     localStorage.setItem(discipline, JSON.stringify(data));
                     displayStatistics(data);
+                    addToRecentlyViewed(discipline, data);
                 } catch (error) {
                     console.error('Ошибка при получении данных:', error);
                     displayError('Ошибка при получении данных');
@@ -565,7 +720,7 @@
 
             const statisticsHTML = `
                 <div style="text-align: center;">
-                    <h3 class="text-3xl font-bold mb-4">Статистика по предмету "${discipline}"</h3>
+                    <h3 class="text-2xl md:text-3xl font-bold mb-4">Статистика по предмету "${discipline}"</h3>
                 </div>
                 ${warningMessage}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
