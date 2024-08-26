@@ -12,6 +12,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+        }
+        footer {
+            background-color: #1e293b;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
         }
         .dark .bg-slate-800 {
             background-color: #1e293b;
@@ -66,7 +78,7 @@
         </div>
     </header>
     
-    <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
+    <main class="container mx-auto  px-3 md:px-0">
         <section>
             <h2 class="text-4xl font-semibold text-white mt-16 mb-4">🔐 Ваши данные принадлежат только Вам!</h2>
             <section class="bg-slate-800 rounded-lg p-6 mt-8">
