@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-title" content="ystuRASP">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Расписание занятий студентов ЯГТУ">
     <link rel="apple-touch-icon" href="favicon.png" />
@@ -163,7 +165,7 @@
                     Текущее расписание относится к предыдущему семестру. Актуальное расписание на осенний семестр 2024/2025 учебного года скоро будет добавлено.
                 </p>
             </div>
-            <h2 class="text-4xl font-semibold text-white mb-4">📅 Расписание занятий</h2>
+            <h2 class="text-4xl md:text-left text-center font-semibold text-white mb-4">📅 Расписание занятий</h2>
             <form id="schedule-form" class="grid grid-cols-1 gap-4">
                 <div>
                     <label for="institute-select" class="block text-white mb-2">Выберите институт:</label>
@@ -295,12 +297,32 @@
         </div>
     </div>
 
-    <div id="warningModal" class="fixed inset-0 overflow-y-auto hidden">
+    <div id="warningModal" class="fixed inset-0 hidden">
         <div class="flex items-center justify-center min-h-screen">
             <div class="bg-gray-600 rounded-lg p-4 ml-4 mr-4 max-w-md mx-auto text-center">
-                <h3 class="text-lg leading-6 font-medium text-white">Это же просто эмодзи 🙃</h3>
+                <h3 class="text-2xl leading-6 font-medium text-white">Это же просто эмодзи 🙃</h3>
                 <div class="mt-4">
-                    <p class="text-slate-400">Пожалуйста, выберите неделю в соответствующем поле</p>
+                    <p id="warningMessage" class="text-slate-400">Пожалуйста, выберите неделю в соответствующем поле:</p>
+                    <p class="text-slate-400">
+                        1 - 5 февраля<br>
+                        2 - 12 февраля<br>
+                        3 - 19 февраля<br>
+                        4 - 26 февраля<br>
+                        5 - 4 марта<br>
+                        6 - 11 марта<br>
+                        7 - 18 марта<br>
+                        8 - 25 марта<br>
+                        9 - 1 апреля<br>
+                        10 - 8 апреля<br>
+                        11 - 15 апреля<br>
+                        12 - 22 апреля<br>
+                        13 - 29 апреля<br>
+                        14 - 6 мая<br>
+                        15 - 13 мая<br>
+                        16 - 20 мая<br>
+                        17 - 27 мая<br>
+                        18 - 3 июня
+                    </p>
                 </div>
                 <div class="mt-6">
                     <button id="closeModalBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-200 rounded-lg hover:bg-blue-300">Закрыть</button>
@@ -410,6 +432,47 @@
                 modal.classList.add('hidden');
             });
         });
+
+        const weekRanges = [
+            { start: '2024-02-05', end: '2024-02-11', text: '1 - 5 февраля' },
+            { start: '2024-02-12', end: '2024-02-18', text: '2 - 12 февраля' },
+            { start: '2024-02-19', end: '2024-02-25', text: '3 - 19 февраля' },
+            { start: '2024-02-26', end: '2024-03-03', text: '4 - 26 февраля' },
+            { start: '2024-03-04', end: '2024-03-10', text: '5 - 4 марта' },
+            { start: '2024-03-11', end: '2024-03-17', text: '6 - 11 марта' },
+            { start: '2024-03-18', end: '2024-03-24', text: '7 - 18 марта' },
+            { start: '2024-03-25', end: '2024-03-31', text: '8 - 25 марта' },
+            { start: '2024-04-01', end: '2024-04-07', text: '9 - 1 апреля' },
+            { start: '2024-04-08', end: '2024-04-14', text: '10 - 8 апреля' },
+            { start: '2024-04-15', end: '2024-04-21', text: '11 - 15 апреля' },
+            { start: '2024-04-22', end: '2024-04-28', text: '12 - 22 апреля' },
+            { start: '2024-04-29', end: '2024-05-05', text: '13 - 29 апреля' },
+            { start: '2024-05-06', end: '2024-05-12', text: '14 - 6 мая' },
+            { start: '2024-05-13', end: '2024-05-19', text: '15 - 13 мая' },
+            { start: '2024-05-20', end: '2024-05-26', text: '16 - 20 мая' },
+            { start: '2024-05-27', end: '2024-06-02', text: '17 - 27 мая' },
+            { start: '2024-06-03', end: '2024-06-09', text: '18 - 3 июня' }
+        ];
+
+        function getCurrentWeekMessage() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            for (const range of weekRanges) {
+                if (todayStr >= range.start && todayStr <= range.end) {
+                    return `Пожалуйста, выберите неделю в соответствующем поле:<br>Текущая неделя: ${range.text}`;
+                }
+            }
+
+            return 'Сейчас каникулы! <br> Пожалуйста, выберите неделю в соответствующем поле.';
+        }
+
+        function updateWarningModal() {
+            const warningMessage = document.getElementById('warningMessage');
+            warningMessage.innerHTML = getCurrentWeekMessage();
+        }
+
+        updateWarningModal();
 
         function formatDate(isoDate) {
             const date = new Date(isoDate);
