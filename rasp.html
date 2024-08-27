@@ -126,6 +126,33 @@
             -webkit-backdrop-filter: blur(2px);
             background-color: rgba(0, 0, 0, 0.5);
         }
+        #tooltip2 {
+            top: -253px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #tooltip2.show {
+            z-index: 10000;
+            opacity: 1;
+            visibility: visible;
+        }
+        .tooltip-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 9999;
+            display: none;
+            pointer-events: none;
+        }
+        .tooltip-overlay.show {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -165,7 +192,11 @@
                     Текущее расписание относится к предыдущему семестру. Актуальное расписание на осенний семестр 2024/2025 учебного года скоро будет добавлено.
                 </p>
             </div>
-            <h2 class="text-4xl md:text-left text-center font-semibold text-white mb-4">📅 Расписание занятий</h2>
+            <div class="flex items-center mb-4">
+                <h2 id="calendarIcon" class="text-4xl font-semibold text-white">📅</h2>
+                <h2 class="text-2xl md:text-4xl font-semibold text-white ml-2">Расписание занятий</h2>
+            </div>
+            
             <form id="schedule-form" class="grid grid-cols-1 gap-4">
                 <div>
                     <label for="institute-select" class="block text-white mb-2">Выберите институт:</label>
@@ -180,7 +211,63 @@
                     </select>
                 </div>
                 <div>
-                    <label for="week-select" class="block text-white mb-2">Выберите неделю:</label>
+                    <div class="flex items-center space-x-2">
+                        <label for="week-select" class="block text-white mb-2">Выберите неделю:</label>
+                    
+                        <a tabindex="0" id="message" role="link" aria-label="tooltip 2" class="focus:outline-none focus:ring-gray-300 rounded-full relative" onmouseover="showTooltip(2)" onfocus="showTooltip(2)" onmouseout="hideTooltip(2)">
+                            <div class="cursor-pointer">
+                                <svg aria-haspopup="true" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler mb-2 icon-tabler-info-circle" width="25" height="25" viewBox="0 0 24 24" stroke-width="1.5" stroke="#A0AEC0" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z"/>
+                                    <circle cx="12" cy="12" r="9"/>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    <polyline points="11 12 12 12 12 16 13 16"/>
+                                </svg>
+                            </div>
+                            <div id="tooltip2" role="tooltip" class="z-20 w-33 absolute transition duration-150 -in-out left-0 ml-8 shadow-lg bg-indigo-700 p-4 rounded">
+                                <svg class="absolute left-0 -ml-2 bottom-0 top-0 h-full" width="9px" height="16px" viewBox="0 0 9 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <g id="Tooltips-" transform="translate(-874.000000, -1029.000000)" fill="#4c51bf">
+                                            <g id="Group-3-Copy-16" transform="translate(850.000000, 975.000000)">
+                                                <g id="Group-2" transform="translate(24.000000, 0.000000)">
+                                                    <polygon id="Triangle" transform="translate(4.500000, -7.000000) rotate(-90.000000) translate(-4.500000, -62.000000)" points="4.5 57.5 12.5 66.5 -3.5 66.5"></polygon>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                                <p class="text-sm font-bold text-white pb-1">Выберите порядковый номер, соответствующий первому дню недели</p>
+                                <p id="warningMessage" class="text-slate-400"></p>
+                                <p class="text-xs leading-4 text-white pb-3">
+                                    <p class="text-slate-400">
+                                        1 - 5 февраля<br>
+                                        2 - 12 февраля<br>
+                                        3 - 19 февраля<br>
+                                        4 - 26 февраля<br>
+                                        5 - 4 марта<br>
+                                        6 - 11 марта<br>
+                                        7 - 18 марта<br>
+                                        8 - 25 марта<br>
+                                        9 - 1 апреля<br>
+                                        10 - 8 апреля<br>
+                                        11 - 15 апреля<br>
+                                        12 - 22 апреля<br>
+                                        13 - 29 апреля<br>
+                                        14 - 6 мая<br>
+                                        15 - 13 мая<br>
+                                        16 - 20 мая<br>
+                                        17 - 27 мая<br>
+                                        18 - 3 июня
+                                    </p>
+                                </p>
+                                <div class="flex justify-between">
+                                    <div class="flex items-center">
+                                        <button onclick="hideTooltip(2); event.preventDefault();" class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 focus:bg-indigo-400 focus:outline-none focus:text-white bg-white transition duration-150 ease-in-out hover:bg-gray-200 rounded text-indigo-700 px-5 py-1 text-xs">Понятно</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
                     <select id="week-select" class="w-full p-2 bg-slate-900 text-white rounded-lg">
                         <option value="">Выберите неделю</option>
                         <option value="1">1</option>
@@ -214,10 +301,12 @@
             </div>
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
         </section>
+        
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
             <h2 class="text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
             <div id="hidden-subjects" class="grid grid-cols-1 gap-4"></div>
         </section>
+
         <section>
             <h2 class="text-3xl md:text-4xl font-semibold text-white mt-6">😎 Поясняем за наши топовые фичи</h2>
             <div class="flex flex-wrap justify-center gap-6 p-6">
@@ -279,6 +368,7 @@
                 </div>
             </div>
         </section>
+
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-xl text-center font-semibold text-white mb-2">
             <a href="https://github.com/YSTUty">
@@ -302,27 +392,7 @@
             <div class="bg-gray-600 rounded-lg p-4 ml-4 mr-4 max-w-md mx-auto text-center">
                 <h3 class="text-2xl leading-6 font-medium text-white">Это же просто эмодзи 🙃</h3>
                 <div class="mt-4">
-                    <p id="warningMessage" class="text-slate-400">Пожалуйста, выберите неделю в соответствующем поле:</p>
-                    <p class="text-slate-400">
-                        1 - 5 февраля<br>
-                        2 - 12 февраля<br>
-                        3 - 19 февраля<br>
-                        4 - 26 февраля<br>
-                        5 - 4 марта<br>
-                        6 - 11 марта<br>
-                        7 - 18 марта<br>
-                        8 - 25 марта<br>
-                        9 - 1 апреля<br>
-                        10 - 8 апреля<br>
-                        11 - 15 апреля<br>
-                        12 - 22 апреля<br>
-                        13 - 29 апреля<br>
-                        14 - 6 мая<br>
-                        15 - 13 мая<br>
-                        16 - 20 мая<br>
-                        17 - 27 мая<br>
-                        18 - 3 июня
-                    </p>
+                    <p id="warningMessage" class="text-slate-400">Пожалуйста, выберите неделю в соответствующем поле</p>
                 </div>
                 <div class="mt-6">
                     <button id="closeModalBtn" class="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-200 rounded-lg hover:bg-blue-300">Закрыть</button>
@@ -409,7 +479,7 @@
                 });
             });
 
-            const calendarIcon = document.querySelector('h2.text-4xl');
+            const calendarIcon = document.getElementById('calendarIcon');
             const modal = document.getElementById('warningModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const modalContent = modal.querySelector('.bg-gray-600');
@@ -464,7 +534,7 @@
                 }
             }
 
-            return 'Сейчас каникулы! <br> Пожалуйста, выберите неделю в соответствующем поле.';
+            return 'Сейчас каникулы! <br>';
         }
 
         function updateWarningModal() {
@@ -766,6 +836,31 @@
 
             loadingOverlay.style.display = 'none';
         });
+        function showTooltip(id) {
+            var tooltip = document.getElementById('tooltip2');
+            tooltip.classList.add('show');
+        }
+        function hideTooltip(id) {
+            var tooltip = document.getElementById('tooltip2');
+            tooltip.classList.remove('show');
+        }
+        function showTooltip(id) {
+            var tooltip = document.getElementById('tooltip2');
+            if (!document.querySelector('.tooltip-overlay')) {
+                var overlay = document.createElement('div');
+                overlay.className = 'tooltip-overlay show';
+                document.body.appendChild(overlay);
+            }
+            tooltip.classList.add('show');
+        }
+        function hideTooltip(id) {
+            var tooltip = document.getElementById('tooltip2');
+            var overlay = document.querySelector('.tooltip-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            tooltip.classList.remove('show');
+        }
     </script>
     <script>
         if ('serviceWorker' in navigator) {
