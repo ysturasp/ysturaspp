@@ -1,8 +1,7 @@
 const CACHE_NAME = 'v1';
 const urlsToCache = [
     '/',
-    '/index.html',
-    '/rasp.html',
+    '/rasp',
 ];
 
 self.addEventListener('install', event => {
