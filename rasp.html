@@ -477,7 +477,7 @@
             const averageToggle = document.getElementById('average-toggle');
 
             try {
-                const response = await fetch('https://parser.ystuty.ru/api/ystu/schedule/institutes');
+                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups');
                 const data = await response.json();
                 const institutes = data.items;
 
