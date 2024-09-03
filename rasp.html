@@ -934,22 +934,24 @@
                     dayElement.innerHTML = 
                         `<h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>` +
                         lessons.map(lesson => 
-                            `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
-                                <div>
-                                    <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
-                                    <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                                    <p class="text-sm text-slate-400">${lesson.timeRange}</p>
-                                    <p class="text-sm text-slate-400">${lesson.auditoryName}</p>
-                                    <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
-                                    ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
-                                    <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>`
-                        ).join('');
+                        `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
+                            <div>
+                                <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
+                                <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
+                                <p class="text-sm text-slate-400">${lesson.timeRange}</p>
+                                <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
+                                    lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
+                                }</p>
+                                <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
+                                ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
+                                <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>`
+                    ).join('');
 
                     scheduleContainer.appendChild(dayElement);
 
