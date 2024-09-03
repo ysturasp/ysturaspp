@@ -991,6 +991,24 @@
             }
             tooltip.classList.remove('show');
         }
+        function clearScheduleCache() {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+
+                try {
+                    const parsedValue = JSON.parse(value);
+                    if (parsedValue && parsedValue.timestamp && parsedValue.data) {
+                        localStorage.removeItem(key);
+                    }
+                } catch (error) {
+                    continue;
+                }
+            }
+        }
+
+        window.addEventListener('beforeunload', clearScheduleCache);
+        window.addEventListener('unload', clearScheduleCache);
     </script>
     <script>
         if ('serviceWorker' in navigator) {
