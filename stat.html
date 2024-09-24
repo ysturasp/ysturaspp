@@ -314,6 +314,7 @@
                 <button class="btn btn-primary btn-block mt-3 p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all" onclick="getStatistics()">Получить статистику</button>
             </div>
             <div class="result mt-4" id="statisticsResult"></div>
+            <div class="result mt-4" id="instructorsResult"></div>
         </section>
 
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
@@ -721,6 +722,10 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.remove('hidden');
 
+            const instructorsDiv = document.getElementById('instructorsResult');
+            instructorsDiv.innerHTML = '';
+            instructorsDiv.style.display = 'none';
+
             if (cachedData) {
                 const data = JSON.parse(cachedData);
                 displayStatistics(data);
@@ -741,6 +746,37 @@
                 } finally {
                     loadingOverlay.classList.add('hidden');
                 }
+            }
+
+            const instructorCachedData = localStorage.getItem(`instructors_${discipline}`);
+
+            if (instructorCachedData) {
+                const instructors = JSON.parse(instructorCachedData);
+                displayInstructors(instructors);
+            } else {
+                const instructorUrl = `https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${encodeURIComponent(discipline)}`;
+
+                try {
+                    const instructorResponse = await fetch(instructorUrl);
+                    const instructors = await instructorResponse.json();
+                    localStorage.setItem(`instructors_${discipline}`, JSON.stringify(instructors));
+                    displayInstructors(instructors);
+                } catch (error) {
+                    console.error('Ошибка при получении данных преподавателей:', error);
+                }
+            }
+        }
+
+        function displayInstructors(instructors) {
+            const instructorsDiv = document.getElementById('instructorsResult');
+
+            if (!Array.isArray(instructors.teachers) || instructors.teachers.length === 0) {
+                instructorsDiv.innerHTML = '<p class="text-red-500">Нет доступных преподавателей для данного предмета.</p>';
+            } else {
+                const instructorsList = instructors.teachers[0].split(',').map(instructor => instructor.trim());
+                const instructorsHTML = instructorsList.join(', '); 
+                instructorsDiv.innerHTML = `<h3 class="text-xl font-bold mb-2"><span>Преподаватели:</span> <span class="text-sm">${instructorsHTML}</span></h3>`;
+                instructorsDiv.style.display = 'block';
             }
         }
 
