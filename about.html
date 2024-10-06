@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Узнайте статистику оценок студентов ЯГТУ, средние баллы и распределение оценок по различным дисциплинам. ysturasp">
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <title>О нас - ystuRASP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark .bg-slate-800 {
+            background-color: #1e293b;
+        }
+
+        .dark .text-white {
+            color: #ffffff;
+        }
+
+        .dark .text-slate-400 {
+            color: #94a3b8;
+        }
+
+        .bg-slate-900 {
+            background-color: #111827;
+        }
+
+        .hover\\:bg-blue-700:hover {
+            background-color: #1e40af;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .icon-square {
+            width: 70px;
+            height: 70px;
+            margin-right: 0 auto;
+            vertical-align: middle;
+        }
+
+        .loading-indicator {
+            width: 320px;
+            height: 320px;
+            background: url('https://ustaliy.ru/wp-content/uploads/2020/04/orig-5.gif') no-repeat center center;
+            background-size: cover;
+            border-radius: 20%;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1e293bc4;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        @keyframes fadeInScale {
+            0% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOutScale {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+        }
+        #mobile-menu.show {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        #mobile-menu.hide {
+            animation: fadeOutScale 0.2s ease-in forwards;
+        }
+        .wrapper{
+            width:200px;
+            height:60px;
+            position: absolute;
+            left:50%;
+            top:50%;
+            transform: translate(-50%, -50%);
+        }
+        .circle{
+            width:20px;
+            height:20px;
+            position: absolute;
+            border-radius: 50%;
+            background-color: #fff;
+            left:15%;
+            transform-origin: 50%;
+            animation: circle .5s alternate infinite ease;
+        }
+
+        @keyframes circle{
+            0%{
+                top:60px;
+                height:5px;
+                border-radius: 50px 50px 25px 25px;
+                transform: scaleX(1.7);
+            }
+            40%{
+                height:20px;
+                border-radius: 50%;
+                transform: scaleX(1);
+            }
+            100%{
+                top:0%;
+            }
+        }
+        .circle:nth-child(2){
+            left:45%;
+            animation-delay: .2s;
+        }
+        .circle:nth-child(3){
+            left:auto;
+            right:15%;
+            animation-delay: .3s;
+        }
+        .shadow{
+            width:20px;
+            height:4px;
+            border-radius: 50%;
+            background-color: rgba(0,0,0,.5);
+            position: absolute;
+            top:62px;
+            transform-origin: 50%;
+            z-index: -1;
+            left:15%;
+            filter: blur(1px);
+            animation: shadow .5s alternate infinite ease;
+        }
+
+        @keyframes shadow{
+            0%{
+                transform: scaleX(1.5);
+            }
+            40%{
+                transform: scaleX(1);
+                opacity: .7;
+            }
+            100%{
+                transform: scaleX(.2);
+                opacity: .4;
+            }
+        }
+        .shadow:nth-child(4){
+            left: 45%;
+            animation-delay: .2s
+        }
+        .shadow:nth-child(5){
+            left:auto;
+            right:15%;
+            animation-delay: .3s;
+        }
+        .wrapper span{
+            position: absolute;
+            top:75px;
+            font-family: 'Lato';
+            font-size: 20px;
+            letter-spacing: 12px;
+            color: #fff;
+            left:15%;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300 antialiased">
+    <header class="container mx-auto sticky top-4 px-3 z-50">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-4 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+            <nav class="hidden md:flex gap-x-4">
+                <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all">ystuRASP Главная</a>
+                <a href="/stat" class="text-sm md:text-base hover:text-blue-400 transition-all">Статистика</a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all">Расписание</a>
+                <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all">Экспорт/Импорт</a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all">О нас</a>
+            </nav>
+            <div class="relative md:hidden">
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
+                    <svg class="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="/student" class="p-2 bg-blue-700 text-white rounded-lg text-xs md:text-sm hover:bg-blue-600 transition-all">Чатик для студентов 👋🏻</a>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
+            <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
+            <a href="/stat" class="block py-2 hover:text-blue-400 text-sm md:text-base">Статистика</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Экспорт/Импорт</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 mt-8">
+        <section id="boosty-news" class="bg-slate-800 rounded-lg p-6">
+            <h2 class="text-2xl sm:text-left lg:text-left md:text-left text-center font-semibold text-white mb-4">Новости с Boosty</h2>
+            <div class="text-center mt-[-11px] mb-8 md:mt-0 md:mb-6">
+                <a href="https://boosty.to/ysturasp.me/donate" target="_blank" class="bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
+                    Поддержать проект
+                </a>
+            </div>            
+        </section>
+        <div id="loading-indicator" style="display: none; text-align: center;">
+            <div class="wrapper">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <span>Loading</span>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    async function fetchBoostyPosts() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const container = document.getElementById('boosty-news');
+        
+        loadingIndicator.style.display = 'block';
+        
+        try {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbx7h8FvzCt5_Vnd5CbLJqhk1db9JzygvEXz4QEzlvuiK0JBOvROmyG3xQQQR7Njm0--/exec');
+            const posts = await response.json();
+
+            if (posts.length === 0) {
+                container.innerHTML = '<p class="text-slate-400">No posts available at the moment.</p>';
+            } else {
+                posts.forEach(post => {
+                    const formattedContent = post.content ? post.content.replace(/\n/g, '<br>') : '';
+
+                    const postHTML = `
+                        <div class="bg-slate-900 rounded-lg p-6 mb-8 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                            ${post.link ? `<a href="${post.link}" target="_blank" class="text-2xl text-white font-bold">${post.title}</a>` : ''}
+                            ${post.date ? `<p class="text-slate-400 text-xs mt-1 mb-2"><i class="fas fa-calendar-alt"></i> ${post.date}</p>` : ''}
+                            ${formattedContent ? `<p class="text-slate-300 mt-3 leading-relaxed">${formattedContent}</p>` : ''}
+                            ${post.image ? `
+                                <div class="flex justify-center mt-5">
+                                    <img src="${post.image}" alt="Post image" class="rounded-lg max-w-full hover:scale-105 transition-transform duration-300">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    container.innerHTML += postHTML;
+                });
+            }
+            
+        } catch (error) {
+            console.error('Error fetching Boosty posts:', error);
+            container.innerHTML = '<p class="text-red-500">Failed to load posts. Please try again later.</p>';
+        } finally {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchBoostyPosts);
+
+    const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function() {
+            if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'hide');
+                mobileMenu.classList.add('show');
+            } else {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            });
+        });
+</script>
+</html>
