@@ -530,11 +530,14 @@
                 if (lastWeek) {
                     weekSelect.value = lastWeek;
                 }
+
+                if (lastGroup && lastWeek) {
+                    document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+                }
             } catch (error) {
                 console.error('Ошибка при получении списка институтов:', error);
                 instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
             }
-
             function countAndShowHiddenSubjects() {
                 let hiddenSubjectsCount = 0;
                 const hiddenSubjectsList = [];
@@ -962,6 +965,17 @@
 
         function displaySchedule(scheduleData, group, week) {
             const scheduleContainer = document.getElementById('schedule');
+            scheduleContainer.innerHTML = '';
+
+            const titleElement = document.createElement('h2');
+
+            titleElement.style.background = 'radial-gradient(circle, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)';
+            titleElement.className = 'p-4 md:ml-20 md:mr-20 sm:ml-0 sm:mr-0 rounded-lg text-center text-2xl md:text-3xl font-bold text-white shadow-lg transition';
+
+            titleElement.innerText += `Расписание для группы ${group} на ${week} неделю`;
+            
+            scheduleContainer.appendChild(titleElement);
+
             const filteredWeek = scheduleData.items.find(item => item.number === week);
 
             if (filteredWeek) {
