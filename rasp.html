@@ -1024,7 +1024,7 @@
                             </div>
 
                             <!-- Visibility toggle -->
-                        <label class="switch ml-auto self-center">
+                            <label class="switch ml-auto self-center">
                                 <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
                                 <span class="slider round"></span>
                             </label>
