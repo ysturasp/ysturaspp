@@ -183,6 +183,16 @@
         #mobile-menu.hide {
             animation: fadeOutScale 0.2s ease-in forwards;
         }
+        .notification {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .notification.show {
+            opacity: 1;
+        }
+        .notification.hide {
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -522,12 +532,70 @@
                 instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
             }
 
-            averageToggle.addEventListener('change', () => {
-                const averageElements = document.querySelectorAll('.average-score');
-                averageElements.forEach(element => {
-                    element.style.display = averageToggle.checked ? 'inline' : 'none';
-                });
-            });
+            function countAndShowHiddenSubjects() {
+                let hiddenSubjectsCount = 0;
+                const hiddenSubjectsList = [];
+
+                for (let key in localStorage) {
+                    if (key.startsWith('hiddenSubjects_')) {
+                        const hiddenSubjects = JSON.parse(localStorage.getItem(key));
+                        if (hiddenSubjects) {
+                            hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
+                            hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+                        }
+                    }
+                }
+
+                console.log('Скрытые предметы:', hiddenSubjectsList);
+
+                return hiddenSubjectsCount;
+            }
+
+            function countAndShowHiddenSubjects() {
+                let hiddenSubjectsCount = 0;
+                const hiddenSubjectsList = [];
+
+                for (let key in localStorage) {
+                    if (key.startsWith('hiddenSubjects_')) {
+                        const hiddenSubjects = JSON.parse(localStorage.getItem(key));
+                        if (hiddenSubjects) {
+                            hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
+                            hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+                        }
+                    }
+                }
+
+                console.log('Скрытые предметы:', hiddenSubjectsList);
+
+                return hiddenSubjectsCount;
+            }
+
+            function showNotification(hiddenCount) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification';
+                notification.textContent = `У вас есть скрытые предметы: ${hiddenCount}. Убедитесь, что ничего лишнего не скрыто! (посмотреть их можно под расписанием)`;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            const hiddenSubjectsCount = countAndShowHiddenSubjects();
+            if (hiddenSubjectsCount > 0) {
+                showNotification(hiddenSubjectsCount);
+            }
+
 
             const calendarIcon = document.getElementById('calendarIcon');
             const modal = document.getElementById('warningModal');
