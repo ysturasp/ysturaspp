@@ -226,7 +226,7 @@
     </header>
     
     <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
-        <section class="bg-slate-800 rounded-lg p-6 mt-8">
+        <section class="bg-slate-800 rounded-lg sm:p-6 p-4 mt-8">
             <div class="bg-yellow-500 text-black text-center p-4 rounded-lg mb-4">
                 <div class="flex items-center justify-center gap-2">
                     <div class="h-3 w-3 mr-1 rounded-full ring-8 animate-pulse" 
@@ -1004,11 +1004,17 @@
                     dayElement.innerHTML = 
                         `<h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>` +
                         lessons.map(lesson => 
-                        `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center">
-                            <div>
-                                <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
+                        `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex">
+                            <!-- Time block -->
+                            <div class="flex flex-col items-end justify-between border-r-2 border-base-300 pr-2 py-2 w-14 mr-2">
+                                <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
+                                <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
+                            </div>
+
+                            <!-- Lesson details -->
+                            <div class="flex-grow">
+                                <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                                 <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                                <p class="text-sm text-slate-400">${lesson.timeRange}</p>
                                 <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
                                     lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
                                 }</p>
@@ -1016,12 +1022,14 @@
                                 ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
                                 <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
                             </div>
-                            <label class="switch">
+
+                            <!-- Visibility toggle -->
+                        <label class="switch ml-auto self-center">
                                 <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
                                 <span class="slider round"></span>
                             </label>
                         </div>`
-                    ).join('');
+                        ).join('');
 
                     scheduleContainer.appendChild(dayElement);
 
