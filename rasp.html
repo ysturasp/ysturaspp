@@ -625,6 +625,13 @@
             closeModalBtn.addEventListener('click', () => {
                 modal.classList.add('hidden');
             });
+
+            averageToggle.addEventListener('change', () => {
+                const averageElements = document.querySelectorAll('.average-score');
+                averageElements.forEach(element => {
+                    element.style.display = averageToggle.checked ? 'inline' : 'none';
+                });
+            });
         });
 
         const weekRanges = [
