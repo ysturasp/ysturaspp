@@ -268,6 +268,45 @@
         #mobile-menu.hide {
             animation: fadeOutScale 0.2s ease-in forwards;
         }
+        .institute-button {
+            background-color: #374151;
+            color: #ffffff;
+            padding: 6px 12px;
+            margin: 5px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            -webkit-transition: background-color 0.3s, -webkit-box-shadow 0.3s;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            -webkit-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .institute-button:hover {
+            background-color: #374151;
+            -webkit-box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .institute-button.active {
+            background-color: #2563eb;
+            border-color: #3b82f6;
+            -webkit-box-shadow: 0 8px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 8px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .institute-button:focus {
+            outline: none;
+            -webkit-box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+        }
+        .institute-button:disabled {
+            background-color: #6b7280;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -304,7 +343,12 @@
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-4xl font-semibold text-white mb-4">👨‍💻 Статистика оценок</h2>
             <div class="form-group">
-                <p class="text-slate-600 mt-2">На данный момент поддерживается статистика предметов только Института Цифровых Систем. В будующем планируется добавление статистики и для других Институтов</p> <br>
+                <p class="text-slate-600 mt-2">На данный момент поддерживается статистика предметов только ИЦС и ИАиД. В будующем планируется добавление статистики и для других Институтов</p> <br>
+                <label class="block mb-2 text-sm font-medium text-slate-400">Выберите институт:</label>
+                <div class="institute-buttons mb-3">
+                    <button id="btn-digital-systems" class="institute-button">Институт Цифровых Систем</button>
+                    <button id="btn-architecture-design" class="institute-button">Институт Архитектуры и Дизайна</button>
+                </div>
                 <label for="combobox-input" class="block mb-2 text-sm font-medium text-slate-400">Выберите дисциплину:</label>
                 <div class="relative">
                     <input id="combobox-input" type="text" class="block w-full p-2.5 bg-slate-900 border border-gray-600 rounded-lg text-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Выберите дисциплину...">
@@ -363,7 +407,24 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const disciplines = [
+            const inputElement = document.getElementById('combobox-input');
+            const optionsElement = document.getElementById('combobox-options');
+            const clearButton = document.getElementById('clear-button');
+            const overlay = document.createElement('div');
+            overlay.classList.add('ambient-overlay', 'hidden');
+            document.body.appendChild(overlay);
+            const inputField = document.getElementById('combobox-input');
+
+            inputField.addEventListener('focus', () => {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: inputField.getBoundingClientRect().top + window.pageYOffset - 28, 
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            });
+
+            const disciplinesDigitalSystems = [
                 "CRM-системы",
                 "Web - технологии",
                 "Администрирование информационных систем (англ.)",
@@ -583,27 +644,80 @@
                 "Электротехника и электроника"
             ];
 
-            const inputElement = document.getElementById('combobox-input');
-            const optionsElement = document.getElementById('combobox-options');
-            const clearButton = document.getElementById('clear-button');
-            const overlay = document.createElement('div');
-            overlay.classList.add('ambient-overlay', 'hidden');
-            document.body.appendChild(overlay);
-            const inputField = document.getElementById('combobox-input');
+            const disciplinesAiD = [
+                "Архитектура ХХ века",
+                "Архитектура жилых зданий",
+                "Архитектура общественных зданий",
+                "Архитектура промышленных зданий и сооружений",
+                "Архитектура промышленных зданий и сооружений",
+                "Архитектурно-строительные конструкции, материалы и технологии. Архитектурное материаловедение",
+                "Архитектурно-строительные конструкции, материалы и технологии. Архитектурные конструкции",
+                "Архитектурно-строительные конструкции, материалы и технологии. Архитектурные конструкции и теория конструирования",
+                "Архитектурное проектирование. Архитектурное проектирование (1 уровень)",
+                "Архитектурное проектирование. Композиционное моделирование",
+                "Архитектурное проектирование. Методология проектирования",
+                "Геодезия",
+                "Инженерные системы и среда. Инженерные системы и оборудование в архитектуре",
+                "Иностранный язык",
+                "История",
+                "История дизайна",
+                "История и теория. История архитектуры и градостроительства",
+                "Комплексный предпроектный анализ",
+                "Компьютерная графика",
+                "Ландшафтная архитектура",
+                "Ландшафтная архитектура",
+                "Математика",
+                "Методология реставрации и реконструкции архитектурного наследия",
+                "Начертательная геометрия",
+                "Начертательная геометрия",
+                "Новейшие тенденции развития мировой архитектуры",
+                "Объемно-пространственная композиция",
+                "Основы строительного производства",
+                "Практика проектно-ознакомительная",
+                "Практика проектно-технологическая",
+                "Практика производственная (научно-исследовательская работа)",
+                "Практика производственная (технологическая)",
+                "Практика учебная (ознакомительная)",
+                "Практика учебная (технологическая)",
+                "Практика учебная (художественная)",
+                "Проблематика междисциплинарного средового проектирования",
+                "Проектная графика",
+                "Профессиональный язык и средства коммуникации. Изобразительное искусство",
+                "Теория реконструкции исторической среды",
+                "Типология архитектурной среды",
+                "Физическая культура и спорт",
+                "Философия",
+                "Философия и методология научной и проектной деятельности",
+                "Цветоведение и колористика",
+                "Эстетика архитектуры и дизайна",
+                "Эстетика города"
+            ]
 
-            inputField.addEventListener('focus', () => {
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: inputField.getBoundingClientRect().top + window.pageYOffset - 28, 
-                        behavior: 'smooth'
-                    });
-                }, 300);
+            const buttons = document.querySelectorAll('.institute-button');
+
+            let currentDisciplines = disciplinesDigitalSystems;
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    if (button.id === 'btn-digital-systems') {
+                        currentDisciplines = disciplinesDigitalSystems;
+                    } else {
+                        currentDisciplines = disciplinesAiD;
+                    }
+                    updateOptions();
+                });
             });
 
             function updateOptions(query = '') {
                 optionsElement.innerHTML = '';
 
-                const filteredDisciplines = disciplines.filter(discipline => discipline.toLowerCase().includes(query.toLowerCase()));
+                const filteredDisciplines = currentDisciplines.filter(discipline =>
+                    discipline.toLowerCase().includes(query.toLowerCase())
+                );
+
                 filteredDisciplines.forEach(discipline => {
                     const optionElement = document.createElement('li');
                     optionElement.textContent = discipline;
@@ -616,6 +730,21 @@
                     optionsElement.appendChild(optionElement);
                 });
             }
+
+            inputElement.addEventListener('focus', () => {
+                optionsElement.classList.add('active');
+                updateOptions(inputElement.value);
+            });
+
+            inputElement.addEventListener('input', () => {
+                updateOptions(inputElement.value);
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!inputElement.contains(event.target) && !optionsElement.contains(event.target)) {
+                    optionsElement.classList.remove('active');
+                }
+            });
 
             inputElement.addEventListener('focus', function () {
                 overlay.classList.remove('hidden');
@@ -727,14 +856,21 @@
             instructorsDiv.innerHTML = '';
             instructorsDiv.style.display = 'none';
 
+            const selectedInstitute = document.querySelector('.institute-button.active').id;
+
+            let url = '';
+            if (selectedInstitute === 'btn-digital-systems') {
+                url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
+            } else if (selectedInstitute === 'btn-architecture-design') {
+                url = `https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec?discipline=${encodeURIComponent(discipline)}`;
+            }
+
             if (cachedData) {
                 const data = JSON.parse(cachedData);
                 displayStatistics(data);
                 addToRecentlyViewed(discipline, data);
                 loadingOverlay.classList.add('hidden');
             } else {
-                const url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
-
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
@@ -755,7 +891,12 @@
                 const instructors = JSON.parse(instructorCachedData);
                 displayInstructors(instructors);
             } else {
-                const instructorUrl = `https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${encodeURIComponent(discipline)}`;
+                let instructorUrl = '';
+                if (selectedInstitute === 'btn-digital-systems') {
+                    instructorUrl = `https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${encodeURIComponent(discipline)}`;
+                } else if (selectedInstitute === 'btn-architecture-design') {
+                    instructorUrl = `https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec/exec?subject=${encodeURIComponent(discipline)}`;
+                }
 
                 try {
                     const instructorResponse = await fetch(instructorUrl);
@@ -921,6 +1062,11 @@
                 getStatistics();
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const digitalSystemsButton = document.getElementById('btn-digital-systems');
+            digitalSystemsButton.classList.add('active');
+        });
     </script>
     <!-- Hotjar Tracking Code for Site -->
     <script>
