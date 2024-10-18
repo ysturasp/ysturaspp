@@ -1058,9 +1058,20 @@
         function checkUrlParameters() {
             const urlParams = new URLSearchParams(window.location.search);
             const subject = urlParams.get('subject');
+
             if (subject) {
                 const disciplineSelect = document.getElementById('combobox-input');
                 disciplineSelect.value = subject;
+            }
+
+            const activeInstitute = document.querySelector('.institute-button.active');
+            
+            if (!activeInstitute) {
+                const defaultInstituteButton = document.getElementById('btn-digital-systems');
+                defaultInstituteButton.classList.add('active');
+            }
+
+            if (subject) {
                 getStatistics();
             }
         }
