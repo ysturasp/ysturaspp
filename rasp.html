@@ -585,6 +585,58 @@
 
                 document.body.appendChild(notification);
 
+                notification.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                });
+
+                let touchStartX = 0;
+                let currentX = 0;
+                let moveX = 0;
+                let isSwiping = false;
+
+                notification.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    isSwiping = true;
+                    notification.style.transition = '';
+                });
+
+                notification.addEventListener('touchmove', (e) => {
+                    if (!isSwiping) return;
+
+                    currentX = e.changedTouches[0].screenX;
+                    moveX = currentX - touchStartX;
+
+                    notification.style.transform = `translateX(${moveX}px)`;
+                });
+
+                notification.addEventListener('touchend', () => {
+                    if (!isSwiping) return;
+
+                    isSwiping = false;
+                    if (Math.abs(moveX) > 100) {
+                        const direction = moveX < 0 ? '-110%' : '110%';
+                        notification.style.transition = 'transform 0.5s ease';
+                        notification.style.transform = `translateX(${direction})`;
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 500);
+                    } else {
+                        notification.style.transition = 'transform 0.3s ease';
+                        notification.style.transform = 'translateX(0)';
+                    }
+                });
+
+                notification.addEventListener('click', () => {
+                    notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                });
+
                 setTimeout(() => {
                     notification.classList.add('show');
                 }, 10);
@@ -751,6 +803,7 @@
                 if (!hiddenSubjects[subjectName].some(h => h.type === lessonType && h.teacher === (teacherName || ''))) {
                     hiddenSubjects[subjectName].push({ type: lessonType, teacher: teacherName || '' });
                 }
+                showHideNotification(subjectName, lessonType, teacherName);
             } else {
                 if (hiddenSubjects[subjectName]) {
                     hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(h => !(h.type === lessonType && h.teacher === (teacherName || '')));
@@ -761,6 +814,97 @@
             }
             localStorage.setItem(`hiddenSubjects_${group}`, JSON.stringify(hiddenSubjects));
             document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+        }
+
+        const lessonTypes = {
+            0: 'none',
+            2: 'Лекция',
+            4: 'Практика',
+            8: 'Лабораторная работа',
+            1: 'Курсовой проект',
+            5: 'Консультация',
+            6: 'Лекция + Практика',
+            7: 'Дифференцированный зачет',
+            3: 'Экзамен',
+            9: 'Библиотека',
+            10: 'Лекция + Лабораторная работа',
+            11: 'Организационное собрание',
+            12: 'Не поддерживается'
+        };
+
+        function showHideNotification(subjectName, lessonType, teacherName) {
+            const lessonTypeName = lessonTypes[lessonType] || 'Неизвестный тип';
+
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-5 right-5 left-5 bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification';
+            notification.textContent = `${lessonTypeName} "${subjectName}" ${teacherName ? ' с ' + teacherName : ''} теперь скрыта на протяжении всего семестра. Вы можете просмотреть скрытые предметы под расписанием.`;
+
+            document.body.appendChild(notification);
+
+            notification.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            });
+
+            let touchStartX = 0;
+            let currentX = 0;
+            let moveX = 0;
+            let isSwiping = false;
+
+            notification.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                isSwiping = true;
+                notification.style.transition = '';
+            });
+
+            notification.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+
+                currentX = e.changedTouches[0].screenX;
+                moveX = currentX - touchStartX;
+
+                notification.style.transform = `translateX(${moveX}px)`;
+            });
+
+            notification.addEventListener('touchend', () => {
+                if (!isSwiping) return;
+
+                isSwiping = false;
+                if (Math.abs(moveX) > 100) {
+                    const direction = moveX < 0 ? '-110%' : '110%';
+                    notification.style.transition = 'transform 0.5s ease';
+                    notification.style.transform = `translateX(${direction})`;
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                } else {
+                    notification.style.transition = 'transform 0.3s ease';
+                    notification.style.transform = 'translateX(0)';
+                }
+            });
+
+            notification.addEventListener('click', () => {
+                notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                notification.style.transform = 'translateX(100%)';
+                notification.style.opacity = '0';
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            });
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 10000);
         }
 
         function updateHiddenSubjectsSection(group) {
