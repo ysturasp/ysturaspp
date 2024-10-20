@@ -836,7 +836,7 @@
             const lessonTypeName = lessonTypes[lessonType] || 'Неизвестный тип';
 
             const notification = document.createElement('div');
-            notification.className = 'fixed bottom-5 right-5 left-5 bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification';
+            notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification';
             notification.textContent = `${lessonTypeName} "${subjectName}" ${teacherName ? ' с ' + teacherName : ''} теперь скрыта на протяжении всего семестра. Вы можете просмотреть скрытые предметы под расписанием.`;
 
             document.body.appendChild(notification);
