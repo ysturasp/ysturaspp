@@ -973,17 +973,27 @@
             }
         }
 
-        async function getStatistics(discipline) {
+        async function getStatistics(discipline, institute) {
             const cachedData = localStorage.getItem(discipline);
 
             if (cachedData) {
                 console.log(`Using cached data for discipline: ${discipline}`);
                 return JSON.parse(cachedData);
             } else {
-                const url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
+                let url;
+                if (institute === 'Институт цифровых систем') {
+                    url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
+                } else if (institute === 'Институт архитектуры и дизайна') {
+                    url = `https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec?discipline=${encodeURIComponent(discipline)}`;
+                } else if (institute === 'Институт инженеров строительства и транспорта') {
+                    url = `https://script.google.com/macros/s/AKfycbzbxLrOI2rA8ZzVfrT6RXIG5ADMl_5NdAQd8NEIYfg-qKkWVe_fGyB5pDolsCOtH14Mxw/exec?discipline=${encodeURIComponent(discipline)}`;
+                } else {
+                    console.error(`Неизвестный институт: ${institute}`);
+                    return null;
+                }
 
                 try {
-                    console.log(`Fetching data for discipline: ${discipline} from API`);
+                    console.log(`Fetching data for discipline: ${discipline} from API: ${url}`);
                     const response = await fetch(url);
                     const data = await response.json();
                     if (data.error) {
@@ -1005,8 +1015,9 @@
 
         async function displayAverageScore(discipline, element, displayedLessons) {
             const formattedDiscipline = formatDisciplineName(discipline);
+            const institute = document.getElementById('institute-select').value;
             if (!displayedLessons.has(formattedDiscipline)) {
-                const stats = await getStatistics(formattedDiscipline);
+                const stats = await getStatistics(formattedDiscipline, institute);
                 const averageElement = document.createElement('a');
                 averageElement.className = 'text-sm text-yellow-400 average-score';
                 averageElement.style.display = document.getElementById('average-toggle').checked ? 'inline' : 'none';
