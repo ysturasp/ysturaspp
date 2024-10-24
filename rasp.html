@@ -196,6 +196,61 @@
         .notification.hide {
             opacity: 0;
         }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        @keyframes fadeOutScale {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        .modal-background-hide {
+            animation: fadeOut 0.3s ease forwards;
+            opacity: 0;
+        }
+        .modal-content-hide {
+            animation: fadeOutScale 0.4s ease-out forwards;
+        }
+        #infoModal {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-background-show {
+            animation: fadeIn 0.3s ease forwards;
+            opacity: 1;
+        }
+        .modal-content-show {
+            animation: fadeInScale 0.4s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -464,6 +519,19 @@
         </div>
     </div>
 
+    <div id="infoModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div id="modalContent" class="bg-gray-600 rounded-lg p-4 ml-4 mr-4 max-w-md mx-auto text-center relative">
+            <h2 class="text-xl font-bold mb-2 mr-7">🥳У нас появилось мини приложение в телеграмм!</h2>
+            <p class="text-white mb-4">Теперь расписание доступно прямо в вашем любимом мессенджере! Закрепляйте в своей беседе группы🙃</p>
+            <button id="tryButton">
+                <img id="telegramImage" src="images/tg webapp.jpg" alt="Telegram" style="height: 130px;" class="rounded-lg mx-auto mb-4">
+            </button>
+            <button id="closeButton" class="absolute top-4 right-4 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition">
+                <span class="text-lg font-bold">✖️</span>
+            </button>
+        </div>
+    </div>
+    
     <footer class="bg-slate-800 py-6 mt-12">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap justify-between items-center">
@@ -501,7 +569,53 @@
             const lastGroup = localStorage.getItem('lastGroup');
             const lastWeek = localStorage.getItem('lastWeek');
             const averageToggle = document.getElementById('average-toggle');
+            
+            const infoModal = document.getElementById('infoModal');
+            const closeButton = document.getElementById('closeButton');
+            const tryButton = document.getElementById('tryButton');
 
+            let modalShownCount = localStorage.getItem('modalShownCount') || 0;
+            let modalDismissed = localStorage.getItem('modalDismissed');
+
+            if (modalShownCount < 3 && !modalDismissed) {
+                setTimeout(function() {
+                    infoModal.classList.remove('hidden');
+                    infoModal.classList.add('modal-background-show');
+                    modalContent.classList.add('modal-content-show');
+                }, 2000);
+            }
+
+            closeButton.addEventListener('click', function() {
+                closeModal();
+                modalShownCount++;
+                localStorage.setItem('modalShownCount', modalShownCount);
+            });
+
+            infoModal.addEventListener('click', function(event) {
+                if (event.target === infoModal) {
+                    closeModal();
+                    modalShownCount++;
+                    localStorage.setItem('modalShownCount', modalShownCount);
+                }
+            });
+
+            tryButton.addEventListener('click', function() {
+                localStorage.setItem('modalDismissed', true);
+                window.location.href = 'https://t.me/ysturasp_bot/ysturasp_webapp';
+            });
+
+            function closeModal() {
+                modalContent.classList.remove('modal-content-show');
+                modalContent.classList.add('modal-content-hide');
+                infoModal.classList.remove('modal-background-show');
+                infoModal.classList.add('modal-background-hide');
+
+                setTimeout(function() {
+                    infoModal.classList.add('hidden');
+                    infoModal.classList.remove('modal-background-hide');
+                    modalContent.classList.remove('modal-content-hide');
+                }, 400);
+            }
             const allowedInstitutes = [
                 'Институт цифровых систем',
                 'Институт архитектуры и дизайна',
