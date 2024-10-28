@@ -421,8 +421,13 @@
         </section>
         
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
-            <h2 class="text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
+            <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
             <div id="hidden-subjects" class="grid grid-cols-1 gap-4"></div>
+        </section>
+
+        <section id="subject-statistics" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
+            <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Учебная нагрузка для выбранной группы</h2>
+            <div id="statistics-container" class="grid grid-cols-1 gap-4"></div>
         </section>
 
         <section>
@@ -1253,21 +1258,21 @@
             return discipline.replace(/\s*\(.*?\)\s*/g, '').trim();
         }
 
-        async function displayAverageScore(discipline, element, displayedLessons) {
+        async function displayAverageScore(discipline, element, displayedLessons, isStatic = false) {
             const formattedDiscipline = formatDisciplineName(discipline);
             const institute = document.getElementById('institute-select').value;
             if (!displayedLessons.has(formattedDiscipline)) {
                 const stats = await getStatistics(formattedDiscipline, institute);
                 const averageElement = document.createElement('a');
                 averageElement.className = 'text-sm text-yellow-400 average-score';
-                averageElement.style.display = document.getElementById('average-toggle').checked ? 'inline' : 'none';
+                averageElement.style.display = isStatic || document.getElementById('average-toggle').checked ? 'inline' : 'none';
                 if (stats) {
                     const average = stats.average.toFixed(2);
-                    averageElement.innerHTML = ` Средний балл: ${average} ℹ️`;
+                    averageElement.innerHTML = `Средний балл: ${average} ℹ️`;
                     averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
                     averageElement.title = 'узнать более подробную статистику по предмету';
                 } else {
-                    averageElement.innerHTML = ` Нет данных по среднему баллу ℹ️`;
+                    averageElement.innerHTML = `Нет данных по среднему баллу ℹ️`;
                     averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
                     averageElement.title = 'узнать более подробную статистику по предмету';
                     averageElement.className = 'text-sm text-red-500 average-score';
@@ -1308,6 +1313,7 @@
                 const parsedData = JSON.parse(cachedData);
                 if (Date.now() - parsedData.timestamp < cacheDuration) {
                     displaySchedule(parsedData.data, group, week);
+                    displaySubjectStatistics(parsedData.data);
                     fetchData = false;
                 }
             }
@@ -1364,10 +1370,12 @@
 
             if (scheduleData) {
                 displaySchedule(scheduleData, group, week);
+                displaySubjectStatistics(scheduleData);
             }
 
             loadingOverlay.style.display = 'none';
         });
+
 
         function displaySchedule(scheduleData, group, week) {
             const scheduleContainer = document.getElementById('schedule');
@@ -1508,6 +1516,226 @@
             } else {
                 scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
             }
+        }
+
+        function toPlural(type) {
+            switch (type) {
+                case 'Лекция':
+                    return 'Лекций';
+                case 'Лабораторная работа':
+                    return 'Лабораторных работ';
+                case 'Практика':
+                    return 'Практик';
+                case 'Курсовой проект':
+                    return 'Курсовых проектов';
+                case 'Консультация':
+                    return 'Консультаций';
+                case 'Экзамен':
+                    return 'Экзаменов';
+                default:
+                    return type + 'ов';
+            }
+        }
+
+        function getGradient(mouseX, mouseY) {
+            return `radial-gradient(circle at ${mouseX}% ${mouseY}%, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)`;
+        }
+
+        function displaySubjectStatistics(data) {
+            const statistics = {};
+            const globalCounts = { 
+                Лекция: { completed: 0, total: 0 }, 
+                Практика: { completed: 0, total: 0 }, 
+                'Лабораторная работа': { completed: 0, total: 0 }, 
+                'Курсовой проект': { completed: 0, total: 0 }, 
+                Консультация: { completed: 0, total: 0 }, 
+                Экзамен: { completed: 0, total: 0 } 
+            };
+
+            const currentDate = new Date();
+
+            data.items.forEach(week => {
+                week.days.forEach(day => {
+                    const lessonDate = new Date(day.info.date);
+
+                    day.lessons.forEach(lesson => {
+                        const subject = lesson.lessonName;
+                        const type = lesson.type;
+                        const typeName = lessonTypes[type] || 'Другое';
+
+                        if (!statistics[subject]) {
+                            statistics[subject] = { 
+                                Лекция: { completed: 0, total: 0 }, 
+                                Практика: { completed: 0, total: 0 }, 
+                                'Лабораторная работа': { completed: 0, total: 0 }, 
+                                'Курсовой проект': { completed: 0, total: 0 }, 
+                                Консультация: { completed: 0, total: 0 }, 
+                                Экзамен: { completed: 0, total: 0 } 
+                            };
+                        }
+
+                        if (statistics[subject][typeName]) {
+                            statistics[subject][typeName].total++;
+                        }
+
+                        if (globalCounts[typeName]) {
+                            globalCounts[typeName].total++;
+                        }
+
+                        if (lessonDate < currentDate) {
+                            if (statistics[subject][typeName] !== undefined) {
+                                statistics[subject][typeName].completed++;
+                                globalCounts[typeName].completed++;
+                            }
+                        }
+                    });
+                });
+            });
+
+            const container = document.getElementById('statistics-container');
+            container.innerHTML = '';
+
+            const chartContainer = document.createElement('div');
+            chartContainer.style.display = 'flex';
+            chartContainer.style.justifyContent = 'center';
+            chartContainer.style.marginBottom = '20px';
+
+            const globalChartCanvas = document.createElement('canvas');
+            globalChartCanvas.width = 300;
+            globalChartCanvas.height = 300;
+
+            chartContainer.appendChild(globalChartCanvas);
+            container.appendChild(chartContainer);
+
+            const globalDataForChart = {
+                labels: Object.keys(globalCounts),
+                datasets: [{
+                    label: 'Всего занятий',
+                    data: Object.values(globalCounts).map(count => count.total),
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(249, 115, 22, 0.8)',
+                        'rgba(59, 130, 246, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(252, 211, 77, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                    ],
+                }]
+            };
+
+            new Chart(globalChartCanvas, {
+                type: 'pie',
+                data: globalDataForChart,
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const total = tooltipItem.raw;
+                                    const completed = globalCounts[tooltipItem.label].completed;
+                                    return `${tooltipItem.label}: Осталось ${total - completed} из ${total}`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                },
+                plugins: [{
+                    beforeDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        const dataset = chart.data.datasets[0];
+                        const total = dataset.data.reduce((acc, val) => acc + val, 0);
+
+                        let startAngle = 0;
+                        dataset.data.forEach((value, index) => {
+                            const endAngle = startAngle + (value / total) * (Math.PI * 2);
+                            const midAngle = (startAngle + endAngle) / 2;
+
+                            const completedValue = globalCounts[chart.data.labels[index]].completed;
+                            const completedAngle = (completedValue / total) * (Math.PI * 2);
+
+                            ctx.fillStyle = dataset.backgroundColor[index].replace(/0.8\)/, '0.4)');
+                            ctx.beginPath();
+                            ctx.moveTo(chart.width / 2, chart.height / 2);
+                            ctx.arc(chart.width / 2, chart.height / 2, chart.radius, startAngle, startAngle + completedAngle);
+                            ctx.closePath();
+                            ctx.fill();
+
+                            startAngle = endAngle;
+                        });
+                    }
+                }]
+            });
+
+            const completedCountText = document.createElement('h3');
+            completedCountText.className = 'text-xl font-medium text-white mt-4';
+
+            const completedCount = Object.values(globalCounts).reduce((acc, count) => acc + count.completed, 0);
+            const totalCount = Object.values(globalCounts).reduce((acc, count) => acc + count.total, 0);
+
+            const percentage = totalCount > 0 ? ((completedCount / totalCount) * 100).toFixed(2) : 0;
+
+            completedCountText.innerText = `Количество завершенных занятий ко всем: ${completedCount} из ${totalCount} (${percentage}%)`;
+
+            container.appendChild(completedCountText);
+
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
+
+            for (const [subject, counts] of Object.entries(statistics)) {
+                const hasTypes = Object.values(counts).some(count => count.total > 0);
+
+                if (hasTypes) {
+                    const subjectDiv = document.createElement('div');
+                    subjectDiv.className = 'bg-slate-900 p-4 rounded-lg shadow-lg';
+                    subjectDiv.style.transition = 'background 0.5s';
+
+                    subjectDiv.innerHTML = `<h3 class="text-xl font-bold text-white mb-2">${subject}</h3>`;
+
+                    for (const [type, count] of Object.entries(counts)) {
+                        if (count.total > 0) {
+                            const isCompleted = count.completed === count.total;
+                            const checkMark = isCompleted ? '✅' : '';
+                            
+                            subjectDiv.innerHTML += 
+                                `<div class="flex justify-between text-slate-300">
+                                    <span>${toPlural(type)}: ${count.completed} из ${count.total}</span>
+                                    <span class="text-lg">${checkMark}</span>
+                                </div>`;
+                        }
+                    }
+
+                    subjectDiv.addEventListener('mousemove', (event) => {
+                        const rect = subjectDiv.getBoundingClientRect();
+                        const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
+                        const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
+                        subjectDiv.style.background = getGradient(mouseX, mouseY);
+                    });
+
+                    subjectDiv.addEventListener('mouseleave', () => {
+                        subjectDiv.style.background = '';
+                    });
+
+                    const avgElement = document.createElement('div');
+                    avgElement.id = `avg-${subject.replace(/ /g, '-')}`;
+                    displayAverageScore(subject, avgElement, new Set(), true);
+                    subjectDiv.appendChild(avgElement);
+
+                    gridContainer.appendChild(subjectDiv);
+                }
+            }
+
+            container.appendChild(gridContainer);
+            document.getElementById('subject-statistics').classList.remove('hidden');
         }
 
         function showTooltip(id) {
