@@ -1272,10 +1272,10 @@
                     averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
                     averageElement.title = 'узнать более подробную статистику по предмету';
                 } else {
-                    averageElement.innerHTML = `Нет данных по среднему баллу ℹ️`;
-                    averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
-                    averageElement.title = 'узнать более подробную статистику по предмету';
-                    averageElement.className = 'text-sm text-red-500 average-score';
+                    // averageElement.innerHTML = `Нет данных по среднему баллу ℹ️`;
+                    // averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
+                    // averageElement.title = 'узнать более подробную статистику по предмету';
+                    // averageElement.className = 'text-sm text-red-500 average-score';
                 }
                 element.appendChild(averageElement);
                 displayedLessons.add(formattedDiscipline);
