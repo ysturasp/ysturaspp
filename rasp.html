@@ -1703,14 +1703,19 @@
 
                     for (const [type, count] of Object.entries(counts)) {
                         if (count.total > 0) {
-                            const isCompleted = count.completed === count.total;
-                            const checkMark = isCompleted ? '✅' : '';
-                            
-                            subjectDiv.innerHTML += 
-                                `<div class="flex justify-between text-slate-300">
+                            const completionPercentage = Math.round((count.completed / count.total) * 100);
+
+                            subjectDiv.innerHTML += `
+                                <div class="flex items-center justify-between text-slate-300 mb-1">
                                     <span>${toPlural(type)}: ${count.completed} из ${count.total}</span>
-                                    <span class="text-lg">${checkMark}</span>
-                                </div>`;
+                                    <div class="flex items-center ml-2">
+                                        <div class="relative w-24 h-2 bg-gray-300 rounded-full mr-2">
+                                            <div class="absolute top-0 left-0 h-full rounded-full" style="width: ${completionPercentage}%; background-color: ${completionPercentage === 100 ? '#00ff00b5' : '#0000ffb5'};"></div>
+                                        </div>
+                                        <span class="text-sm text-slate-400">${completionPercentage}%</span>
+                                    </div>
+                                </div>
+                            `;
                         }
                     }
 
