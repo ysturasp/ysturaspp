@@ -344,10 +344,22 @@
     </header>
 
     <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
-        <section class="bg-slate-800 rounded-lg p-6 mt-8">
-            <h2 class="text-4xl font-semibold text-white mb-4">👨‍💻 Статистика оценок</h2>
+        <section class="bg-slate-800 rounded-lg md:p-6 p-4 mt-8">
+            <div class="flex items-center">
+                <h2 class="text-2xl md:text-4xl font-semibold text-white">👨‍💻 Статистика оценок</h2>
+                <span class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+            </div>
+            
             <div class="form-group">
-                <p class="text-slate-600 mt-2">На данный момент поддерживается статистика предметов только ИЦС, ИАиД и ИИСиТ. В будующем планируется добавление статистики и для других Институтов</p> <br>
+                <p class="text-slate-600 mt-2">На данный момент поддерживается статистика предметов только ИЦС, ИАиД и ИИСиТ. В будующем планируется добавление статистики и для других Институтов</p> 
+                <div class="flex items-center justify-center">
+                    <div class="mt-4 p-4 bg-indigo-800 items-center text-indigo-100 leading-none rounded-3xl flex lg:inline-flex mb-4">
+                        <h2 class="text-3xl font-semibold text-white mr-2">⚠️</h2>
+                        <p class="text-slate-600 text-center">Не полагайтесь стопроцентно на эти данные. Большая часть в получении желаемой оценки всё же зависит только от ВАС</p> 
+                        <h2 class="text-3xl font-semibold text-white ml-2">⚠️</h2>
+                    </div>
+                </div>
+
                 <label class="block mb-2 text-sm font-medium text-slate-400">Выберите институт:</label>
                 <div class="institute-buttons mb-3">
                     <button id="btn-digital-systems" class="institute-button">Институт Цифровых Систем</button>
