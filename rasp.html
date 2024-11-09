@@ -19,6 +19,7 @@
     <script defer data-domain="ysturasp.me" src="https://plausible.io/js/script.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -234,7 +235,12 @@
         .modal-content-show {
             animation: fadeInScale 0.4s ease-out forwards;
         }
+        .hover-bold {
+            transition: all 0.4s ease-in-out;
+        }
         .hover-bold:hover {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 20px;
             font-weight: bold;
         }
     </style>
@@ -1463,7 +1469,6 @@
                     dayElement.innerHTML = 
                         `<h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>` +
                         lessons.map(lesson => {
-                            // Обработка имени преподавателя
                             const teacherFullName = lesson.teacherName || '';
                             const teacherNameParts = teacherFullName.split(' ');
                             const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
