@@ -196,49 +196,32 @@
         .notification.hide {
             opacity: 0;
         }
-
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
         @keyframes fadeInScale {
             0% {
+                transform: translateY(-30%) scale(0.8);
                 opacity: 0;
-                transform: scale(0.8);
             }
             100% {
+                transform: translateY(0) scale(1);
                 opacity: 1;
-                transform: scale(1);
-            }
-        }
-        @keyframes fadeOut {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
             }
         }
         @keyframes fadeOutScale {
             0% {
+                transform: translateY(0) scale(1);
                 opacity: 1;
-                transform: scale(1);
             }
             100% {
+                transform: translateY(-30%) scale(0.8);
                 opacity: 0;
-                transform: scale(0.8);
             }
         }
-        .modal-background-hide {
-            animation: fadeOut 0.3s ease forwards;
-            opacity: 0;
+        #mobile-menu.show {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
-        .modal-content-hide {
-            animation: fadeOutScale 0.4s ease-out forwards;
+        #mobile-menu.hide {
+            animation: fadeOutScale 0.2s ease-in forwards;
         }
         #infoModal {
             opacity: 0;
@@ -250,6 +233,9 @@
         }
         .modal-content-show {
             animation: fadeInScale 0.4s ease-out forwards;
+        }
+        .hover-bold:hover {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -420,7 +406,7 @@
                     <a href="https://stats.uptimerobot.com/COz2FUGsub" class="text-blue-500 hover:text-blue-300" target="_blank">Нажми, чтобы узнать о состоянии сервисов сайта</a> или 
                     <a href="/support" class="text-blue-500 hover:text-blue-300">напиши в нашу поддержку</a>.
                 </p>
-            </div>            
+            </div>
         </section>
         
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
@@ -1476,33 +1462,44 @@
 
                     dayElement.innerHTML = 
                         `<h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>` +
-                        lessons.map(lesson => 
-                        `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex">
-                            <!-- Time block с динамическим цветом -->
-                            <div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
-                                <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
-                                <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
-                            </div>
+                        lessons.map(lesson => {
+                            // Обработка имени преподавателя
+                            const teacherFullName = lesson.teacherName || '';
+                            const teacherNameParts = teacherFullName.split(' ');
+                            const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
 
-                            <!-- Lesson details -->
-                            <div class="flex-grow">
-                                <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
-                                <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                                <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
-                                    lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
-                                }</p>
-                                <p class="text-sm text-slate-400">${lesson.teacherName || ''}</p>
-                                ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
-                                <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
-                            </div>
+                            return `
+                                <div class="bg-slate-800 p-4 rounded-lg mb-2 flex">
+                                    <!-- Time block с динамическим цветом -->
+                                    <div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
+                                        <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
+                                        <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
+                                    </div>
 
-                            <!-- Visibility toggle -->
-                            <label class="switch ml-auto self-center">
-                                <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>`
-                    ).join('');
+                                    <!-- Lesson details -->
+                                    <div class="flex-grow">
+                                        <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
+                                        <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
+                                        <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
+                                            lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
+                                        }</p>
+                                        <p class="text-sm text-slate-400">
+                                            <a href="/raspprep?teacher=${teacherNameShortened}" class="text-blue-400 hover-bold">
+                                                ${teacherFullName}
+                                            </a>
+                                        </p>
+                                        ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
+                                        <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
+                                    </div>
+
+                                    <!-- Visibility toggle -->
+                                    <label class="switch ml-auto self-center">
+                                        <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            `;
+                        }).join('');
 
 
                     scheduleContainer.appendChild(dayElement);
