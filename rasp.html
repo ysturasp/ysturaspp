@@ -1403,7 +1403,7 @@
             titleElement.style.background = 'radial-gradient(circle, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)';
             titleElement.className = 'p-4 md:pr-20 md:pl-20 md:ml-20 md:mr-20 sm:ml-0 sm:mr-0 rounded-lg text-center text-xl lg:text-3xl md:text-xl font-bold text-white shadow-lg transition';
             titleElement.innerText = `Расписание для группы ${group} на ${week} неделю`;
-            
+
             const titleContainer = document.createElement('div');
             titleContainer.className = 'flex justify-center md:items-center mb-4';
 
@@ -1430,50 +1430,35 @@
                     alert('Недопустимая неделя.');
                     return;
                 }
+                
+                localStorage.removeItem('lastSelectedDay');
+                
                 displaySchedule(scheduleData, group, newWeek);
+                
                 document.getElementById('week-select').value = newWeek;
                 localStorage.setItem('lastWeek', newWeek);
             }
 
-            if (filteredWeek) {
+
+            function getDayName(day) {
+                const daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+                return daysOfWeek[day];
+            }
+
+            function displayDaySchedule(day) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'p-4 bg-slate-900 rounded-lg mb-4 day-schedule';
+
+                const dayInfo = day.info;
+                const formattedDate = formatDate(dayInfo.date);
+
+                dayElement.innerHTML = `<h3 class="text-2xl font-semibold text-white mb-2">${getDayName(new Date(dayInfo.date).getDay())} (${formattedDate})</h3>`;
+
                 const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-                const displayedLessons = new Set();
 
-                const septemberFirst = new Date(new Date().getFullYear(), 8, 1);
-
-                filteredWeek.days.forEach(day => {
-                    const lessonDate = new Date(day.info.date);
-                    if (lessonDate < septemberFirst) {
-                        return;
-                    }
-
-                    const dayElement = document.createElement('div');
-                    dayElement.className = 'p-4 bg-slate-900 rounded-lg';
-
-                    const dayInfo = day.info;
-                    const lessons = day.lessons.filter(lesson => {
-                        const hidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
-                        return !hidden;
-                    });
-
-                    const dayName = getDayName(new Date(dayInfo.date).getDay() - 1);
-                    const formattedDate = formatDate(dayInfo.date);
-
-                    const lessonTypes = {
-                        0: 'none',
-                        2: 'Лекция',
-                        4: 'Практика',
-                        8: 'Лабораторная работа',
-                        1: 'Курсовой проект',
-                        5: 'Консультация',
-                        6: 'Лекция + Практика',
-                        7: 'Дифференцированный зачет',
-                        3: 'Экзамен',
-                        9: 'Библиотека',
-                        10: 'Лекция + Лабораторная работа',
-                        11: 'Организационное собрание',
-                        12: 'Не поддерживается'
-                    };
+                day.lessons.forEach(lesson => {
+                    const isHidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
+                    if (isHidden) return;
 
                     const lessonTypeColors = {
                         2: 'border-green-500',
@@ -1490,61 +1475,99 @@
                         12: 'border-black'
                     };
 
-                    dayElement.innerHTML = 
-                        `<h3 class="text-2xl font-semibold text-white mb-2">${dayName} (${formattedDate})</h3>` +
-                        lessons.map(lesson => {
-                            const teacherFullName = lesson.teacherName || '';
-                            const teacherNameParts = teacherFullName.split(' ');
-                            const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
+                    const lessonContainer = document.createElement('div');
+                    lessonContainer.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
 
-                            return `
-                                <div class="bg-slate-800 p-4 rounded-lg mb-2 flex">
-                                    <!-- Time block с динамическим цветом -->
-                                    <div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
-                                        <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
-                                        <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
-                                    </div>
+                    lessonContainer.innerHTML = 
+                        `<div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
+                            <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
+                            <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
+                            <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
+                            <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
+                                lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
+                            }</p>
+                            <p class="text-sm text-slate-400">
+                                <a href="/raspprep?teacher=${lesson.teacherName}" class="text-blue-400 hover-bold">
+                                    ${lesson.teacherName || ''}
+                                </a>
+                            </p>
+                        </div>
+                        <label class="switch ml-auto self-center">
+                            <input type="checkbox" ${!isHidden ? 'checked' : ''} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
+                            <span class="slider round"></span>
+                        </label>`;
 
-                                    <!-- Lesson details -->
-                                    <div class="flex-grow">
-                                        <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
-                                        <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                                        <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
-                                            lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
-                                        }</p>
-                                        <p class="text-sm text-slate-400">
-                                            <a href="/raspprep?teacher=${teacherNameShortened}" class="text-blue-400 hover-bold">
-                                                ${teacherFullName}
-                                            </a>
-                                        </p>
-                                        ${lesson.additionalTeacherName ? `<p class="text-sm text-slate-400">${lesson.additionalTeacherName}</p>` : ''}
-                                        <div id="avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}"></div>
-                                    </div>
-
-                                    <!-- Visibility toggle -->
-                                    <label class="switch ml-auto self-center">
-                                        <input type="checkbox" ${hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || '')) ? '' : 'checked'} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            `;
-                        }).join('');
-
-
-                    scheduleContainer.appendChild(dayElement);
-
-                    lessons.forEach(lesson => {
-                        const avgElementId = `avg-${lesson.lessonName.replace(/ /g, '-')}-${dayInfo.date}`;
-                        const avgElement = document.getElementById(avgElementId);
-                        displayAverageScore(lesson.lessonName, avgElement, displayedLessons);
-                    });
+                    dayElement.appendChild(lessonContainer);
                 });
+
+                scheduleContainer.appendChild(dayElement);
+            }
+
+            if (filteredWeek) {
+                if (window.innerWidth <= 768) {
+                    const daysContainer = document.createElement('div');
+                    daysContainer.className = 'flex justify-center gap-4 mb-2';
+
+                    const startDate = new Date(filteredWeek.startDate);
+                    startDate.setDate(startDate.getDate() - startDate.getDay() + 1);
+
+                    const lastSelectedDay = localStorage.getItem('lastSelectedDay');
+
+                    filteredWeek.days.forEach((day, index) => {
+                        const lessonDate = new Date(day.info.date);
+                        const dayButton = document.createElement('button');
+                        dayButton.className = 'flex flex-col items-center p-2 sm:p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]';
+                        dayButton.style.width = '70px';
+
+                        if ((lastSelectedDay && lessonDate.toDateString() === new Date(lastSelectedDay).toDateString()) || (!lastSelectedDay && index === 0)) {
+                            dayButton.classList.add('bg-blue-600');
+                        }
+
+                        dayButton.innerHTML = 
+                            `<span class="text-sm">${getDayName(lessonDate.getDay())}</span>
+                            <span class="text-xl font-bold">${lessonDate.getDate()}</span>`;
+
+                        dayButton.onclick = () => {
+                            [...daysContainer.children].forEach(btn => btn.classList.remove('bg-blue-600'));
+                            dayButton.classList.add('bg-blue-600');
+
+                            const existingSchedule = scheduleContainer.querySelector('.day-schedule');
+                            if (existingSchedule) {
+                                existingSchedule.remove();
+                            }
+
+                            displayDaySchedule(day);
+
+                            localStorage.setItem('lastSelectedDay', lessonDate);
+                        };
+
+                        daysContainer.appendChild(dayButton);
+                    });
+
+
+                    scheduleContainer.appendChild(daysContainer);
+
+                    displayDaySchedule(
+                        filteredWeek.days.find(day => new Date(day.info.date).toDateString() === new Date(lastSelectedDay).toDateString()) || 
+                        filteredWeek.days[0]
+                    );
+
+                    updateHiddenSubjectsSection(group);
+                } else {
+                    filteredWeek.days.forEach(day => {
+                        displayDaySchedule(day);
+                    });
+                }
 
                 updateHiddenSubjectsSection(group);
             } else {
                 scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
             }
         }
+
 
         function toPlural(type) {
             switch (type) {
