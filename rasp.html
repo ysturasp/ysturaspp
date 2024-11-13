@@ -1478,6 +1478,10 @@
                     const lessonContainer = document.createElement('div');
                     lessonContainer.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
 
+                    const teacherFullName = lesson.teacherName || '';
+                    const teacherNameParts = teacherFullName.split(' ');
+                    const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
+
                     lessonContainer.innerHTML = 
                         `<div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
                             <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
@@ -1490,7 +1494,7 @@
                                 lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
                             }</p>
                             <p class="text-sm text-slate-400">
-                                <a href="/raspprep?teacher=${lesson.teacherName}" class="text-blue-400 hover-bold">
+                                <a href="/raspprep?teacher=${teacherNameShortened}" class="text-blue-400 hover-bold">
                                     ${lesson.teacherName || ''}
                                 </a>
                             </p>
@@ -1499,6 +1503,7 @@
                             <input type="checkbox" ${!isHidden ? 'checked' : ''} onchange="toggleSubjectVisibility('${group}', '${lesson.lessonName}', ${lesson.type}, '${lesson.teacherName || ''}', this.checked)">
                             <span class="slider round"></span>
                         </label>`;
+
 
                     dayElement.appendChild(lessonContainer);
                 });
@@ -1567,7 +1572,6 @@
                 scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
             }
         }
-
 
         function toPlural(type) {
             switch (type) {
