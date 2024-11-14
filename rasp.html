@@ -1405,7 +1405,7 @@
             titleElement.innerText = `Расписание для группы ${group} на ${week} неделю`;
 
             const titleContainer = document.createElement('div');
-            titleContainer.className = 'flex justify-center md:items-center mb-4';
+            titleContainer.className = 'flex justify-center md:items-center';
 
             const leftButton = document.createElement('button');
             leftButton.innerText = '👈';
@@ -1423,6 +1423,41 @@
 
             scheduleContainer.appendChild(titleContainer);
 
+            const isMobileView = window.innerWidth <= 768;
+
+            if (isMobileView) {
+                const toggleContainer = document.createElement('div');
+                toggleContainer.className = 'flex justify-end items-center';
+
+                const toggleLabel = document.createElement('label');
+                toggleLabel.className = 'switch flex items-center';
+                toggleLabel.innerHTML = 
+                    `<input type="checkbox" id="viewToggle">
+                    <span class="slider round"></span>`;
+
+                const leftText = document.createElement('span');
+                leftText.className = 'mr-2 text-white';
+                leftText.textContent = 'По дням';
+
+                const rightText = document.createElement('span');
+                rightText.className = 'ml-2 text-white';
+                rightText.textContent = 'На неделю';
+
+                toggleContainer.appendChild(leftText);
+                toggleContainer.appendChild(toggleLabel);
+                toggleContainer.appendChild(rightText);
+                scheduleContainer.appendChild(toggleContainer);
+
+                const isFullView = localStorage.getItem('isFullView') === 'true';
+                document.getElementById('viewToggle').checked = isFullView;
+
+                document.getElementById('viewToggle').addEventListener('change', function () {
+                    const isChecked = this.checked;
+                    localStorage.setItem('isFullView', isChecked);
+                    displaySchedule(scheduleData, group, week);
+                });
+            }
+
             const filteredWeek = scheduleData.items.find(item => item.number === week);
 
             function changeWeek(newWeek) {
@@ -1438,7 +1473,6 @@
                 document.getElementById('week-select').value = newWeek;
                 localStorage.setItem('lastWeek', newWeek);
             }
-
 
             function getDayName(day) {
                 const daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
@@ -1504,7 +1538,6 @@
                             <span class="slider round"></span>
                         </label>`;
 
-
                     dayElement.appendChild(lessonContainer);
                 });
 
@@ -1512,7 +1545,9 @@
             }
 
             if (filteredWeek) {
-                if (window.innerWidth <= 768) {
+                const isFullView = localStorage.getItem('isFullView') === 'true';
+
+                if (window.innerWidth <= 768 && !isFullView) {
                     const daysContainer = document.createElement('div');
                     daysContainer.className = 'flex justify-center gap-4 mb-2';
 
@@ -1551,7 +1586,6 @@
 
                         daysContainer.appendChild(dayButton);
                     });
-
 
                     scheduleContainer.appendChild(daysContainer);
 
