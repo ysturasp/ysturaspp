@@ -421,13 +421,20 @@
                 </div>
                 <button type="submit" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all">Показать расписание</button>
             </form>
-            <div class="flex justify-end items-center mt-4">
-                <label class="switch">
-                    <input id="average-toggle" type="checkbox">
-                    <span class="slider round"></span>
-                </label>
-                <span class="ml-2 text-white">Показать средние баллы</span>
-            </div>
+            <div class="flex justify-between items-center mt-4 w-full">
+                <button id="copy-link-button" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-indigo-800 transition-all flex items-center justify-center">
+                    <span class="text-3xl md:text-xl align-middle">🔗</span>
+                    <span class="ml-2 text-sm align-middle hidden md:inline">Скопировать ссылку на расписание</span>
+                </button>
+                
+                <div class="flex items-center">
+                    <label class="switch">
+                        <input id="average-toggle" type="checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="ml-2 text-white">Показать средние баллы</span>
+                </div>
+            </div>                    
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
             <div class="border-2 border-red-600 text-white p-2 rounded-lg mt-4 mb-2 bg-transparent">
                 <p class="text-md text-center">
@@ -826,6 +833,116 @@
                 return hiddenSubjectsCount;
             }
 
+            const copyLinkButton = document.getElementById('copy-link-button');
+
+            copyLinkButton.addEventListener('click', () => {
+                const url = `ysturasp.me/rasp?institute=${document.getElementById('institute-select').value}&group=${document.getElementById('group-select').value}`;
+                
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url)
+                        .then(() => {
+                            ShowCopyNotification();
+                        })
+                        .catch(err => {
+                            alert('Ошибка копирования ссылки через Clipboard API: ' + err);
+                        });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = url;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            ShowCopyNotification();
+                        } else {
+                            alert('Не удалось скопировать ссылку. Попробуйте обновить страницу.');
+                        }
+                    } catch (err) {
+                        alert('Ошибка копирования с использованием execCommand: ' + err);
+                    }
+                    document.body.removeChild(textarea);
+                }
+            });
+
+            function ShowCopyNotification() {
+                const existingNotification = document.querySelector('.notification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-green-500 text-white py-2 px-4 rounded-lg z-50 notification';
+                notification.textContent = `Ссылка на расписание успешно скопирована!`;
+
+                document.body.appendChild(notification);
+
+                notification.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                });
+
+                let touchStartX = 0;
+                let currentX = 0;
+                let moveX = 0;
+                let isSwiping = false;
+
+                notification.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    isSwiping = true;
+                    notification.style.transition = '';
+                });
+
+                notification.addEventListener('touchmove', (e) => {
+                    if (!isSwiping) return;
+
+                    currentX = e.changedTouches[0].screenX;
+                    moveX = currentX - touchStartX;
+
+                    notification.style.transform = `translateX(${moveX}px)`;
+                });
+
+                notification.addEventListener('touchend', () => {
+                    if (!isSwiping) return;
+
+                    isSwiping = false;
+                    if (Math.abs(moveX) > 100) {
+                        const direction = moveX < 0 ? '-110%' : '110%';
+                        notification.style.transition = 'transform 0.5s ease';
+                        notification.style.transform = `translateX(${direction})`;
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 500);
+                    } else {
+                        notification.style.transition = 'transform 0.3s ease';
+                        notification.style.transform = 'translateX(0)';
+                    }
+                });
+
+                notification.addEventListener('click', () => {
+                    notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                });
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 5000);
+            }
+
             function showNotification(hiddenCount) {
                 const notification = document.createElement('div');
                 notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification';
@@ -933,6 +1050,21 @@
                     element.style.display = averageToggle.checked ? 'inline' : 'none';
                 });
             });
+
+            const targetDiv = document.querySelector('.flex.justify-between.items-center.mt-4.w-full');
+
+            function toggleVisibility() {
+                if (!instituteSelect.value || !groupSelect.value) {
+                    targetDiv.style.display = 'none';
+                } else {
+                    targetDiv.style.display = 'flex';
+                }
+            }
+
+            instituteSelect.addEventListener('change', toggleVisibility);
+            groupSelect.addEventListener('change', toggleVisibility);
+
+            toggleVisibility();
         });
 
         const weekRanges = [
@@ -1423,8 +1555,12 @@
 
             scheduleContainer.appendChild(titleContainer);
 
-            const isMobileView = window.innerWidth <= 768;
+            const copyButtonContainer = document.createElement('div');
+            copyButtonContainer.className = 'flex justify-center';
 
+            
+
+            const isMobileView = window.innerWidth <= 768;
             if (isMobileView) {
                 const toggleContainer = document.createElement('div');
                 toggleContainer.className = 'flex justify-end items-center';
@@ -1606,6 +1742,37 @@
                 scheduleContainer.innerHTML = '<p class="text-red-500">Расписание на выбранную неделю не найдено.</p>';
             }
         }
+
+        async function initializeSchedulePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const instituteParam = urlParams.get('institute');
+            const groupParam = urlParams.get('group');
+
+            if (instituteParam) {
+                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups');
+                const data = await response.json();
+                const institutes = data.items;
+
+                const selectedInstitute = institutes.find(inst => inst.name === instituteParam);
+                if (selectedInstitute) {
+                    document.getElementById('institute-select').value = instituteParam;
+                    const groupSelect = document.getElementById('group-select');
+
+                    const uniqueGroups = [...new Set(selectedInstitute.groups)];
+                    groupSelect.innerHTML = uniqueGroups.map(group => `<option value="${group}">${group}</option>`).join('');
+
+                    if (groupParam && uniqueGroups.includes(groupParam)) {
+                        groupSelect.value = groupParam;
+                    }
+                }
+            }
+
+            if (instituteParam && groupParam) {
+                document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+            }
+        }
+
+        window.onload = initializeSchedulePage;
 
         function toPlural(type) {
             switch (type) {
