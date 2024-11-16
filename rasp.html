@@ -836,7 +836,9 @@
             const copyLinkButton = document.getElementById('copy-link-button');
 
             copyLinkButton.addEventListener('click', () => {
-                const url = `${window.location.origin}${window.location.pathname}?institute=${document.getElementById('institute-select').value}&group=${document.getElementById('group-select').value}`;
+                const institute = document.getElementById('institute-select').value.replace(/ /g, '_');
+                const group = document.getElementById('group-select').value.replace(/ /g, '_');
+                const url = `${window.location.origin}${window.location.pathname}?institute=${institute}&group=${group}`;
                 
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(url)
@@ -1758,20 +1760,25 @@
             const groupParam = urlParams.get('group');
 
             if (instituteParam) {
+                const instituteName = instituteParam.replace(/_/g, ' ');
+
                 const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups');
                 const data = await response.json();
                 const institutes = data.items;
 
-                const selectedInstitute = institutes.find(inst => inst.name === instituteParam);
+                const selectedInstitute = institutes.find(inst => inst.name === instituteName);
                 if (selectedInstitute) {
-                    document.getElementById('institute-select').value = instituteParam;
+                    document.getElementById('institute-select').value = instituteName;
                     const groupSelect = document.getElementById('group-select');
 
                     const uniqueGroups = [...new Set(selectedInstitute.groups)];
                     groupSelect.innerHTML = uniqueGroups.map(group => `<option value="${group}">${group}</option>`).join('');
 
-                    if (groupParam && uniqueGroups.includes(groupParam)) {
-                        groupSelect.value = groupParam;
+                    if (groupParam) {
+                        const groupName = groupParam.replace(/_/g, ' ');
+                        if (uniqueGroups.includes(groupName)) {
+                            groupSelect.value = groupName;
+                        }
                     }
                 }
             }
