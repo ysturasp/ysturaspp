@@ -836,7 +836,7 @@
             const copyLinkButton = document.getElementById('copy-link-button');
 
             copyLinkButton.addEventListener('click', () => {
-                const url = `ysturasp.me/rasp?institute=${document.getElementById('institute-select').value}&group=${document.getElementById('group-select').value}`;
+                const url = `${window.location.origin}${window.location.pathname}?institute=${document.getElementById('institute-select').value}&group=${document.getElementById('group-select').value}`;
                 
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(url)
