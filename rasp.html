@@ -1609,9 +1609,11 @@
             const filteredWeek = scheduleData.items.find(item => item.number === week);
 
             function changeWeek(newWeek) {
-                if (newWeek < 1 || newWeek > 18) {
-                    alert('Недопустимая неделя.');
-                    return;
+                if (newWeek > 18) {
+                    newWeek = 1;
+                }
+                else if (newWeek < 1) {
+                    newWeek = 18;
                 }
                 
                 localStorage.removeItem('lastSelectedDay');
