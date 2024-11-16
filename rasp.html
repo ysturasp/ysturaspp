@@ -1587,10 +1587,19 @@
                 const isFullView = localStorage.getItem('isFullView') === 'true';
                 document.getElementById('viewToggle').checked = isFullView;
 
-                document.getElementById('viewToggle').addEventListener('change', function () {
+                viewToggle.addEventListener('change', function () {
                     const isChecked = this.checked;
                     localStorage.setItem('isFullView', isChecked);
-                    displaySchedule(scheduleData, group, week);
+                    scheduleContainer.classList.add('transition-opacity', 'duration-500');
+                    scheduleContainer.classList.add('opacity-0');
+                    setTimeout(() => {
+                        displaySchedule(scheduleData, group, week);
+                        scheduleContainer.classList.remove('opacity-0');
+                        scheduleContainer.classList.add('opacity-100');
+                        setTimeout(() => {
+                        scheduleContainer.classList.remove('transition-opacity', 'duration-500', 'opacity-100');
+                        }, 500);
+                    }, 500);
                 });
             }
 
