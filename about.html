@@ -184,6 +184,31 @@
             color: #fff;
             left:15%;
         }
+        #image-modal.hidden {
+            display: none;
+        }
+        #image-modal.show {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        #modal-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            transform: scale(0.5);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        #image-modal.show #modal-image {
+            transform: scale(1);
+            opacity: 1;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -241,8 +266,52 @@
             </div>
         </div>
     </main>
+
+    <div id="image-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
+        <div class="relative">
+            <img id="modal-image" src="" alt="Enlarged Image" class="rounded-lg transition-transform duration-300 max-w-full max-h-full">
+            <button id="close-modal" class="absolute top-2 right-2 text-white bg-red-600 rounded-full p-2 w-5 h-5 md:w-10 md:h-10  flex items-center justify-center hover:bg-red-800">
+                &times;
+            </button>            
+        </div>
+    </div>
 </body>
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('boosty-news');
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeModal = document.getElementById('close-modal');
+
+        container.addEventListener('click', (event) => {
+            if (event.target.tagName === 'IMG') {
+                modalImage.src = event.target.src;
+
+                imageModal.classList.remove('hidden');
+                setTimeout(() => {
+                    imageModal.classList.add('show');
+                }, 200);
+            }
+        });
+
+        closeModal.addEventListener('click', () => {
+            closeModalModal();
+        });
+
+        imageModal.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                closeModalModal();
+            }
+        });
+
+        function closeModalModal() {
+            imageModal.classList.remove('show');
+            setTimeout(() => {
+                imageModal.classList.add('hidden');
+            }, 350);
+        }
+    });
+
     async function fetchBoostyPosts() {
         const loadingIndicator = document.getElementById('loading-indicator');
         const container = document.getElementById('boosty-news');
