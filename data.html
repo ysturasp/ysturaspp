@@ -193,9 +193,12 @@
     <div id="confirmModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden" onclick="closeModal(event)">
         <div class="bg-slate-900 rounded-lg p-5 ml-3 mr-3 text-center">
             <h2 class="text-xl font-semibold text-red-600 mb-4">Удаление данных</h2>
-            <p class="text-slate-400 mb-4">Вы уверены, что хотите очистить все данные? Они будут удалены без возможности восстановления.</p>
+            <p class="text-slate-400 mb-4">Выберите данные для удаления:</p>
+            <div id="dataList" class="mb-4 p-4 bg-gray-800 rounded-lg overflow-y-auto max-h-60">
+            </div>
             <div class="flex justify-center gap-4">
-                <button onclick="clearCache()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">Удалить</button>
+                <button onclick="selectAllCheckboxes()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">Выбрать всё</button>
+                <button onclick="clearSelectedCache()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">Удалить</button>
                 <button onclick="closeModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all">Отмена</button>
             </div>
         </div>
@@ -234,13 +237,68 @@
             alert('Данные успешно скачаны');
         }
 
+        function selectAllCheckboxes() {
+            const checkboxes = document.querySelectorAll('#dataList input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+        }
+
         function confirmClearCache() {
+            const dataList = document.getElementById('dataList');
+            dataList.innerHTML = '';
+            const keys = Object.keys(localStorage);
+
+            keys.forEach(key => {
+                if (key.includes('ym')) {
+                    return;
+                }
+
+                let displayText = '';
+
+                try {
+                    const value = JSON.parse(localStorage.getItem(key));
+                    if (value && value.average !== undefined) {
+                        displayText = `${key}: Средний балл ${value.average.toFixed(2)}`;
+                    } else {
+                        displayText = `${key}: ${value}`;
+                    }
+                } catch (e) {
+                    displayText = `${key}: ${localStorage.getItem(key)}`;
+                }
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = key;
+                checkbox.value = key;
+
+                const label = document.createElement('label');
+                label.htmlFor = key;
+                label.textContent = displayText;
+
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-center mb-2';
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                
+                dataList.appendChild(div);
+            });
+
             document.getElementById('confirmModal').classList.remove('hidden');
         }
 
-        function clearCache() {
-            localStorage.clear();
-            alert('Кэш успешно очищен');
+        function clearSelectedCache() {
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                const checkbox = document.getElementById(key);
+                if (checkbox && checkbox.checked) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            alert('Выбранные данные успешно удалены');
             closeModal();
         }
 
