@@ -259,14 +259,16 @@
                 posts.forEach(post => {
                     const formattedContent = post.content ? post.content.replace(/\n/g, '<br>') : '';
 
+                    const cleanImageUrl = post.image ? post.image.split('?')[0] : '';
+
                     const postHTML = `
                         <div class="bg-slate-900 rounded-lg p-6 mb-8 shadow-lg hover:shadow-2xl transition-shadow duration-300">
                             ${post.link ? `<a href="${post.link}" target="_blank" class="text-2xl text-white font-bold">${post.title}</a>` : ''}
                             ${post.date ? `<p class="text-slate-400 text-xs mt-1 mb-2"><i class="fas fa-calendar-alt"></i> ${post.date}</p>` : ''}
                             ${formattedContent ? `<p class="text-slate-300 mt-3 leading-relaxed">${formattedContent}</p>` : ''}
-                            ${post.image ? `
+                            ${cleanImageUrl ? `
                                 <div class="flex justify-center mt-5">
-                                    <img src="${post.image}" alt="Post image" style="max-height: 500px" class="rounded-lg max-w-full hover:scale-105 transition-transform duration-300">
+                                    <img src="${cleanImageUrl}" alt="Post image" style="max-height: 500px" class="rounded-lg max-w-full hover:scale-105 transition-transform duration-300">
                                 </div>
                             ` : ''}
                         </div>
