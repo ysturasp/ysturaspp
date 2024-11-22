@@ -1676,9 +1676,13 @@
                         <div class="flex-grow">
                             <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                             <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                            <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">${
-                                lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'
-                            }</p>
+                            <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">
+                                ${lesson.isDistant ? 'Дистант' : 
+                                    lesson.auditoryName ? 
+                                    `<a href="/raspaudience?audience=${lesson.auditoryName}" class="text-blue-400 hover-bold">${lesson.auditoryName}</a>` : 
+                                    'undefined'
+                                }
+                            </p>
                             <p class="text-sm text-slate-400">
                                 <a href="/raspprep?teacher=${teacherNameShortened}" class="text-blue-400 hover-bold">
                                     ${lesson.teacherName || ''}
