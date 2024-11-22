@@ -415,8 +415,12 @@
                 <button type="submit" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all">
                     Показать расписание
                 </button>
+                <button id="copy-link-button" class="p-2 border-2 border-blue-700 text-white rounded-lg hover:border-indigo-800 hover:text-indigo-800 transition-all flex items-center justify-center">
+                    <span class="text-3xl md:text-xl align-middle">🔗</span>
+                    <span class="ml-2 text-sm align-middle hidden md:inline">Скопировать ссылку на расписание</span>
+                </button>
             </form>
-
+            
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
         </section>
     </main>
@@ -516,6 +520,168 @@
             } catch (error) {
                 console.error('Ошибка при получении списка преподавателей:', error);
                 optionsElement.innerHTML = '<li class="p-2">Ошибка при получении списка преподавателей</li>';
+            }
+
+            const copyLinkButton = document.getElementById('copy-link-button');
+            const teacherInput = document.getElementById('combobox-input');
+
+            function toggleVisibility() {
+                const teacherId = teacherInput.getAttribute('data-teacher-id');
+                const inputValue = teacherInput.value.trim();
+
+                if (!teacherId || !inputValue) {
+                    copyLinkButton.style.display = 'none';
+                } else {
+                    copyLinkButton.style.display = 'flex';
+                }
+            }
+
+            teacherInput.addEventListener('input', toggleVisibility);
+
+            teacherInput.addEventListener('change', toggleVisibility);
+
+            const observer = new MutationObserver(toggleVisibility);
+            observer.observe(teacherInput, {
+                attributes: true,
+                attributeFilter: ['data-teacher-id']
+            });
+
+            toggleVisibility();
+
+            copyLinkButton.addEventListener('click', () => {
+                event.preventDefault();
+
+                const teacherInput = document.getElementById('combobox-input');
+                if (!teacherInput) {
+                    console.error('Ошибка: Не найден элемент combobox-input');
+                    return;
+                }
+
+                const teacherName = teacherInput.value.trim();
+
+                if (!teacherName) {
+                    console.error('Ошибка: Имя преподавателя не указано');
+                    return;
+                }
+
+                const formattedTeacherName = formatTeacherName(teacherName);
+
+                const url = `${window.location.origin}${window.location.pathname}?teacher=${formattedTeacherName}`;
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url)
+                        .then(() => {
+                            ShowCopyNotification();
+                        })
+                        .catch(err => {
+                            alert('Ошибка копирования ссылки через Clipboard API: ' + err);
+                        });
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = url;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            ShowCopyNotification();
+                        } else {
+                            alert('Не удалось скопировать ссылку. Попробуйте обновить страницу.');
+                        }
+                    } catch (err) {
+                        alert('Ошибка копирования с использованием execCommand: ' + err);
+                    }
+                    document.body.removeChild(textarea);
+                }
+            });
+
+            function formatTeacherName(name) {
+                const nameParts = name.split(' ');
+                if (nameParts.length < 2) return name;
+                
+                const lastName = nameParts[0];
+                const firstName = nameParts[1].charAt(0);
+                const middleName = nameParts[2] ? nameParts[2].charAt(0) : '';
+                
+                return `${lastName} ${firstName}${middleName}`.trim();
+            }
+
+            function ShowCopyNotification() {
+                const existingNotification = document.querySelector('.notification');
+                if (existingNotification) {
+                    existingNotification.remove();
+                }
+
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-green-500 text-white py-2 px-4 rounded-lg z-50 notification';
+                notification.textContent = `Ссылка на расписание успешно скопирована!`;
+
+                document.body.appendChild(notification);
+
+                notification.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                });
+
+                let touchStartX = 0;
+                let currentX = 0;
+                let moveX = 0;
+                let isSwiping = false;
+
+                notification.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    isSwiping = true;
+                    notification.style.transition = '';
+                });
+
+                notification.addEventListener('touchmove', (e) => {
+                    if (!isSwiping) return;
+
+                    currentX = e.changedTouches[0].screenX;
+                    moveX = currentX - touchStartX;
+
+                    notification.style.transform = `translateX(${moveX}px)`;
+                });
+
+                notification.addEventListener('touchend', () => {
+                    if (!isSwiping) return;
+
+                    isSwiping = false;
+                    if (Math.abs(moveX) > 100) {
+                        const direction = moveX < 0 ? '-110%' : '110%';
+                        notification.style.transition = 'transform 0.5s ease';
+                        notification.style.transform = `translateX(${direction})`;
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 500);
+                    } else {
+                        notification.style.transition = 'transform 0.3s ease';
+                        notification.style.transform = 'translateX(0)';
+                    }
+                });
+
+                notification.addEventListener('click', () => {
+                    notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                });
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 5000);
             }
 
             function updateOptions(query = '') {
