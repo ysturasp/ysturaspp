@@ -932,25 +932,13 @@
                         inputElement.value = discipline;
                         optionsElement.classList.remove('active');
                         clearButton.style.display = 'block';
+                        overlay.classList.add('hidden');
+                        inputElement.classList.remove('ambient-focuss');
+                        optionsElement.classList.remove('ambient-focus');
                     });
                     optionsElement.appendChild(optionElement);
                 });
             }
-
-            inputElement.addEventListener('focus', () => {
-                optionsElement.classList.add('active');
-                updateOptions(inputElement.value);
-            });
-
-            inputElement.addEventListener('input', () => {
-                updateOptions(inputElement.value);
-            });
-
-            document.addEventListener('click', (event) => {
-                if (!inputElement.contains(event.target) && !optionsElement.contains(event.target)) {
-                    optionsElement.classList.remove('active');
-                }
-            });
 
             inputElement.addEventListener('focus', function () {
                 overlay.classList.remove('hidden');
@@ -960,22 +948,12 @@
                 updateOptions(this.value);
             });
 
-            inputElement.addEventListener('input', function () {
-                updateOptions(this.value);
-                if (this.value === '') {
-                    clearButton.style.display = 'none';
-                } else {
-                    clearButton.style.display = 'block';
-                }
+            inputElement.addEventListener('input', () => {
+                updateOptions(inputElement.value);
+                clearButton.style.display = inputElement.value ? 'block' : 'none';
             });
 
-            inputElement.addEventListener('click', function (event) {
-                event.stopPropagation();
-                optionsElement.classList.add('active');
-                updateOptions(this.value);
-            });
-
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', (event) => {
                 if (!inputElement.contains(event.target) && !optionsElement.contains(event.target)) {
                     optionsElement.classList.remove('active');
                     overlay.classList.add('hidden');
@@ -984,12 +962,9 @@
                 }
             });
 
-            document.querySelector('#combobox-options').addEventListener('click', function() {
-                document.querySelector('.ambient-overlay').style.display = 'none';
-            });
-
-            clearButton.addEventListener('click', function () {
+            clearButton.addEventListener('click', () => {
                 inputElement.value = '';
+                inputElement.dataset.teacherId = '';
                 optionsElement.classList.remove('active');
                 clearButton.style.display = 'none';
             });
