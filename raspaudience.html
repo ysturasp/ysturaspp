@@ -934,9 +934,6 @@
                                     <div>
                                         <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
                                         <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
-                                        <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">
-                                            ${lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'}
-                                        </p>
                                         <p class="text-sm text-slate-400">${lesson.groups.join(', ')}</p>
                                         ${teacherFullName ? `
                                             <p class="text-sm text-slate-400">

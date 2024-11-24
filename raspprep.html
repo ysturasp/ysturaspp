@@ -20,6 +20,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -324,6 +325,13 @@
         .combobox-options li:hover {
             border-radius: 10px;
             background-color: #0072e461;
+        }
+        .hover-bold {
+            transition: all 0.4s ease-in-out;
+        }
+        .hover-bold:hover {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -916,7 +924,11 @@
                                     <p class="text-lg font-bold text-white">${lesson.lessonName}</p>
                                     <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
                                     <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">
-                                        ${lesson.isDistant ? 'Дистант' : lesson.auditoryName || 'undefined'}
+                                        ${lesson.isDistant ? 'Дистант' : 
+                                            lesson.auditoryName ? 
+                                            `<a href="/raspaudience?audience=${lesson.auditoryName}" class="text-blue-400 hover-bold">${lesson.auditoryName}</a>` : 
+                                            'undefined'
+                                        }
                                     </p>
                                     <p class="text-sm text-slate-400">Группы: ${lesson.groups.join(', ')}</p>
                                 </div>
