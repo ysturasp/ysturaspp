@@ -388,7 +388,12 @@
                 </div>
                 <label for="combobox-input" class="block mb-2 text-sm font-medium text-slate-400">Выберите дисциплину:</label>
                 <div class="relative">
-                    <input id="combobox-input" type="text" class="block w-full p-2.5 bg-slate-900 border border-gray-600 rounded-lg text-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Выберите дисциплину...">
+                    <input id="combobox-input" 
+                            type="text" 
+                            class="block w-full p-2.5 bg-slate-900 border border-gray-600 rounded-lg text-gray-300 focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="Выберите дисциплину..."
+                            autocomplete="off" autocorrect="off" autocapitalize="off">
+
                     <button id="clear-button" class="clear-button">&times;</button>
                     <ul id="combobox-options" class="absolute w-full bg-slate-900 border border-gray-600 rounded-lg mt-1 overflow-hidden combobox-options">
                     </ul>
