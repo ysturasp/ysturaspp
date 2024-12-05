@@ -967,11 +967,13 @@
                 }
             });
 
-            clearButton.addEventListener('click', () => {
+            clearButton.addEventListener('click', (event) => {
+                event.stopPropagation();
                 inputElement.value = '';
                 inputElement.dataset.teacherId = '';
-                optionsElement.classList.remove('active');
                 clearButton.style.display = 'none';
+                
+                inputElement.focus(); 
             });
 
             updateOptions();
