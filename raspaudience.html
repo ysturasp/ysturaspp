@@ -20,7 +20,16 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
+        ::selection {
+            background-color: #ffc935;
+            color: #000000;
+            border-radius: 5px;
+            padding: 1.2em;
+        }
+        img::selection {
+            background-color: transparent;
+            color: inherit;
+        }        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
