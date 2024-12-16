@@ -823,7 +823,7 @@
                 }
             } catch (error) {
                 console.error('Ошибка при получении списка институтов:', error);
-                instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов</option>';
+                instituteSelect.innerHTML = '<option value="">Ошибка при получении списка институтов. Включите VPN!</option>';
             }
             function countAndShowHiddenSubjects() {
                 let hiddenSubjectsCount = 0;
