@@ -2029,7 +2029,8 @@
                                 'Лабораторная работа': { completed: 0, total: 0 }, 
                                 'Курсовой проект': { completed: 0, total: 0 }, 
                                 Консультация: { completed: 0, total: 0 }, 
-                                Экзамен: { completed: 0, total: 0 } 
+                                Экзамен: { completed: 0, total: 0 },
+                                exams: [] // Массив для хранения информации о экзаменах
                             };
                         }
 
@@ -2046,6 +2047,16 @@
                                 statistics[subject][typeName].completed++;
                                 globalCounts[typeName].completed++;
                             }
+                        }
+
+                        // Проверка на экзамены и добавление их в статистику
+                        if (type === 256) {
+                            statistics[subject].exams.push({
+                                date: lessonDate.toLocaleDateString(),
+                                time: lessonDate.toLocaleTimeString(),
+                                auditory: lesson.auditoryName,
+                                teacher: lesson.teacherName
+                            });
                         }
                     });
                 });
@@ -2150,53 +2161,94 @@
             const gridContainer = document.createElement('div');
             gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
 
+            function sortExamsByDate(exams) {
+                return exams.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            const subjectsWithExams = [];
+            const subjectsWithoutExams = [];
+
             for (const [subject, counts] of Object.entries(statistics)) {
                 const hasTypes = Object.values(counts).some(count => count.total > 0);
 
                 if (hasTypes) {
-                    const subjectDiv = document.createElement('div');
-                    subjectDiv.className = 'bg-slate-900 p-4 rounded-lg shadow-lg';
-                    subjectDiv.style.transition = 'background 0.5s';
-
-                    subjectDiv.innerHTML = `<h3 class="text-xl font-bold text-white mb-2">${subject}</h3>`;
-
-                    for (const [type, count] of Object.entries(counts)) {
-                        if (count.total > 0) {
-                            const completionPercentage = Math.round((count.completed / count.total) * 100);
-
-                            subjectDiv.innerHTML += `
-                                <div class="flex items-center justify-between text-slate-300 mb-1">
-                                    <span>${toPlural(type)}: ${count.completed} из ${count.total}</span>
-                                    <div class="flex items-center ml-2">
-                                        <div class="relative w-24 h-2 bg-gray-300 rounded-full mr-2">
-                                            <div class="absolute top-0 left-0 h-full rounded-full" style="width: ${completionPercentage}%; background-color: ${completionPercentage === 100 ? '#00ff00b5' : '#0000ffb5'};"></div>
-                                        </div>
-                                        <span class="text-sm text-slate-400">${completionPercentage}%</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
+                    if (counts.exams.length > 0) {
+                        subjectsWithExams.push({ subject, counts });
+                    } else {
+                        subjectsWithoutExams.push({ subject, counts });
                     }
-
-                    subjectDiv.addEventListener('mousemove', (event) => {
-                        const rect = subjectDiv.getBoundingClientRect();
-                        const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
-                        const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
-                        subjectDiv.style.background = getGradient(mouseX, mouseY);
-                    });
-
-                    subjectDiv.addEventListener('mouseleave', () => {
-                        subjectDiv.style.background = '';
-                    });
-
-                    const avgElement = document.createElement('div');
-                    avgElement.id = `avg-${subject.replace(/ /g, '-')}`;
-                    displayAverageScore(subject, avgElement, new Set(), true);
-                    subjectDiv.appendChild(avgElement);
-
-                    gridContainer.appendChild(subjectDiv);
                 }
             }
+
+            subjectsWithExams.forEach(item => {
+                item.counts.exams = sortExamsByDate(item.counts.exams);
+            });
+
+            const sortedSubjects = [...subjectsWithExams, ...subjectsWithoutExams];
+
+            sortedSubjects.forEach(item => {
+                const { subject, counts } = item;
+                const subjectDiv = document.createElement('div');
+                subjectDiv.className = 'bg-slate-900 p-4 rounded-lg shadow-lg';
+                subjectDiv.style.transition = 'background 0.5s';
+
+                subjectDiv.innerHTML = `<h3 class="text-xl font-bold text-white mb-2">${subject}</h3>`;
+
+                for (const [type, count] of Object.entries(counts)) {
+                    if (type !== 'exams' && count.total > 0) {
+                        const completionPercentage = Math.round((count.completed / count.total) * 100);
+
+                        subjectDiv.innerHTML += 
+                            `<div class="flex items-center justify-between text-slate-300 mb-1">
+                                <span>${toPlural(type)}: ${count.completed} из ${count.total}</span>
+                                <div class="flex items-center ml-2">
+                                    <div class="relative w-24 h-2 bg-gray-300 rounded-full mr-2">
+                                        <div class="absolute top-0 left-0 h-full rounded-full" style="width: ${completionPercentage}%; background-color: ${completionPercentage === 100 ? '#00ff00b5' : '#0000ffb5'};"></div>
+                                    </div>
+                                    <span class="text-sm text-slate-400">${completionPercentage}%</span>
+                                </div>
+                            </div>`;
+                    }
+                }
+
+                if (counts.exams.length > 0) {
+                    const examsInfo = counts.exams.map(exam => {
+                        return `
+                            <div class="flex flex-col items-start justify-between text-slate-300 mb-2 p-3 rounded-lg bg-slate-800 hover:bg-slate-700 transition-all">
+                                <span class="text-lg sm:text-xl font-medium">${exam.date}</span>
+                                <span class="text-slate-400">${exam.auditory}</span>
+                                <span class="text-slate-400 font-light">${exam.teacher}</span>
+                            </div>
+                        `;
+                    }).join('');
+
+                    subjectDiv.innerHTML += `
+                        <h4 class="text-xl sm:text-2xl font-bold text-white mt-2 mb-2">Экзамен:</h4>
+                        <div class="bg-slate-900 rounded-lg shadow-md">
+                            ${examsInfo}
+                        </div>
+                    `;
+                }
+
+                subjectDiv.addEventListener('mousemove', (event) => {
+                    const rect = subjectDiv.getBoundingClientRect();
+                    const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
+                    const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
+                    subjectDiv.style.background = getGradient(mouseX, mouseY);
+                });
+
+                subjectDiv.addEventListener('mouseleave', () => {
+                    subjectDiv.style.background = '';
+                });
+
+                const avgElement = document.createElement('div');
+                avgElement.id = `avg-${subject.replace(/ /g, '-')}`;
+                displayAverageScore(subject, avgElement, new Set(), true);
+                subjectDiv.appendChild(avgElement);
+
+                gridContainer.appendChild(subjectDiv);
+            });
+
 
             container.appendChild(gridContainer);
             document.getElementById('subject-statistics').classList.remove('hidden');
