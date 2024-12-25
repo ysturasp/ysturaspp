@@ -2017,6 +2017,10 @@
                 week.days.forEach(day => {
                     const lessonDate = new Date(day.info.date);
 
+                    if (lessonDate.getFullYear() !== 2024 && !day.lessons.some(lesson => lesson.type === 256)) {
+                        return;
+                    }
+
                     day.lessons.forEach(lesson => {
                         const subject = lesson.lessonName;
                         const type = lesson.type;
@@ -2030,7 +2034,7 @@
                                 'Курсовой проект': { completed: 0, total: 0 }, 
                                 Консультация: { completed: 0, total: 0 }, 
                                 Экзамен: { completed: 0, total: 0 },
-                                exams: [] // Массив для хранения информации о экзаменах
+                                exams: []
                             };
                         }
 
@@ -2049,7 +2053,6 @@
                             }
                         }
 
-                        // Проверка на экзамены и добавление их в статистику
                         if (type === 256) {
                             statistics[subject].exams.push({
                                 date: lessonDate.toLocaleDateString(),
