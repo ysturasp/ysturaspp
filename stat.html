@@ -323,6 +323,45 @@
             cursor: not-allowed;
             box-shadow: none;
         }
+        #top10-list,
+        #antitop10-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .list-item {
+            padding: 1rem;
+            background-color: #111827;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .skeleton {
+            background-color: #555555;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .skeleton-title {
+            height: 20px;
+            width: 80%;
+        }
+        .skeleton-text {
+            height: 16px;
+            width: 60%;
+        }
+        .skeleton {
+            background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+            background-size: 40px 100%;
+            background-repeat: no-repeat;
+            background-position: left -40px top 0;
+            animation: shine 1s ease infinite;
+        }
+        @keyframes shine {
+            to {
+                background-position: right -40px top 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -416,6 +455,38 @@
             </div>
             <div class="result mt-4" id="statisticsResult"></div>
             <div class="result mt-4" id="instructorsResult"></div>
+        </section>
+
+        <section id="top-antitop-section" class="bg-slate-800 rounded-lg p-6 mt-8">
+            <h2 class="text-2xl font-semibold text-white mb-4">📊 Рейтинг предметов</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-bold text-green-400 mb-2">🏆 Лучшие предметы</h3>
+                    <ul id="top10-list" class="space-y-4">
+                        <li class="skeleton-item">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                        </li>
+                        <li class="skeleton-item">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-2">👎 Худшие предметы</h3>
+                    <ul id="antitop10-list" class="space-y-4">
+                        <li class="skeleton-item">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                        </li>
+                        <li class="skeleton-item">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </section>
 
         <section class="bg-slate-800 rounded-lg p-6 mt-8">
@@ -1278,6 +1349,94 @@
             if (subject) {
                 getStatistics();
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urls = {
+                'btn-digital-systems': 'https://script.google.com/macros/s/AKfycbwGCkkHXW776ydUQZETrk9_zYv_ZYvz7MsPQ0p0AdYNjWe8iTems3pxgdpsT7rP7-bg/exec',
+                'btn-architecture-design': 'https://script.google.com/macros/s/AKfycbzC6yVUPqlPRubATCOV5GdcgeaFj8O42DSFuOORCVSm6BMki4tW3tCdrTE65C1PoqeDcQ/exec',
+                'btn-civil-transport': 'https://script.google.com/macros/s/AKfycbz_5IGSgCYpiJ8zCx7qkwCTj2IE_IN51TlPwi5HlqYUCpnTcQegAuC3vFACV1dUnFxp/exec',
+            };
+
+            const buttons = document.querySelectorAll('.institute-button');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const url = urls[button.id];
+                    if (url) {
+                        activateLoadingState();
+                        fetchDataAndDisplay(url);
+                    } else {
+                        console.error(`URL not found for button: ${button.id}`);
+                    }
+                });
+            });
+
+            fetchDataAndDisplay(urls['btn-digital-systems']);
+        });
+
+        function activateLoadingState() {
+            const topSection = document.getElementById('top10-list');
+            const antitopSection = document.getElementById('antitop10-list');
+
+            topSection.innerHTML = `
+                <li class="skeleton-item">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                </li>
+                <li class="skeleton-item">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                </li>
+            `;
+
+            antitopSection.innerHTML = `
+                <li class="skeleton-item">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                </li>
+                <li class="skeleton-item">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                </li>
+            `;
+        }
+
+        function fetchDataAndDisplay(url) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayTopAndAntiTop(data.top10, data.antitop10);
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки данных:', error);
+                    activateErrorState();
+                });
+        }
+
+        function activateErrorState() {
+            const topSection = document.getElementById('top10-list');
+            const antitopSection = document.getElementById('antitop10-list');
+
+            topSection.innerHTML = `<li class="text-red-500">Ошибка загрузки данных.</li>`;
+            antitopSection.innerHTML = `<li class="text-red-500">Ошибка загрузки данных.</li>`;
+        }
+
+        function displayTopAndAntiTop(top10, antitop10) {
+            const topSection = document.getElementById('top10-list');
+            const antitopSection = document.getElementById('antitop10-list');
+
+            topSection.innerHTML = top10.map(item => createListItem(item, 'green')).join('');
+            antitopSection.innerHTML = antitop10.map(item => createListItem(item, 'red')).join('');
+        }
+
+        function createListItem(item, color) {
+            return `
+                <li class="list-item">
+                    <div class="text-${color}-500 font-semibold" onclick="viewAgain('${item.subject}')">${item.position}. ${item.subject}</div>
+                    <div class="text-slate-400">Средний балл: ${item.average.toFixed(2)}</div>
+                    <div class="text-slate-400">Оценок: ${item.count}</div>
+                </li>
+            `;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
