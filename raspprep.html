@@ -461,6 +461,15 @@
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
         </section>
 
+        <section id="teacher-statistics" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
+            <div id="overall-average" class="text-center text-4xl font-bold text-yellow-400 mb-4">
+            </div>
+            <div id="teacher-info" class="text-left text-xl font-bold text-white mb-2">
+            </div>
+            <div id="subjects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            </div>
+        </section>
+
         <section id="subject-statistics" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
             <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Учебная нагрузка преподавателя</h2>
             <div id="statistics-container" class="grid grid-cols-1 gap-4"></div>
@@ -801,6 +810,14 @@
                 localStorage.setItem('lastWeek', week);
 
                 const scheduleContainer = document.getElementById('schedule');
+                const teacherStatisticsContainer = document.getElementById('teacher-statistics');
+                const subjectsContainer = document.getElementById('subjects-container');
+                const overallAverageElement = document.getElementById('overall-average');
+
+                subjectsContainer.innerHTML = '';
+                overallAverageElement.textContent = '';
+                teacherStatisticsContainer.classList.add('hidden');
+
                 scheduleContainer.innerHTML = '';
                 loadingOverlay.style.display = 'flex';
 
@@ -809,8 +826,14 @@
                     if (!response.ok) throw new Error('Ошибка при получении расписания');
 
                     const scheduleData = await response.json();
+
+                    const fullName = inputElement.value;
+                    const nameParts = fullName.split(' ');
+                    const shortName = `${nameParts[0]} ${nameParts[1][0]}${nameParts[2][0]}`;
+                    
                     displaySchedule(scheduleData, teacherId, week);
                     displaySubjectStatistics(scheduleData);
+                    loadTeacherStatistics(shortName);
                 } catch (error) {
                     console.error('Ошибка при получении расписания:', error);
                     scheduleContainer.innerHTML = `<p class="text-red-500">${error.message}</p>`;
@@ -840,6 +863,53 @@
 
             function getGradient(mouseX, mouseY) {
                 return `radial-gradient(circle at ${mouseX}% ${mouseY}%, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)`;
+            }
+
+            async function loadTeacherStatistics(teacherName) {
+                const apiUrl = `https://script.google.com/macros/s/AKfycbxt7KnyhiwJUdzMglRRtpMEn8ReWNr4pIMbl8SrYJd7wVOZYiIZ_rtCj9odGpSmI8qQ/exec?teacher=${encodeURIComponent(teacherName)}`;
+
+                try {
+                    const response = await fetch(apiUrl);
+                    const data = await response.json();
+
+                    if (data && data.overallAverage && data.subjects) {
+                        document.getElementById('overall-average').textContent = `Средний балл: ${data.overallAverage.toFixed(2)}`;
+
+                        const teacherInfoContainer = document.getElementById('teacher-info');
+                        teacherInfoContainer.textContent = `Предметы, в которых замечен ${teacherName}:`;
+
+                        const sortedSubjects = data.subjects.sort((a, b) => b.average - a.average);
+
+                        const subjectsContainer = document.getElementById('subjects-container');
+                        subjectsContainer.innerHTML = '';
+
+                        sortedSubjects.forEach(subject => {
+                            const subjectCard = document.createElement('div');
+                            subjectCard.className = 'bg-slate-900 p-4 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105';
+
+                            subjectCard.innerHTML = `
+                                <h3 class="text-xl font-semibold text-white mb-2">${subject.subject}</h3>
+                                <div class="flex items-center">
+                                    <span class="text-gray-400 text-sm mr-2">Средний балл:</span>
+                                    <p class="text-lg font-medium ${subject.average === 0 ? 'text-white' : 'text-yellow-400'}">
+                                        ${subject.average.toFixed(2)}
+                                    </p>
+                                </div>
+                                <div class="text-gray-300 text-sm">
+                                    <p>Количество оценок: <strong>${subject.count}</strong></p>
+                                </div>
+                            `;
+
+                            subjectsContainer.appendChild(subjectCard);
+                        });
+
+                        document.getElementById('teacher-statistics').classList.remove('hidden');
+                    } else {
+                        console.error('Некорректные данные из API:', data);
+                    }
+                } catch (error) {
+                    console.error('Ошибка при загрузке данных:', error);
+                }
             }
 
             function displaySubjectStatistics(data) {
@@ -1303,7 +1373,7 @@
                 { start: '2024-12-09', end: '2024-12-15', text: '15 - 9 декабря' },
                 { start: '2024-12-16', end: '2024-12-22', text: '16 - 16 декабря' },
                 { start: '2024-12-23', end: '2024-12-29', text: '17 - 23 декабря' },
-                { start: '2024-12-30', end: '2025-01-05', text: '18 - 30 декабря' }
+                { start: '2024-12-30', end: '2024-12-30', text: '18 - 30 декабря' }
             ];
 
             function setDefaultWeekForNewUser() {
