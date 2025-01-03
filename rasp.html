@@ -1525,6 +1525,7 @@
                 localStorage.setItem('lastSavedSchedule', JSON.stringify({ schedule: scheduleData, date: currentDate }));
                 
                 displaySchedule(scheduleData, group, week);
+                displaySubjectStatistics(scheduleData);
             } catch (error) {
                 console.error('Ошибка при получении расписания:', error.message);
 
