@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-title" content="ystuRASP docs">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Документация по используемым API в сервисе ysturasp">
+    <meta name="geo.region" content="RU-YAR">
+    <meta property="og:description" content="Документация по используемым API в сервисе ysturasp">
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="images/favicon.png" />
+    <title>Описание API</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+        ::selection {
+            background-color: #ffc935;
+            color: #000000;
+            border-radius: 5px;
+            padding: 1.2em;
+        }
+        img::selection {
+            background-color: transparent;
+            color: inherit;
+        }        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark .bg-slate-800 {
+            background-color: #1e293b;
+        }
+
+        .dark .text-white {
+            color: #ffffff;
+        }
+
+        .dark .text-slate-400 {
+            color: #94a3b8;
+        }
+
+        .bg-slate-900 {
+            background-color: #111827;
+        }
+
+        .hover\\:bg-blue-700:hover {
+            background-color: #1e40af;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .icon-square {
+            width: 70px;
+            height: 70px;
+            margin-right: 0 auto;
+            vertical-align: middle;
+        }
+
+        .loading-indicator {
+            width: 320px;
+            height: 320px;
+            background: url('https://ustaliy.ru/wp-content/uploads/2020/04/orig-5.gif') no-repeat center center;
+            background-size: cover;
+            border-radius: 20%;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1e293bc4;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        @keyframes fadeInScale {
+            0% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOutScale {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+        }
+        #mobile-menu.show {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        #mobile-menu.hide {
+            animation: fadeOutScale 0.2s ease-in forwards;
+        }
+        @media (max-width: 640px) {
+            .kbd-mobile {
+                max-width: 295px !important;
+            }
+        }
+        .bg-indigo-600 {
+            font-family: "Shantell Sans", serif !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300 antialiased">
+    <header class="container mx-auto sticky top-4 px-3 z-50">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+            <nav class="hidden lg:flex gap-x-4">
+                <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <img src="images/cat.png" class="w-10 h-10 mr-2" />
+                    <span class="text-sm md:text-base">ystuRASP Главная</span>
+                </a>
+                <a href="/stat" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Статистика
+                </a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Расписание
+                </a>
+                <a href="/campus" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Кампус
+                </a>
+                <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Экспорт/Импорт
+                </a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    О нас
+                </a>
+            </nav>
+            <div class="relative lg:hidden">
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
+                    <svg class="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="https://boosty.to/ysturasp.me/donate" class="p-1 md:p-2 bg-blue-700 text-white rounded-lg text-sm md:text-base hover:bg-blue-600 transition-all">
+                    Поддержать проект <span class="text-xl align-middle">💸</span>
+                </a>                  
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
+            <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
+            <a href="/stat" class="block py-2 hover:text-blue-400 text-sm md:text-base">Статистика</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/campus" class="block py-2 hover:text-blue-400 text-sm md:text-base">Кампус</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Экспорт/Импорт</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 py-6 md:py-8 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-4xl font-extrabold md:text-5xl lg:text-6xl">
+                Это наша <span class="px-2 text-white bg-indigo-600 rounded">дока</span>
+            </h2>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-8 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-2xl font-extrabold md:text-3xl lg:text-4xl">
+                1. API <a class="px-2 text-white bg-indigo-600 rounded" href="https://github.com/YSTUty">YSTUtu</a> для расписания
+            </h2>
+        </section>
+
+        <p class="text-sm sm:text-base md:text-xl font-bold text-white-900 text-white mt-2">P.S. запросы имеют ограничение на частоту запросов для защиты от спама, после достижения лимита возвращает err 429 ThrottlerException: Too Many Requests. Подробнее про это и другие запросы к gg-api.ystuty.ru <a class="px-2 text-xl sm:text-xs md:text-3xl text-white bg-indigo-600 rounded" href="https://gg-api.ystuty.ru/s/schedule/swagger">тут</a> и <a class="px-2 text-xl sm:text-xs md:text-3xl text-white bg-indigo-600 rounded" href="https://docs.ystuty.ru/intro">тут</a></p>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-base font-bold text-white-900 text-white mt-2">Выводит список актуальных групп в семестре</p>
+            </div>
+        </section>
+        
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="text-left">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="mr-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}
+                    </kbd>
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-base font-bold text-white-900 text-white mt-2">Выводит расписание на группу, нужно указать параметр ${group}</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_teachers
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-base font-bold text-white-900 text-white mt-2">Выводит список преподавателей в текущем семестре</p>
+            </div>
+        </section>
+        
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="text-left">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="mr-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://gg-api.ystuty.ru/s/schedule/v1/schedule/teacher/${teacherId}
+                    </kbd>
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-base font-bold text-white-900 text-white mt-2">Выводит расписание преподавателя, нужно указать параметр ${teacherId}</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-2xl font-extrabold md:text-3xl lg:text-4xl">
+                2. Вывод статистики среднего балла на предмет института, его нужно указать в параметре <span class="px-2 text-white bg-indigo-600 rounded">discipline</span> по институтам. Без параметра запрос отдает список доступных предметов
+            </h2>
+        </section>
+        
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${discipline}
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Цифровых Систем</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="text-left">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="mr-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec?discipline=${discipline}
+                    </kbd>
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Архитектуры и Дизайна</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbzbxLrOI2rA8ZzVfrT6RXIG5ADMl_5NdAQd8NEIYfg-qKkWVe_fGyB5pDolsCOtH14Mxw/exec?discipline=${discipline}
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Инженеров Строительства и Транспорта</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-2xl font-extrabold md:text-3xl lg:text-4xl">
+                3. Вывод преподавателей по предмету, он указывается в параметре <span class="px-2 text-white bg-indigo-600 rounded">subject</span> по институтам. Без параметра запрос ниче пока не отдает
+            </h2>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${discipline}
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Цифровых Систем</p>
+            </div>
+        </section>
+        
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="text-left">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="mr-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbxKdSyy9JZAlFfj8KivDJbDsWyOWy1yRzUSI2TYeGBLitVsbpBxbIAaw0sz3STy9mpu/exec?subject=${discipline}
+                    </kbd>
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Архитектуры и Дизайна</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbzIby7Zm8Jk_LdtCQEPib4aYnvjqv1ucyH3a9aghfwNDu9QyMbCflmolCpd8uK-joPasw/exec?subject=${discipline}
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Инженеров Строительства и Транспорта</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-2xl font-extrabold md:text-3xl lg:text-4xl">
+                4. Вывод <span class="px-2 text-white bg-indigo-600 rounded">топа предметов</span> по институтам
+            </h2>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbwGCkkHXW776ydUQZETrk9_zYv_ZYvz7MsPQ0p0AdYNjWe8iTems3pxgdpsT7rP7-bg/exec
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Цифровых Систем</p>
+            </div>
+        </section>
+        
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <div class="text-left">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="mr-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbzC6yVUPqlPRubATCOV5GdcgeaFj8O42DSFuOORCVSm6BMki4tW3tCdrTE65C1PoqeDcQ/exec
+                    </kbd>
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Архитектуры и Дизайна</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbz_5IGSgCYpiJ8zCx7qkwCTj2IE_IN51TlPwi5HlqYUCpnTcQegAuC3vFACV1dUnFxp/exec
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Инженеров Строительства и Транспорта</p>
+            </div>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-24 lg:flex-row lg:items-center lg:justify-between lg:gap-x-8">
+            <h2 class="text-white text-2xl font-extrabold md:text-3xl lg:text-4xl">
+                5. Вывод <span class="px-2 text-white bg-indigo-600 rounded">предметов</span>, найденных по преподавателю и общий средний балл на основе них. Для этого нужно указать параметр <span class="px-2 text-white bg-indigo-600 rounded">teacher</span>
+            </h2>
+        </section>
+
+        <section class="flex flex-col-reverse gap-y-8 md:gap-y-12 mt-4 lg:flex-row lg:items-center lg:justify-end lg:gap-x-8">
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-2">
+                    <kbd class="px-3 py-2 text-xl sm:text-xs md:text-3xl font-semibold text-white bg-green-600 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        GET
+                    </kbd>
+                    <kbd class="ml-3 px-3 py-2 text-sm sm:text-xs md:text-xl font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg shadow-inner-custom max-w-xs sm:max-w-xs md:max-w-sm lg:max-w-7xl break-words kbd-mobile">
+                        https://script.google.com/macros/s/AKfycbxt7KnyhiwJUdzMglRRtpMEn8ReWNr4pIMbl8SrYJd7wVOZYiIZ_rtCj9odGpSmI8qQ/exec?teacher=${teacherName}
+                    </kbd>
+                </div>
+                <p class="text-sm sm:text-xs md:text-xl font-bold text-white-900 text-white mt-2">Институт Цифровых Систем</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 py-6 mt-24">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="w-full md:w-1/3 text-center md:text-left">
+                    <h2 class="text-white text-lg font-bold">ystuRASP</h2>
+                    <p class="text-slate-400 mt-2">Анализ и статистика оценок предметов ЯГТУ</p>
+                </div>
+                <div class="w-full md:w-1/3 text-center mt-4 md:mt-0">
+                    <nav class="flex justify-center gap-4">
+                        <a href="https://t.me/ysturasp" class="text-slate-400 hover:text-white transition-all">
+                            <div class="w-14 h-14 bg-white rounded p-1">
+                                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" class="mx-auto my-1 w-10 h-10">
+                            </div>
+                        </a>
+                        <a href="https://boosty.to/ysturasp.me" class="text-slate-400 hover:text-white transition-all">
+                            <div class="w-14 h-14 bg-white rounded p-1">
+                                <img src="https://boosty.to/favicon.ico" alt="Boosty" class="mx-auto my-1 w-10 h-10">
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+                <div class="w-full md:w-1/3 text-center md:text-right mt-4 md:mt-0">
+                    <p class="text-slate-400">© 2024 Made with ❤️ by ystuRASP</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function() {
+            if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'hide');
+                mobileMenu.classList.add('show');
+            } else {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            });
+        });
+    </script>
+</body>
+</html>
