@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <link rel="manifest" href="/manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0F172A">
     <meta name="apple-mobile-web-app-title" content="ystuRASP">
@@ -315,10 +316,13 @@
                 </button>
             </div>
             <div class="flex gap-x-2">
-                <a href="https://boosty.to/ysturasp.me/donate" class="p-1 md:p-2 bg-blue-700 text-white rounded-lg text-sm md:text-sm hover:bg-blue-600 transition-all">
+                <a href="https://boosty.to/ysturasp.me/donate" class="p-1 md:p-2 bg-blue-700 text-white rounded-lg text-sm md:text-sm hover:bg-blue-600 transition-all border-2 border-blue-700 hover:border-blue-600">
                     Поддержать проект <span class="text-xl align-middle">💸</span>
-                </a>                  
-            </div>
+                </a>
+                <a href="https://id.ystuty.ru/" class="p-1 md:p-2 bg-slate-900 text-white rounded-lg text-sm md:text-sm transition-all flex items-center justify-center border-2 border-blue-500 hover:border-blue-400">
+                    <span class="text-xl">👤</span>
+                </a>
+            </div>            
         </div>
         <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
             <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
@@ -1509,51 +1513,142 @@
                 return;
             }
 
+            localStorage.setItem('lastInstitut', institute);
+            localStorage.setItem('lastGroup', group);
+            localStorage.setItem('lastWeek', week);
+
             const scheduleContainer = document.getElementById('schedule');
             scheduleContainer.innerHTML = '';
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.style.display = 'flex';
 
-            try {
-                const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`);
-                if (!response.ok) {
-                    throw new Error('Ошибка при получении расписания.');
+            const cacheKey = `${group}_${week}`;
+            const cachedData = localStorage.getItem(cacheKey);
+            const cacheDuration = 1000 * 60 * 60 * 24; // 24 часа
+
+            let scheduleData;
+            let fetchData = true;
+
+            if (cachedData) {
+                const parsedData = JSON.parse(cachedData);
+                if (Date.now() - parsedData.timestamp < cacheDuration) {
+                    displaySchedule(parsedData.data, group, week);
+                    displaySubjectStatistics(parsedData.data);
+                    fetchData = false;
                 }
-                const scheduleData = await response.json();
-                
-                const currentDate = new Date().toLocaleString();
-                localStorage.setItem('lastSavedSchedule', JSON.stringify({ schedule: scheduleData, date: currentDate }));
-                
+            }
+
+            if (fetchData) {
+                try {
+                    let isTimeoutExceeded = false;
+
+                    const timeoutHandler = setTimeout(() => {
+                        isTimeoutExceeded = true;
+                        const savedSchedule = localStorage.getItem('lastSavedSchedule');
+                        let savedMessage = 'Нет сохранённого расписания.';
+
+                        if (savedSchedule) {
+                            const { date } = JSON.parse(savedSchedule);
+                            savedMessage = `Последнее сохранение расписания: ${date}`;
+                        }
+
+                        scheduleContainer.innerHTML = `
+                            <p class="text-red-500">Ошибка при получении расписания. Попробуйте снова или используйте сохранённое расписание.</p>
+                            <p class="text-white">${savedMessage}</p>
+                            <button id="viewSavedSchedule" class="p-2 bg-blue-500 text-white rounded">Просмотреть сохранённое расписание</button>
+                        `;
+
+                        document.getElementById('viewSavedSchedule').addEventListener('click', () => {
+                            const savedSchedule = localStorage.getItem('lastSavedSchedule');
+                            if (savedSchedule) {
+                                displaySchedule(JSON.parse(savedSchedule).schedule, group, week, true);
+                            } else {
+                                alert('Сохранённое расписание не найдено.');
+                            }
+                        });
+                    }, 4000);
+
+                    const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`);
+
+                    clearTimeout(timeoutHandler);
+
+                    if (isTimeoutExceeded) {
+                        scheduleContainer.innerHTML = '';
+                    }
+
+                    if (response.status === 429) {
+                        let retryAfter = 20;
+                        scheduleContainer.innerHTML = `<p class="text-red-500">Превышено количество запросов. Попробуйте снова через <span id="retry-timer">${retryAfter}</span> секунд.</p>`;
+                        loadingOverlay.style.display = 'none';
+
+                        const countdownInterval = setInterval(() => {
+                            retryAfter -= 1;
+                            document.getElementById('retry-timer').textContent = retryAfter;
+                            if (retryAfter <= 0) {
+                                clearInterval(countdownInterval);
+                                scheduleContainer.innerHTML = '';
+                            }
+                        }, 1000);
+
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Ошибка при получении расписания.');
+                    }
+
+                    const newScheduleData = await response.json();
+
+                    if (!cachedData || JSON.stringify(newScheduleData) !== JSON.stringify(JSON.parse(cachedData).data)) {
+                        scheduleData = newScheduleData;
+                        try {
+                            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: scheduleData }));
+                        } catch (storageError) {
+                            console.error('Ошибка сохранения в Local Storage:', storageError.message);
+                            if (storageError.message.includes('The quota has been exceeded')) {
+                                localStorage.clear();
+                            }
+                        }
+                    } else {
+                        scheduleData = JSON.parse(cachedData).data;
+                    }
+                } catch (error) {
+                    const savedSchedule = localStorage.getItem('lastSavedSchedule');
+                    let savedMessage = 'Нет сохранённого расписания.';
+
+                    if (savedSchedule) {
+                        const { date } = JSON.parse(savedSchedule);
+                        savedMessage = `Последнее сохранение расписания: ${date}`;
+                    }
+
+                    scheduleContainer.innerHTML = `
+                        <p class="text-red-500">Ошибка при получении расписания. Попробуйте снова или используйте сохранённое расписание.</p>
+                        <p class="text-white">${savedMessage}</p>
+                        <button id="viewSavedSchedule" class="p-2 bg-blue-500 text-white rounded">Просмотреть сохранённое расписание</button>
+                    `;
+
+                    document.getElementById('viewSavedSchedule').addEventListener('click', () => {
+                        const savedSchedule = localStorage.getItem('lastSavedSchedule');
+                        if (savedSchedule) {
+                            displaySchedule(JSON.parse(savedSchedule).schedule, group, week, true);
+                        } else {
+                            alert('Сохранённое расписание не найдено.');
+                        }
+                    });
+
+                    loadingOverlay.style.display = 'none';
+                    return;
+                }
+
+            }
+
+            if (scheduleData) {
                 displaySchedule(scheduleData, group, week);
                 displaySubjectStatistics(scheduleData);
-            } catch (error) {
-                console.error('Ошибка при получении расписания:', error.message);
-
-                const savedSchedule = localStorage.getItem('lastSavedSchedule');
-                let savedMessage = 'Нет сохранённого расписания.';
-
-                if (savedSchedule) {
-                    const { date } = JSON.parse(savedSchedule);
-                    savedMessage = `Последнее сохранение расписания: ${date}`;
-                }
-
-                scheduleContainer.innerHTML = `
-                    <p class="text-red-500">Ошибка при получении расписания. Попробуйте снова или используйте сохранённое расписание.</p>
-                    <p class="text-white">${savedMessage}</p>
-                    <button id="viewSavedSchedule" class="p-2 bg-blue-500 text-white rounded">Просмотреть сохранённое расписание</button>
-                `;
-
-                document.getElementById('viewSavedSchedule').addEventListener('click', () => {
-                    const savedSchedule = localStorage.getItem('lastSavedSchedule');
-                    if (savedSchedule) {
-                        displaySchedule(JSON.parse(savedSchedule).schedule, group, week, true);
-                    } else {
-                        alert('Сохранённое расписание не найдено.');
-                    }
-                });
-            } finally {
-                loadingOverlay.style.display = 'none';
             }
+
+            loadingOverlay.style.display = 'none';
         });
 
         function displaySchedule(scheduleData, group, week, fromCache = false) {
