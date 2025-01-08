@@ -463,14 +463,42 @@
                     <span class="ml-2 text-sm align-middle hidden md:inline">Скопировать ссылку на расписание</span>
                 </button>                
                 
-                <div class="flex items-center">
+                <button id="favorite-button" class="p-2 border-2 border-yellow-500 text-white rounded-lg hover:bg-yellow-500 transition-all flex items-center justify-center">
+                    <span id="favorite-icon" class="text-3xl md:text-xl align-middle">☆</span>
+                    <span class="ml-2 text-sm align-middle hidden md:inline">Добавить в избранное</span>
+                </button>
+                
+                <div class="flex items-center" style="display: none;">
                     <label class="switch">
                         <input id="average-toggle" type="checkbox">
                         <span class="slider round"></span>
                     </label>
-                    <span class="ml-2 text-white">Показать средние баллы</span>
+                    <span class="ml-2 text-white">Средние баллы</span>
                 </div>
-            </div>                    
+            </div>
+                  
+            <section id="favorites-section" class="bg-slate-800 rounded-lg mt-2">
+                <div class="flex items-center">
+                    <h2 class="text-2xl font-semibold text-white">❤️ Избранные группы</h2>
+                    <button id="popoverButton" type="button" class="text-3xl ml-2 rounded-lg border-2 border-slate-600 ">
+                        ❓
+                    </button>
+                </div>
+            
+                <div id="popover" class="absolute z-10 ml-16 mt-2 hidden w-64 text-sm text-white bg-slate-900 border border-slate-700 rounded-lg shadow-sm opacity-0 transition-opacity duration-300">
+                    <div class="px-3 py-2 bg-slate-700 border-b border-slate-600 rounded-t-lg">
+                        <h3 class="font-semibold text-yellow-500">Зачем? - скажите вы</h3>
+                    </div>
+                    <div class="px-3 py-2">
+                        <p>А мы ответим - добавляйте группы друзей или групп вашего потока по необходимости для более быстрого доступа к их расписанию</p>
+                    </div>
+                    <div data-popper-arrow></div>
+                </div>
+                
+                
+                <div id="favorites-list" class="flex flex-wrap"></div>
+            </section>
+
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
             <div class="border-2 border-red-600 text-white p-2 rounded-lg mt-4 mb-2 bg-transparent">
                 <p class="text-md text-center">
@@ -640,6 +668,80 @@
             const infoModal = document.getElementById('infoModal');
             const closeButton = document.getElementById('closeButton');
             const tryButton = document.getElementById('tryButton');
+
+            const favoriteButton = document.getElementById('favorite-button');
+            const favoriteIcon = document.getElementById('favorite-icon');
+
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+            function updateFavoriteButton() {
+                const selectedGroup = groupSelect.value;
+                const selectedInstitute = instituteSelect.value;
+
+                const isFavorite = favorites.some(fav => fav.group === selectedGroup && fav.institute === selectedInstitute);
+
+                if (isFavorite) {
+                    favoriteIcon.textContent = '★';
+                    favoriteButton.classList.add('bg-yellow-500');
+                    favoriteButton.classList.remove('border-yellow-500');
+                } else {
+                    favoriteIcon.textContent = '☆';
+                    favoriteButton.classList.remove('bg-yellow-500');
+                    favoriteButton.classList.add('border-yellow-500');
+                }
+            }
+
+            favoriteButton.addEventListener('click', () => {
+                const selectedGroup = groupSelect.value;
+                const selectedInstitute = instituteSelect.value;
+
+                if (!selectedGroup || !selectedInstitute) {
+                    alert('Пожалуйста, выберите институт и группу.');
+                    return;
+                }
+
+                const index = favorites.findIndex(fav => fav.group === selectedGroup && fav.institute === selectedInstitute);
+
+                if (index > -1) {
+                    favorites.splice(index, 1);
+                } else {
+                    favorites.push({ group: selectedGroup, institute: selectedInstitute });
+                }
+
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                updateFavoriteButton();
+                updateFavoritesList();
+            });
+
+            groupSelect.addEventListener('change', updateFavoriteButton);
+            instituteSelect.addEventListener('change', updateFavoriteButton);
+
+            function updateFavoritesList() {
+                const container = document.getElementById('favorites-list');
+                const section = document.getElementById('favorites-section');
+                container.innerHTML = '';
+
+                if (favorites.length === 0) {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                    favorites.forEach(fav => {
+                        const button = document.createElement('button');
+                        button.className = 'p-2 m-2 bg-blue-500 text-white rounded-lg';
+                        button.textContent = fav.group;
+                        button.addEventListener('click', () => {
+                            instituteSelect.value = fav.institute;
+                            groupSelect.value = fav.group;
+                            updateFavoriteButton();
+                            document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+                        });
+
+                        container.appendChild(button);
+                    });
+                }
+            }
+
+            updateFavoritesList();
 
             let modalShownCount = localStorage.getItem('modalShownCount') || 0;
             let modalDismissed = localStorage.getItem('modalDismissed');
@@ -2101,10 +2203,22 @@
             const transliterationMap = {
                 'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k',
                 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts',
-                'ч': 'ch', 'ш': 'sh', 'щ': 'shh', 'ы': 'y', 'э': 'e', 'ю': 'y', 'я': 'ya', 'ь': '', 'ъ': ''
+                'ч': 'ch', 'ш': 'sh', 'щ': 'shh', 'ы': 'y', 'э': 'e', 'ю': 'yu', 'я': 'ya', 'ь': '', 'ъ': ''
             };
 
-            const [lastName, firstName, middleName] = fullName.split(' ');
+            if (!fullName || typeof fullName !== 'string') {
+                console.error('Некорректное значение fullName:', fullName);
+                return '';
+            }
+
+            const parts = fullName.split(' ');
+
+            if (parts.length < 2) {
+                console.error('Ожидалась строка в формате "Фамилия Имя Отчество", получено:', fullName);
+                return '';
+            }
+
+            const [lastName, firstName = '', middleName = ''] = parts;
 
             const toTranslit = (text) => {
                 return text
@@ -2115,7 +2229,7 @@
             };
 
             const lastNameTranslit = toTranslit(lastName);
-            const initials = `${toTranslit(firstName[0])}${toTranslit(middleName[0])}`;
+            const initials = `${toTranslit(firstName[0] || '')}${toTranslit(middleName[0] || '')}`;
 
             return `${lastNameTranslit}${initials}@edu.ystu.ru`;
         }
@@ -2426,6 +2540,38 @@
 
         window.addEventListener('beforeunload', clearScheduleCache);
         window.addEventListener('unload', clearScheduleCache);
+
+        const popoverButton = document.getElementById('popoverButton');
+        const popover = document.getElementById('popover');
+
+        popoverButton.addEventListener('mouseenter', function () {
+            popover.classList.remove('hidden');
+            popover.classList.add('opacity-100');
+        });
+
+        popoverButton.addEventListener('mouseleave', function () {
+            setTimeout(() => {
+                if (!popover.matches(':hover')) {
+                    popover.classList.remove('opacity-100');
+                    popover.classList.add('opacity-0');
+                    setTimeout(() => {
+                        popover.classList.add('hidden');
+                    }, 300);
+                }
+            }, 100);
+        });
+
+        popover.addEventListener('mouseenter', function () {
+            popover.classList.add('opacity-100');
+        });
+
+        popover.addEventListener('mouseleave', function () {
+            popover.classList.remove('opacity-100');
+            popover.classList.add('opacity-0');
+            setTimeout(() => {
+                popover.classList.add('hidden');
+            }, 300);
+        });
     </script>
 
     <!-- Snow with weather -->
