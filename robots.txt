@@ -2,3 +2,4 @@ User-agent: *
 Disallow: 
 Host: ysturasp.me
 Sitemap: http://ysturasp.me/sitemap.xml
+Feed: http://ysturasp.me/turbo-feed.xml
