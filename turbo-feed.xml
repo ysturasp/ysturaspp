@@ -5,7 +5,7 @@
         <link>https://ysturasp.me</link>
         <description>Расписание ЯГТУ, статистика, информация о кампусе и многое другое</description>
         <language>ru</language>
-        <turbo:analytics></turbo:analytics>
+        <turbo:analytics type="Yandex" id="94936076"></turbo:analytics>
 
         <!-- Главная страница -->
         <item turbo="true">
