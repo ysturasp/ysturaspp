@@ -285,6 +285,62 @@
                 display: none;
             }
         }
+
+        /* Стили для карточек ВУЦ */
+        .military-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-blend-mode: soft-light;
+        }
+
+        .military-card::before {
+            content: '🇷🇺';
+            position: absolute;
+            top: 6px;
+            left: 120px;
+            font-size: 28px;
+            opacity: 0.9;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            z-index: 1;
+        }
+
+        .military-card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .military-card .text-white {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            color: #c8d6c8 !important;
+        }
+
+        .military-card .text-slate-400 {
+            color: #a3b5a3 !important;
+        }
+
+        .military-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(46, 56, 46, 0.1), 
+                rgba(38, 48, 38, 0.2)
+            );
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .military-card .text-blue-400 {
+            color: #8fa98f !important;
+            transition: color 0.3s ease;
+        }
+
+        .military-card .text-blue-400:hover {
+            color: #b3c9b3 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
@@ -1959,6 +2015,21 @@
 
                     const lessonContainer = document.createElement('div');
                     lessonContainer.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
+
+                    if (lesson.lessonName.includes('ВУЦ')) {
+                        lessonContainer.className += ' military-card';
+                        lessonContainer.style.background = `
+                            radial-gradient(ellipse at 10% 10%, rgba(39, 48, 33, 0.9) 10%, transparent 50%),
+                            radial-gradient(ellipse at 30% 40%, rgba(50, 59, 44, 0.9) 20%, transparent 55%),
+                            radial-gradient(ellipse at 70% 60%, rgba(42, 50, 37, 0.9) 15%, transparent 45%),
+                            radial-gradient(ellipse at 85% 85%, rgba(37, 45, 32, 0.9) 15%, transparent 40%),
+                            radial-gradient(ellipse at 50% 50%, rgba(54, 64, 47, 0.9) 25%, transparent 60%),
+                            radial-gradient(ellipse at 15% 60%, rgba(46, 55, 40, 0.9) 15%, transparent 45%),
+                            radial-gradient(ellipse at 60% 25%, rgba(43, 51, 38, 0.9) 20%, transparent 50%),
+                            #1e2419`;
+                        lessonContainer.style.border = '2px solid #2f3c2f';
+                        lessonContainer.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.5)';
+                    }
 
                     const teacherFullName = lesson.teacherName || '';
                     const teacherNameParts = teacherFullName.split(' ');
