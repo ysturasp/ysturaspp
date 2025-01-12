@@ -1403,8 +1403,53 @@
                 } else {
                     const chillMessage = document.createElement('p');
                     chillMessage.className = 'text-green-500 font-bold text-center';
-                    chillMessage.innerText = 'На этой неделе у преподавателя нет занятий';
+                    chillMessage.innerText = 'На этой неделе у преподавателя нет пар';
+                    
+                    const gifElement = document.createElement('img');
+                    gifElement.src = 'https://steamuserimages-a.akamaihd.net/ugc/543050193621050493/822D951ADFCB3C9ADE095AC49917043365AFD48E/';
+                    gifElement.alt = 'Chill Gif';
+                    gifElement.className = 'mx-auto rounded-lg mb-2';
+                    
+                    var scalar = 2;
+                    var unicorn = confetti.shapeFromText({ text: '🦄', scalar });
+                    var star = confetti.shapeFromText({ text: '⭐', scalar });
+
+                    var defaults = {
+                        spread: 360,
+                        ticks: 60,
+                        gravity: 0,
+                        decay: 0.96,
+                        startVelocity: 20,
+                        shapes: [unicorn, star],
+                        scalar
+                    };
+
+                    function shoot() {
+                        confetti({
+                            ...defaults,
+                            particleCount: 30
+                        });
+
+                        confetti({
+                            ...defaults,
+                            particleCount: 5,
+                            flat: true
+                        });
+
+                        confetti({
+                            ...defaults,
+                            particleCount: 15,
+                            scalar: scalar / 2,
+                            shapes: ['circle']
+                        });
+                    }
+
+                    setTimeout(shoot, 0);
+                    setTimeout(shoot, 100);
+                    setTimeout(shoot, 200);
+                    
                     scheduleContainer.appendChild(chillMessage);
+                    scheduleContainer.appendChild(gifElement);
                 }
             }
 
