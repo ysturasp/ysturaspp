@@ -355,25 +355,46 @@
         loadingIndicator.style.display = 'block';
         
         try {
-            const response = await fetch('https://script.google.com/macros/s/AKfycbx7h8FvzCt5_Vnd5CbLJqhk1db9JzygvEXz4QEzlvuiK0JBOvROmyG3xQQQR7Njm0--/exec');
+            const response = await fetch('https://script.google.com/macros/s/AKfycbzXJ5MluO1KnUxXMUr4NVFbcTy05UIxBZLw6XkyTaZ7G9Hio-Gc8VIb7TaDbU-poDD9/exec');
             const posts = await response.json();
 
             if (posts.length === 0) {
-                container.innerHTML = '<p class="text-slate-400">No posts available at the moment.</p>';
+                container.innerHTML = '<p class="text-slate-400">Посты пока недоступны.</p>';
             } else {
                 posts.forEach(post => {
-                    const formattedContent = post.content ? post.content.replace(/\n/g, '<br>') : '';
+                    const date = new Date(post.date);
+                    const formattedDate = new Intl.DateTimeFormat('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).format(date);
+
+                    const formattedContent = post.content ? post.content
+                        .replace(/\n{3,}/g, '\n\n')
+                        .split('\n\n')
+                        .map(paragraph => {
+                            const paragraphWithStyledLinks = paragraph.trim().replace(
+                                /<a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g, 
+                                '<a href="$1" target="_blank" class="text-yellow-400 hover:text-yellow-300 transition-colors">$2</a>'
+                            );
+                            return `<p class="text-slate-300 mt-3 leading-relaxed">${paragraphWithStyledLinks}</p>`;
+                        })
+                        .join('') : '';
 
                     const cleanImageUrl = post.image ? post.image.split('?')[0] : '';
 
                     const postHTML = `
                         <div class="bg-slate-900 rounded-lg p-6 mb-8 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-                            ${post.link ? `<a href="${post.link}" target="_blank" class="text-2xl text-white font-bold">${post.title}</a>` : ''}
-                            ${post.date ? `<p class="text-slate-400 text-xs mt-1 mb-2"><i class="fas fa-calendar-alt"></i> ${post.date}</p>` : ''}
-                            ${formattedContent ? `<p class="text-slate-300 mt-3 leading-relaxed">${formattedContent}</p>` : ''}
+                            ${post.link ? `<a href="${post.link}" target="_blank" class="text-2xl text-white font-bold hover:text-blue-400 transition-colors">${post.title}</a>` : ''}
+                            ${formattedDate ? `<p class="text-slate-400 text-sm mt-2 mb-4">📅 ${formattedDate}</p>` : ''}
+                            <div class="prose prose-invert max-w-none">
+                                ${formattedContent}
+                            </div>
                             ${cleanImageUrl ? `
                                 <div class="flex justify-center mt-5">
-                                    <img src="${cleanImageUrl}" alt="Post image" style="max-height: 500px" class="rounded-lg max-w-full hover:scale-105 transition-transform duration-300">
+                                    <img src="${cleanImageUrl}" alt="Post image" style="max-height: 500px" class="rounded-lg max-w-full hover:scale-105 transition-transform duration-300 cursor-pointer">
                                 </div>
                             ` : ''}
                         </div>
@@ -384,7 +405,7 @@
             
         } catch (error) {
             console.error('Error fetching Boosty posts:', error);
-            container.innerHTML = '<p class="text-red-500">Failed to load posts. Please try again later.</p>';
+            container.innerHTML = '<p class="text-red-500">Не удалось загрузить посты. Пожалуйста, попробуйте позже.</p>';
         } finally {
             loadingIndicator.style.display = 'none';
         }
