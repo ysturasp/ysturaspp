@@ -1256,7 +1256,7 @@
                 
                 const fullName = inputElement.value;
                 const nameParts = fullName.split(' ');
-                const shortName = `${nameParts[0]} ${nameParts[1][0]}.${nameParts[2][0]}.`;
+                const shortName = `${nameParts[0]} ${nameParts[1][0]}${nameParts[2][0]}`;
                 
                 titleElement.innerText = `Расписание преподавателя ${shortName} на ${week} неделю`;
 
