@@ -547,6 +547,40 @@
             </section>
 
             <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
+            
+            <button id="subgroupSettingsBtn" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all mt-4">
+                Настройка подгрупп для лабораторных работ
+            </button>
+
+            <!-- Модальное окно настройки подгрупп -->
+            <div id="subgroupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-slate-800 rounded-lg p-6 max-w-2xl w-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-white">Настройка подгрупп</h3>
+                            <button id="closeSubgroupModal" class="text-gray-400 hover:text-white">
+                                ✖
+                            </button>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-white mb-2">Выберите предметы для деления на подгруппы:</label>
+                            <!-- <select id="subgroupSelect" class="w-full p-2 bg-slate-900 text-white rounded-lg">
+                                <option value="">Все подгруппы</option>
+                                <option value="1">Первая подгруппа</option>
+                                <option value="2">Вторая подгруппа</option>
+                            </select> -->
+                        </div>
+                        <div id="labWorksList" class="space-y-4 max-h-96 overflow-y-auto">
+                        </div>
+                        <div class="mt-6 flex justify-end">
+                            <button id="saveSubgroupSettings" class="p-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all">
+                                Сохранить настройки
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="border-2 border-red-600 text-white p-2 rounded-lg mt-4 mb-2 bg-transparent">
                 <p class="text-md text-center">
                     Если данные не отображаются, возможно, проблемы API и в данный момент она перегружена пользователями. Попробуйте обновить страницу позже. 
@@ -559,6 +593,22 @@
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
             <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
             <div id="hidden-subjects" class="grid grid-cols-1 gap-4"></div>
+        </section>
+
+        <section class="subgroups-statistics container mx-auto px-4 py-8 hidden">
+            <div class="bg-slate-800 backdrop-blur rounded-lg shadow-lg overflow-hidden">
+                <div class="border-b border-gray-700 bg-gray-900/50 px-4 py-5 sm:px-6">
+                    <div class="flex justify-center items-center">
+                        <h2 class="text-center text-2xl font-semibold text-white">Распределение подгрупп</h2>
+                        <span class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+                    </div>
+                    <p class="text-center text-yellow-500 text-sm">Это очень бета версия, поэтому некоторые данные могут быть неточными, по всем проблемам пишите в нашу поддержку</p>
+                </div>
+                <div class="p-4">
+                    <div id="subgroups-content" class="gap-6">
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="subject-statistics" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
@@ -720,6 +770,287 @@
             const favoriteIcon = document.getElementById('favorite-icon');
 
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+            const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups') || '{}');
+            const statsSection = document.querySelector('.subgroups-statistics');
+            const content = document.getElementById('subgroups-content');
+
+            function formatDateTime(dateTimeStr) {
+                const [date, time] = dateTimeStr.split('_');
+                return {
+                    date: date,
+                    time: time ? time.replace('-', ' - ') : ''
+                };
+            }
+
+            function getDayOfWeek(dateStr) {
+                const days = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+                const date = new Date(dateStr.split('.').reverse().join('-'));
+                return days[date.getDay()];
+            }
+
+            if (Object.keys(teacherSubgroups).length > 0) {
+                statsSection.classList.remove('hidden');
+                
+                // Создаем контейнер для карусели
+                content.innerHTML = `
+                    <div class="relative">
+                        <div class="overflow-hidden touch-pan-x">
+                            <div class="carousel-container flex transition-transform duration-300 ease-in-out gap-4 pb-4">
+                            </div>
+                        </div>
+                        <button class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-r hidden z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-l hidden z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <div class="carousel-dots flex justify-center gap-2 mt-4"></div>
+                    </div>
+                `;
+
+                const carouselContainer = content.querySelector('.carousel-container');
+                const prevButton = content.querySelector('.carousel-prev');
+                const nextButton = content.querySelector('.carousel-next');
+                const dotsContainer = content.querySelector('.carousel-dots');
+                
+                // Инициализируем переменные для карусели
+                let currentPosition = 0;
+                let isDragging = false;
+                let startPos = 0;
+                let currentTranslate = 0;
+                let prevTranslate = 0;
+                
+                // Добавляем стили для активного состояния карусели
+                carouselContainer.style.cursor = 'grab';
+                
+                for (const [subject, data] of Object.entries(teacherSubgroups)) {
+                    if (subject === 'dates') continue;
+                    
+                    const subjectCard = document.createElement('div');
+                    subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
+                    const dates = data.dates || {};
+                    const subgroup1Dates = Object.entries(dates).filter(([_, group]) => group === 1);
+                    const subgroup2Dates = Object.entries(dates).filter(([_, group]) => group === 2);
+                    
+                    // Подсчет дней ВУЦ (вторники)
+                    const vucDays = [...subgroup1Dates, ...subgroup2Dates].filter(([dateStr]) => {
+                        const date = new Date(dateStr.split('_')[0].split('.').reverse().join('-'));
+                        return date.getDay() === 2;
+                    });
+                    
+                    subjectCard.innerHTML = `
+                        <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-6 h-full border border-gray-700">
+                            <h5 class="text-lg font-medium text-white mb-4">${subject}</h5>
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">1-я подгруппа</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${subgroup1Dates.length}</div>
+                                    <span class="text-gray-400 text-sm">занятий</span>
+                                </div>
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">2-я подгруппа</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${subgroup2Dates.length}</div>
+                                    <span class="text-gray-400 text-sm">занятий</span>
+                                </div>
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">ВУЦ</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${vucDays.length}</div>
+                                    <span class="text-gray-400 text-sm">дней</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <h6 class="text-blue-400 font-medium">1-я подгруппа</h6>
+                                    <div class="grid gap-2">
+                                        ${subgroup1Dates.map(([dateTime]) => {
+                                            const {date, time} = formatDateTime(dateTime);
+                                            const dateObj = new Date(date.split('.').reverse().join('-'));
+                                            const isVUC = dateObj.getDay() === 2;
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
+                                                <div class="bg-gray-800/70 p-2 rounded ${isVUC ? 'border-l-2 border-blue-400' : ''}">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-white">${date}</span>
+                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
+                                                        ${isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                    </div>
+                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <h6 class="text-blue-400 font-medium">2-я подгруппа</h6>
+                                    <div class="grid gap-2">
+                                        ${subgroup2Dates.map(([dateTime]) => {
+                                            const {date, time} = formatDateTime(dateTime);
+                                            const dateObj = new Date(date.split('.').reverse().join('-'));
+                                            const isVUC = dateObj.getDay() === 2;
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
+                                                <div class="bg-gray-800/70 p-2 rounded ${isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-white">${date}</span>
+                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
+                                                        ${isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                    </div>
+                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    carouselContainer.appendChild(subjectCard);
+                }
+
+                // Создаем точки индикаторов
+                const totalSlides = carouselContainer.children.length;
+                const visibleSlides = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+                const totalDots = Math.ceil(totalSlides / visibleSlides);
+
+                for (let i = 0; i < totalDots; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'w-2 h-2 rounded-full bg-gray-600 transition-all duration-300';
+                    dot.addEventListener('click', () => {
+                        const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                        currentPosition = -(i * slideWidth * visibleSlides);
+                        updateCarousel();
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+
+                // Обработчики свайпов
+                carouselContainer.addEventListener('mousedown', dragStart);
+                carouselContainer.addEventListener('touchstart', dragStart);
+                carouselContainer.addEventListener('mouseup', dragEnd);
+                carouselContainer.addEventListener('touchend', dragEnd);
+                carouselContainer.addEventListener('mousemove', drag);
+                carouselContainer.addEventListener('touchmove', drag);
+                carouselContainer.addEventListener('mouseleave', dragEnd);
+
+                function dragStart(e) {
+                    isDragging = true;
+                    startPos = e.type === 'mousedown' ? e.pageX : e.touches[0].clientX;
+                    prevTranslate = currentPosition;
+                    carouselContainer.style.cursor = 'grabbing';
+                }
+
+                function drag(e) {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const currentPos = e.type === 'mousemove' ? e.pageX : e.touches[0].clientX;
+                    const diff = (currentPos - startPos) * 3.5; // Увеличиваем скорость движения
+                    currentPosition = prevTranslate + diff;
+                    
+                    // Добавляем эластичность на краях
+                    if (currentPosition > 0) {
+                        currentPosition = currentPosition * 0.3;
+                    } else if (currentPosition < -(carouselContainer.scrollWidth - carouselContainer.clientWidth)) {
+                        const overscroll = currentPosition + (carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                        currentPosition = -(carouselContainer.scrollWidth - carouselContainer.clientWidth) + overscroll * 0.3;
+                    }
+                    
+                    updateCarousel();
+                }
+
+                function dragEnd() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    carouselContainer.style.cursor = 'grab';
+                    
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    let snapPosition;
+                    
+                    // Определяем направление свайпа
+                    const swipeDirection = currentPosition < prevTranslate ? -1 : 1;
+                    const swipeStrength = Math.abs(currentPosition - prevTranslate);
+                    
+                    if (swipeStrength > slideWidth * 0.1) {
+                        // Если свайп достаточно сильный, переходим к следующему/предыдущему слайду
+                        snapPosition = Math.round((currentPosition - (slideWidth * 0.3 * swipeDirection)) / slideWidth) * slideWidth;
+                    } else {
+                        // Иначе возвращаемся к текущему слайду
+                        snapPosition = Math.round(currentPosition / slideWidth) * slideWidth;
+                    }
+                    
+                    // Анимируем переход
+                    currentPosition = Math.min(0, Math.max(snapPosition, -(carouselContainer.scrollWidth - carouselContainer.clientWidth)));
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    
+                    // Сбрасываем transition после анимации
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                }
+
+                // Добавляем обработчики для кнопок навигации
+                prevButton.addEventListener('click', () => {
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    currentPosition = Math.min(currentPosition + slideWidth, 0);
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                });
+
+                nextButton.addEventListener('click', () => {
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                    currentPosition = Math.max(currentPosition - slideWidth, maxScroll);
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                });
+
+                // Обновляем функцию updateCarousel
+                const updateCarousel = () => {
+                    carouselContainer.style.transform = `translateX(${currentPosition}px)`;
+                    
+                    // Показываем/скрываем кнопки навигации
+                    prevButton.classList.toggle('hidden', currentPosition >= 0);
+                    nextButton.classList.toggle('hidden', currentPosition <= -(carouselContainer.scrollWidth - carouselContainer.clientWidth));
+
+                    // Обновляем активную точку
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    const activeIndex = Math.round(Math.abs(currentPosition) / (slideWidth * visibleSlides));
+                    
+                    dotsContainer.querySelectorAll('button').forEach((dot, index) => {
+                        if (index === activeIndex) {
+                            dot.classList.add('bg-blue-400', 'w-4');
+                            dot.classList.remove('bg-gray-600');
+                        } else {
+                            dot.classList.remove('bg-blue-400', 'w-4');
+                            dot.classList.add('bg-gray-600');
+                        }
+                    });
+                };
+
+                // Обновляем обработчик изменения размера окна
+                window.addEventListener('resize', () => {
+                    const newVisibleSlides = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+                    if (newVisibleSlides !== visibleSlides) {
+                        location.reload();
+                    }
+                    updateCarousel();
+                });
+
+                // Инициализация
+                updateCarousel();
+            }
 
             function updateFavoriteButton() {
                 const selectedGroup = groupSelect.value;
@@ -1945,14 +2276,14 @@
                 return daysOfWeek[day];
             }
 
-            function displayDaySchedule(day) {
+            function displayDaySchedule(day, labIndices) {
                 const dayElement = document.createElement('div');
                 dayElement.className = 'p-4 bg-slate-900 rounded-lg mb-4 day-schedule';
 
                 const dayInfo = day.info;
                 const formattedDate = formatDate(dayInfo.date);
                 const lessonDate = new Date(dayInfo.date);
-                const currentDate = new Date();
+                const currentDate = new Date("2025-03-03");
 
                 const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
                 const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
@@ -1997,6 +2328,16 @@
 
                 day.lessons.forEach(lesson => {
                     const isHidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
+                    
+                    // Проверяем, нужно ли показывать лабораторную работу
+                    if (lesson.type === 8) {
+                        const key = `${lesson.lessonName}_${lesson.teacherName}`;
+                        const labIndex = labIndices[key];
+                        if (!window.shouldShowLabWork(lesson, labIndex)) {
+                            return;
+                        }
+                    }
+                    
                     if (isHidden) return;
 
                     const lessonTypeColors = {
@@ -2036,13 +2377,34 @@
                     const teacherNameParts = teacherFullName.split(' ');
                     const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
 
+                    // Добавляем индикатор подгруппы для лабораторных работ
+                    let subgroupIndicator = '';
+                    if (lesson.type === 8) {
+                        const key = `${lesson.lessonName}_${lesson.teacherName}`;
+                        const subgroupSettings = JSON.parse(localStorage.getItem('subgroupSettings')) || {};
+                        const isEnabled = subgroupSettings[lesson.lessonName];
+                        const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups')) || {};
+                        
+                        if (isEnabled && teacherSubgroups[key] && teacherSubgroups[key].dates) {
+                            const formattedDate = new Date(day.info.date).toLocaleDateString('ru-RU');
+                            const dateTimeKey = `${formattedDate}_${lesson.timeRange}`;
+                            const subgroup = teacherSubgroups[key].dates[dateTimeKey];
+                            
+                            if (subgroup) {
+                                subgroupIndicator = `<span class="text-xs text-yellow-500 md:ml-2 block md:inline mt-1 md:mt-0">(Подгруппа ${subgroup})</span>`;
+                            }
+                        }
+                    }
+
                     lessonContainer.innerHTML = 
                         `<div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
                             <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
                             <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
                         </div>
                         <div class="flex-grow">
-                            <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
+                            <div class="flex items-center">
+                                <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}${subgroupIndicator}</p>
+                            </div>
                             <p class="text-sm text-slate-400">${lessonTypes[lesson.type]}</p>
                             <p class="text-sm ${lesson.isDistant ? 'text-red-500' : 'text-slate-400'}">
                                 ${lesson.isDistant ? 'Дистант' : 
@@ -2071,7 +2433,7 @@
             if (filteredWeek) {
                 filteredWeek.days = filteredWeek.days.filter(day => {
                     const lessonDate = new Date(day.info.date);
-                    const currentDate = new Date();
+                    const currentDate = new Date("2025-03-03");
 
                     const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
                     const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
@@ -2153,6 +2515,138 @@
                     return;
                 }
 
+                // Глобальный счетчик для лабораторных работ
+                let globalLabIndex = 0;
+
+                // Предварительный подсчет индексов лабораторных работ
+                const labIndices = {};
+                const subjectLessons = {};
+                
+                // Полностью очищаем все данные о подгруппах
+                const teacherSubgroups = {};
+                const subgroupStats = {};
+
+                // Сначала группируем все лабораторные занятия по предметам
+                scheduleData.items.forEach(weekItem => {
+                    if (weekItem.days) {
+                        weekItem.days = weekItem.days.filter(day => {
+                            const lessonDate = new Date(day.info.date);
+                            const currentDate = new Date("2025-03-03");
+
+                            const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
+                            const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
+                            
+                            const springYear = isSpring ? currentDate.getFullYear() : currentDate.getFullYear() + 1;
+                            const autumnYear = isAutumn ? currentDate.getFullYear() : currentDate.getFullYear() - 1;
+
+                            return (
+                                (isSpring && lessonDate.getFullYear() === springYear && lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5) ||
+                                (isAutumn && lessonDate.getFullYear() === autumnYear && lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11)
+                            );
+                        });
+
+                        weekItem.days.forEach(day => {
+                            if (day && day.lessons) {
+                                day.lessons.forEach(lesson => {
+                                    if (lesson.type === 8) {
+                                        const key = `${lesson.lessonName}_${lesson.teacherName}`;
+                                        if (!subjectLessons[lesson.lessonName]) {
+                                            subjectLessons[lesson.lessonName] = [];
+                                        }
+                                        subjectLessons[lesson.lessonName].push({
+                                            key,
+                                            date: day.info.date,
+                                            time: lesson.timeRange,
+                                            hasVuc: new Date(day.info.date).getDay() === 2
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // Распределяем подгруппы для каждого предмета
+                Object.entries(subjectLessons).forEach(([subject, lessons]) => {
+                    console.log(`\n=== ${subject} ===`);
+                    
+                    // Сортируем занятия по дате
+                    lessons.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    
+                    // Инициализируем статистику для предмета
+                    if (!subgroupStats[subject]) {
+                        subgroupStats[subject] = { 1: 0, 2: 0 };
+                    }
+
+                    let lastAssignedSubgroup = null; // Последняя назначенная подгруппа
+                    let lastNonVucSubgroup = null;   // Последняя назначенная не-ВУЦ подгруппа
+
+                    // Распределяем занятия
+                    lessons.forEach((lesson, index) => {
+                        const date = new Date(lesson.date);
+                        const formattedDate = date.toLocaleDateString('ru-RU');
+                        const currentDay = scheduleData.items
+                            .flatMap(w => w.days)
+                            .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === formattedDate);
+                        
+                        const isVUC = currentDay && currentDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
+                        const prevLesson = index > 0 ? lessons[index - 1] : null;
+                        
+                        let prevHadVUC = false;
+                        if (prevLesson) {
+                            const prevDate = new Date(prevLesson.date).toLocaleDateString('ru-RU');
+                            const prevDay = scheduleData.items
+                                .flatMap(w => w.days)
+                                .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === prevDate);
+                            prevHadVUC = prevDay && prevDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
+                        }
+
+                        if (!teacherSubgroups[lesson.key]) {
+                            teacherSubgroups[lesson.key] = { dates: {} };
+                        }
+
+                        const dateTimeKey = `${formattedDate}_${lesson.time}`;
+
+                        if (isVUC) { // День с ВУЦ
+                            teacherSubgroups[lesson.key].dates[dateTimeKey] = 2;
+                            subgroupStats[subject][2]++;
+                            console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - 2-я подгруппа (ВУЦ в этот день)`);
+                            lastAssignedSubgroup = 2;
+                        } else {
+                            let assignedSubgroup;
+
+                            if (prevHadVUC) {
+                                // После дня с ВУЦ всегда назначаем первую подгруппу
+                                assignedSubgroup = 1;
+                            } else if (lastNonVucSubgroup === null) {
+                                // Для первого не-ВУЦ занятия
+                                assignedSubgroup = 1;
+                            } else {
+                                // Чередуем подгруппы для не-ВУЦ занятий
+                                assignedSubgroup = lastNonVucSubgroup === 1 ? 2 : 1;
+                            }
+
+                            teacherSubgroups[lesson.key].dates[dateTimeKey] = assignedSubgroup;
+                            subgroupStats[subject][assignedSubgroup]++;
+                            console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${assignedSubgroup}-я подгруппа${prevHadVUC ? ' (после дня с ВУЦ)' : ''}`);
+                            
+                            lastAssignedSubgroup = assignedSubgroup;
+                            lastNonVucSubgroup = assignedSubgroup;
+                        }
+                    });
+                });
+
+                // Выводим итоговую статистику
+                console.log('\n=== Итоговая статистика по предметам ===');
+                Object.entries(subgroupStats).forEach(([subject, stats]) => {
+                    console.log(`\n${subject}:`);
+                    console.log(`  Подгруппа 1: ${stats[1]} занятий`);
+                    console.log(`  Подгруппа 2: ${stats[2]} занятий`);
+                });
+                
+                // Сохраняем только новые данные о подгруппах
+                localStorage.setItem('teacherSubgroups', JSON.stringify(teacherSubgroups));
+
                 if (window.innerWidth <= 768 && !isFullView) {
                     const daysContainer = document.createElement('div');
                     daysContainer.className = 'flex justify-center gap-4 mb-2';
@@ -2193,7 +2687,7 @@
                                 existingSchedule.remove();
                             }
 
-                            displayDaySchedule(day);
+                            displayDaySchedule(day, labIndices);
 
                             localStorage.setItem('lastSelectedDay', lessonDate);
                         };
@@ -2205,13 +2699,14 @@
 
                     displayDaySchedule(
                         filteredWeek.days.find(day => new Date(day.info.date).toDateString() === new Date(lastSelectedDay).toDateString()) || 
-                        filteredWeek.days[0]
+                        filteredWeek.days[0],
+                        labIndices
                     );
 
                     updateHiddenSubjectsSection(group);
                 } else {
                     filteredWeek.days.forEach(day => {
-                        displayDaySchedule(day);
+                        displayDaySchedule(day, labIndices);
                     });
                 }
 
@@ -2744,10 +3239,156 @@
         }
 
         document.addEventListener('DOMContentLoaded', updateWeeksList);
+
+        // Управление подгруппами для лабораторных работ
+        document.addEventListener('DOMContentLoaded', function() {
+            const subgroupModal = document.getElementById('subgroupModal');
+            const subgroupSettingsBtn = document.getElementById('subgroupSettingsBtn');
+            const closeSubgroupModal = document.getElementById('closeSubgroupModal');
+            const saveSubgroupSettings = document.getElementById('saveSubgroupSettings');
+            const labWorksList = document.getElementById('labWorksList');
+            const subgroupSelect = "Все подгруппы";
+
+            // Загрузка сохраненных настроек
+            let selectedSubgroup = localStorage.getItem('selectedSubgroup') || '';
+            let subgroupSettings = JSON.parse(localStorage.getItem('subgroupSettings')) || {};
+            
+            subgroupSelect.value = selectedSubgroup;
+
+            // Открытие модального окна
+            subgroupSettingsBtn.addEventListener('click', () => {
+                updateLabWorksList();
+                subgroupModal.classList.remove('hidden');
+            });
+
+            // Закрытие модального окна
+            closeSubgroupModal.addEventListener('click', () => {
+                subgroupModal.classList.add('hidden');
+            });
+
+            // Закрытие по клику вне модального окна
+            subgroupModal.addEventListener('click', (e) => {
+                if (e.target === subgroupModal) {
+                    subgroupModal.classList.add('hidden');
+                }
+            });
+
+            // Сохранение настроек
+            saveSubgroupSettings.addEventListener('click', () => {
+                selectedSubgroup = subgroupSelect.value;
+                localStorage.setItem('selectedSubgroup', selectedSubgroup);
+                
+                // Сохранение настроек подгрупп для каждой лабораторной работы
+                const checkboxes = labWorksList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const labName = checkbox.dataset.labName;
+                    subgroupSettings[labName] = checkbox.checked;
+                });
+                
+                localStorage.setItem('subgroupSettings', JSON.stringify(subgroupSettings));
+                subgroupModal.classList.add('hidden');
+                
+                // Обновление отображения расписания
+                document.getElementById('schedule-form').dispatchEvent(new Event('submit'));
+            });
+
+            // Обновление списка лабораторных работ
+            function updateLabWorksList() {
+                labWorksList.innerHTML = '';
+
+                const group = document.getElementById('group-select').value;
+                if (!group) return;
+
+                // Получаем все уникальные лабораторные работы из расписания
+                const uniqueLabWorks = new Set();
+
+                // Проходим по всем неделям от 1 до 18
+                for (let week = 1; week <= 18; week++) {
+                    const scheduleData = JSON.parse(localStorage.getItem(`${group}_${week}`));
+                    
+                    if (scheduleData && scheduleData.data) {
+                        scheduleData.data.items.forEach(weekItem => {
+                            if (weekItem.days) {
+                                weekItem.days.forEach(day => {
+                                    if (day && day.lessons) {
+                                        day.lessons.forEach(lesson => {
+                                            if (lesson.type === 8) { // Тип 8 - лабораторная работа
+                                                uniqueLabWorks.add(lesson.lessonName);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+
+                // Создаем элементы управления для каждой лабораторной работы
+                uniqueLabWorks.forEach(labName => {
+                    const labDiv = document.createElement('div');
+                    labDiv.className = 'flex items-center justify-between p-3 bg-slate-900 rounded-lg';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'form-checkbox h-5 w-5 text-blue-600';
+                    checkbox.checked = subgroupSettings[labName] || false;
+                    checkbox.dataset.labName = labName;
+
+                    labDiv.innerHTML = `
+                        <span class="text-white flex-grow">${labName}</span>
+                    `;
+                    labDiv.prepend(checkbox);
+                    
+                    labWorksList.appendChild(labDiv);
+                });
+            }
+
+            // Функция для определения, нужно ли показывать лабораторную работу
+            window.shouldShowLabWork = function(lesson, labIndex) {
+                if (lesson.type !== 8) return true;
+                
+                const subgroupSettings = JSON.parse(localStorage.getItem('subgroupSettings')) || {};
+                const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups')) || {};
+                const key = `${lesson.lessonName}_${lesson.teacherName}`;
+
+                // Если деление на подгруппы для этого предмета отключено, показываем всем
+                if (!subgroupSettings[lesson.lessonName]) return true;
+
+                // Если для этой пары назначена подгруппа, показываем
+                return teacherSubgroups[key] !== undefined;
+            };
+
+            // Сохранение настроек
+            saveSubgroupSettings.addEventListener('click', () => {
+                const subgroupSettings = {};
+                const checkboxes = document.querySelectorAll('#labWorksList input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const labName = checkbox.dataset.labName;
+                    subgroupSettings[labName] = checkbox.checked;
+                });
+                
+                localStorage.setItem('subgroupSettings', JSON.stringify(subgroupSettings));
+                
+                // Если есть хотя бы один выбранный предмет, пересчитываем подгруппы
+                if (Object.values(subgroupSettings).some(value => value)) {
+                    const group = document.getElementById('group-select').value;
+                    const week = document.getElementById('week-select').value;
+                    const savedSchedule = localStorage.getItem(`${group}_${week}`);
+                    if (savedSchedule) {
+                        const scheduleData = JSON.parse(savedSchedule).data;
+                        // Здесь должна быть логика распределения подгрупп
+                        // Она уже реализована в другом месте кода
+                    }
+                }
+                
+                subgroupModal.classList.add('hidden');
+                location.reload();
+            });
+        });
     </script>
 
     <!-- Snow with weather -->
-    <link href="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/snow.min.css" rel="stylesheet">
+    <!-- <link href="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/snow.min.css" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/Snow.min.js"></script>
 
@@ -2774,7 +3415,7 @@
             console.error('Ошибка получения данных о погоде:', error);
         }
     });
-    </script>
+    </script> -->
     <!-- Snow with weather -->
 
     <script>
