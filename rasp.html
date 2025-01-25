@@ -834,14 +834,11 @@
                     const subjectCard = document.createElement('div');
                     subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
                     const dates = data.dates || {};
-                    const subgroup1Dates = Object.entries(dates).filter(([_, group]) => group === 1);
-                    const subgroup2Dates = Object.entries(dates).filter(([_, group]) => group === 2);
+                    const subgroup1Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 1);
+                    const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
                     
-                    // Подсчет дней ВУЦ (вторники)
-                    const vucDays = [...subgroup1Dates, ...subgroup2Dates].filter(([dateStr]) => {
-                        const date = new Date(dateStr.split('_')[0].split('.').reverse().join('-'));
-                        return date.getDay() === 2;
-                    });
+                    // Подсчет дней ВУЦ
+                    const vucDays = Object.entries(dates).filter(([_, info]) => info.isVUC);
                     
                     subjectCard.innerHTML = `
                         <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-6 h-full border border-gray-700">
@@ -867,17 +864,15 @@
                                 <div class="space-y-3">
                                     <h6 class="text-blue-400 font-medium">1-я подгруппа</h6>
                                     <div class="grid gap-2">
-                                        ${subgroup1Dates.map(([dateTime]) => {
+                                        ${subgroup1Dates.map(([dateTime, info]) => {
                                             const {date, time} = formatDateTime(dateTime);
-                                            const dateObj = new Date(date.split('.').reverse().join('-'));
-                                            const isVUC = dateObj.getDay() === 2;
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${isVUC ? 'border-l-2 border-blue-400' : ''}">
+                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-white">${date}</span>
                                                         <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
                                                     </div>
                                                     ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
                                                 </div>
@@ -888,17 +883,15 @@
                                 <div class="space-y-3">
                                     <h6 class="text-blue-400 font-medium">2-я подгруппа</h6>
                                     <div class="grid gap-2">
-                                        ${subgroup2Dates.map(([dateTime]) => {
+                                        ${subgroup2Dates.map(([dateTime, info]) => {
                                             const {date, time} = formatDateTime(dateTime);
-                                            const dateObj = new Date(date.split('.').reverse().join('-'));
-                                            const isVUC = dateObj.getDay() === 2;
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
+                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-white">${date}</span>
                                                         <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
                                                     </div>
                                                     ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
                                                 </div>
@@ -1618,7 +1611,7 @@
         });
 
         const weekRanges = (() => {
-            const currentDate = new Date();
+            const currentDate = new Date("2025-03-03");
             const currentMonth = currentDate.getMonth();
             const currentYear = currentDate.getFullYear();
 
@@ -1671,7 +1664,7 @@
         })();
 
         function setDefaultWeekForNewUser() {
-            const today = new Date();
+            const today = new Date("2025-03-03");
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
 
@@ -1687,7 +1680,7 @@
         }
 
         function getCurrentWeekMessage() {
-            const today = new Date();
+            const today = new Date("2025-03-03");
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
             
@@ -2180,7 +2173,7 @@
 
             titleElement.innerText = `Расписание для группы ${group} на ${week} неделю`;
 
-            const today = new Date();
+            const today = new Date("2025-03-03");
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
 
@@ -2313,7 +2306,7 @@
                     }
                 }
 
-                const today = new Date();
+                const today = new Date("2025-03-03");
                 today.setHours(0, 0, 0, 0);
 
                 const isToday = lessonDate.getTime() === today.getTime();
@@ -2388,10 +2381,11 @@
                         if (isEnabled && teacherSubgroups[key] && teacherSubgroups[key].dates) {
                             const formattedDate = new Date(day.info.date).toLocaleDateString('ru-RU');
                             const dateTimeKey = `${formattedDate}_${lesson.timeRange}`;
-                            const subgroup = teacherSubgroups[key].dates[dateTimeKey];
+                            const subgroupInfo = teacherSubgroups[key].dates[dateTimeKey];
                             
-                            if (subgroup) {
-                                subgroupIndicator = `<span class="text-xs text-yellow-500 md:ml-2 block md:inline mt-1 md:mt-0">(Подгруппа ${subgroup})</span>`;
+                            if (subgroupInfo) {
+                                const vucIndicator = subgroupInfo.isVUC ? ' (ВУЦ)' : '';
+                                subgroupIndicator = `<span class="text-xs text-yellow-500 md:ml-2 block md:inline mt-1 md:mt-0">(Подгруппа ${subgroupInfo.subgroup}${vucIndicator})</span>`;
                             }
                         }
                     }
@@ -2557,7 +2551,7 @@
                                             key,
                                             date: day.info.date,
                                             time: lesson.timeRange,
-                                            hasVuc: new Date(day.info.date).getDay() === 2
+                                            hasVuc: day.lessons.some(l => l.lessonName.includes('ВУЦ'))
                                         });
                                     }
                                 });
@@ -2606,31 +2600,18 @@
                         }
 
                         const dateTimeKey = `${formattedDate}_${lesson.time}`;
+                        teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                            subgroup: isVUC ? 2 : (prevHadVUC ? 1 : (lastNonVucSubgroup === null ? 1 : (lastNonVucSubgroup === 1 ? 2 : 1))),
+                            isVUC: isVUC
+                        };
 
-                        if (isVUC) { // День с ВУЦ
-                            teacherSubgroups[lesson.key].dates[dateTimeKey] = 2;
-                            subgroupStats[subject][2]++;
-                            console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - 2-я подгруппа (ВУЦ в этот день)`);
-                            lastAssignedSubgroup = 2;
-                        } else {
-                            let assignedSubgroup;
-
-                            if (prevHadVUC) {
-                                // После дня с ВУЦ всегда назначаем первую подгруппу
-                                assignedSubgroup = 1;
-                            } else if (lastNonVucSubgroup === null) {
-                                // Для первого не-ВУЦ занятия
-                                assignedSubgroup = 1;
-                            } else {
-                                // Чередуем подгруппы для не-ВУЦ занятий
-                                assignedSubgroup = lastNonVucSubgroup === 1 ? 2 : 1;
-                            }
-
-                            teacherSubgroups[lesson.key].dates[dateTimeKey] = assignedSubgroup;
-                            subgroupStats[subject][assignedSubgroup]++;
-                            console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${assignedSubgroup}-я подгруппа${prevHadVUC ? ' (после дня с ВУЦ)' : ''}`);
-                            
-                            lastAssignedSubgroup = assignedSubgroup;
+                        const assignedSubgroup = teacherSubgroups[lesson.key].dates[dateTimeKey].subgroup;
+                        subgroupStats[subject][assignedSubgroup]++;
+                        
+                        console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${assignedSubgroup}-я подгруппа${isVUC ? ' (ВУЦ)' : (prevHadVUC ? ' (после дня с ВУЦ)' : '')}`);
+                        
+                        lastAssignedSubgroup = assignedSubgroup;
+                        if (!isVUC) {
                             lastNonVucSubgroup = assignedSubgroup;
                         }
                     });
@@ -2662,7 +2643,7 @@
                         dayButton.className = 'flex flex-col items-center p-2 sm:p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]';
                         dayButton.style.width = '70px';
 
-                        const today = new Date();
+                        const today = new Date("2025-03-03");
                         today.setHours(0, 0, 0, 0);
                         const isToday = lessonDate.getTime() === today.getTime();
 
@@ -2869,7 +2850,7 @@
                 Экзамен: { completed: 0, total: 0 } 
             };
 
-            const currentDate = new Date();
+            const currentDate = new Date("2025-03-03");
             const currentMonth = currentDate.getMonth();
 
             const container = document.getElementById('statistics-container');
@@ -3445,7 +3426,7 @@
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-    m[i].l=1*new Date();
+    m[i].l=1*new Date("2025-03-03");
     for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
     k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
     (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
@@ -3464,7 +3445,7 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      gtag('js', new Date("2025-03-03"));
     
       gtag('config', 'G-0K2G90RDS0');
     </script>
