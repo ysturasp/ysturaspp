@@ -2152,6 +2152,7 @@
             }
 
             if (filteredWeek) {
+                // Фильтр для отображения расписания
                 filteredWeek.days = filteredWeek.days.filter(day => {
                     const lessonDate = new Date(day.info.date);
                     const currentDate = new Date("2025-03-03");
@@ -2197,33 +2198,33 @@
                     var star = confetti.shapeFromText({ text: '⭐', scalar });
 
                     var defaults = {
-                    spread: 360,
-                    ticks: 60,
-                    gravity: 0,
-                    decay: 0.96,
-                    startVelocity: 20,
-                    shapes: [unicorn, star],
-                    scalar
+                        spread: 360,
+                        ticks: 60,
+                        gravity: 0,
+                        decay: 0.96,
+                        startVelocity: 20,
+                        shapes: [unicorn, star],
+                        scalar
                     };
 
                     function shoot() {
-                    confetti({
-                        ...defaults,
-                        particleCount: 30
-                    });
+                        confetti({
+                            ...defaults,
+                            particleCount: 30
+                        });
 
-                    confetti({
-                        ...defaults,
-                        particleCount: 5,
-                        flat: true
-                    });
+                        confetti({
+                            ...defaults,
+                            particleCount: 5,
+                            flat: true
+                        });
 
-                    confetti({
-                        ...defaults,
-                        particleCount: 15,
-                        scalar: scalar / 2,
-                        shapes: ['circle']
-                    });
+                        confetti({
+                            ...defaults,
+                            particleCount: 15,
+                            scalar: scalar / 2,
+                            shapes: ['circle']
+                        });
                     }
 
                     setTimeout(shoot, 0);
@@ -2247,23 +2248,32 @@
                 const teacherSubgroups = {};
                 const subgroupStats = {};
 
-                // Сначала группируем все лабораторные занятия по предметам
-                scheduleData.items.forEach(weekItem => {
+                // Фильтр для статистики подгрупп
+                const filteredScheduleData = JSON.parse(JSON.stringify(scheduleData));
+                filteredScheduleData.items.forEach(weekItem => {
                     if (weekItem.days) {
                         weekItem.days = weekItem.days.filter(day => {
                             const lessonDate = new Date(day.info.date);
                             const currentDate = new Date("2025-03-03");
 
-                            const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
+                            const isSpring = currentDate.getMonth() >= 2 && currentDate.getMonth() <= 5;
                             const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
+                            const isJanuary = currentDate.getMonth() === 0;
                             
                             const springYear = isSpring ? currentDate.getFullYear() : currentDate.getFullYear() + 1;
-                            const autumnYear = isAutumn ? currentDate.getFullYear() : currentDate.getFullYear() - 1;
+                            const autumnYear = (isAutumn || isJanuary) ? currentDate.getFullYear() : currentDate.getFullYear() - 1;
 
-                            return (
-                                (isSpring && lessonDate.getFullYear() === springYear && lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5) ||
-                                (isAutumn && lessonDate.getFullYear() === autumnYear && lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11)
-                            );
+                            if (isSpring) {
+                                return lessonDate.getFullYear() === springYear && 
+                                       lessonDate.getMonth() >= 2 && 
+                                       lessonDate.getMonth() <= 5;
+                            } else if (isAutumn || isJanuary) {
+                                return lessonDate.getFullYear() === autumnYear && 
+                                       ((lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11) ||
+                                        (lessonDate.getMonth() === 0));
+                            } else {
+                                return false;
+                            }
                         });
 
                         weekItem.days.forEach(day => {
