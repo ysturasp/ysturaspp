@@ -1907,6 +1907,40 @@
 
                     const newScheduleData = await response.json();
 
+                    if (newScheduleData) {
+                        scheduleData = newScheduleData;
+                        // Сохраняем расписание для экстренных ситуаций
+                        try {
+                            const currentDate = new Date().toLocaleString();
+                            const saveData = {
+                                schedule: scheduleData,
+                                date: currentDate,
+                                group: group
+                            };
+                            localStorage.setItem('lastSavedSchedule', JSON.stringify(saveData));
+                            console.log('Расписание успешно сохранено:', currentDate);
+                        } catch (storageError) {
+                            console.error('Ошибка при сохранении расписания:', storageError);
+                            // Очищаем хранилище при переполнении
+                            if (storageError.name === 'QuotaExceededError' || 
+                                storageError.message.includes('quota') || 
+                                storageError.message.includes('exceeded')) {
+                                localStorage.clear();
+                                // Пробуем сохранить снова после очистки
+                                try {
+                                    const currentDate = new Date().toLocaleString();
+                                    localStorage.setItem('lastSavedSchedule', JSON.stringify({
+                                        schedule: scheduleData,
+                                        date: currentDate,
+                                        group: group
+                                    }));
+                                } catch (retryError) {
+                                    console.error('Не удалось сохранить даже после очистки:', retryError);
+                                }
+                            }
+                        }
+                    }
+
                     if (!cachedData || JSON.stringify(newScheduleData) !== JSON.stringify(JSON.parse(cachedData).data)) {
                         scheduleData = newScheduleData;
                         try {
