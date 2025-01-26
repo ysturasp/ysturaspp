@@ -2385,7 +2385,7 @@
                             
                             if (subgroupInfo) {
                                 const vucIndicator = subgroupInfo.isVUC ? ' (ВУЦ)' : '';
-                                subgroupIndicator = `<span class="text-xs text-yellow-500 md:ml-2 block md:inline mt-1 md:mt-0">(Подгруппа ${subgroupInfo.subgroup}${vucIndicator})</span>`;
+                                subgroupIndicator = `<span class="text-xs text-yellow-500 md:ml-2 block md:inline mt-1 md:mt-0">(Подгруппа ${subgroupInfo.subgroup})</span>`;
                             }
                         }
                     }
@@ -3280,6 +3280,9 @@
                 const group = document.getElementById('group-select').value;
                 if (!group) return;
 
+                const currentDate = new Date("2025-03-03");
+                const currentMonth = currentDate.getMonth();
+
                 // Получаем все уникальные лабораторные работы из расписания
                 const uniqueLabWorks = new Set();
 
@@ -3291,6 +3294,26 @@
                         scheduleData.data.items.forEach(weekItem => {
                             if (weekItem.days) {
                                 weekItem.days.forEach(day => {
+                                    const lessonDate = new Date(day.info.date);
+                                    
+                                    // Проверяем, относится ли дата к текущему семестру
+                                    const isCurrentSemester = (() => {
+                                        if (currentMonth >= 1 && currentMonth <= 5) {
+                                            return lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5;
+                                        }
+                                        if (currentMonth >= 8 && currentMonth <= 11) {
+                                            return lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11;
+                                        }
+                                        if (currentMonth === 0) {
+                                            return lessonDate.getMonth() >= 8 || lessonDate.getMonth() === 0;
+                                        }
+                                        return false;
+                                    })();
+
+                                    if (!isCurrentSemester) {
+                                        return;
+                                    }
+
                                     if (day && day.lessons) {
                                         day.lessons.forEach(lesson => {
                                             if (lesson.type === 8) { // Тип 8 - лабораторная работа
