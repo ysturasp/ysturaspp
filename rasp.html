@@ -771,279 +771,6 @@
 
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-            const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups') || '{}');
-            const statsSection = document.querySelector('.subgroups-statistics');
-            const content = document.getElementById('subgroups-content');
-
-            function formatDateTime(dateTimeStr) {
-                const [date, time] = dateTimeStr.split('_');
-                return {
-                    date: date,
-                    time: time ? time.replace('-', ' - ') : ''
-                };
-            }
-
-            function getDayOfWeek(dateStr) {
-                const days = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
-                const date = new Date(dateStr.split('.').reverse().join('-'));
-                return days[date.getDay()];
-            }
-
-            if (Object.keys(teacherSubgroups).length > 0) {
-                statsSection.classList.remove('hidden');
-                
-                // Создаем контейнер для карусели
-                content.innerHTML = `
-                    <div class="relative">
-                        <div class="overflow-hidden touch-pan-x">
-                            <div class="carousel-container flex transition-transform duration-300 ease-in-out gap-4 pb-4">
-                            </div>
-                        </div>
-                        <button class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-r hidden z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <button class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-l hidden z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                        <div class="carousel-dots flex justify-center gap-2 mt-4"></div>
-                    </div>
-                `;
-
-                const carouselContainer = content.querySelector('.carousel-container');
-                const prevButton = content.querySelector('.carousel-prev');
-                const nextButton = content.querySelector('.carousel-next');
-                const dotsContainer = content.querySelector('.carousel-dots');
-                
-                // Инициализируем переменные для карусели
-                let currentPosition = 0;
-                let isDragging = false;
-                let startPos = 0;
-                let currentTranslate = 0;
-                let prevTranslate = 0;
-                
-                // Добавляем стили для активного состояния карусели
-                carouselContainer.style.cursor = 'grab';
-                
-                for (const [subject, data] of Object.entries(teacherSubgroups)) {
-                    if (subject === 'dates') continue;
-                    
-                    const subjectCard = document.createElement('div');
-                    subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
-                    const dates = data.dates || {};
-                    const subgroup1Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 1);
-                    const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
-                    
-                    // Подсчет дней ВУЦ
-                    const vucDays = Object.entries(dates).filter(([_, info]) => info.isVUC);
-                    
-                    subjectCard.innerHTML = `
-                        <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-6 h-full border border-gray-700">
-                            <h5 class="text-lg font-medium text-white mb-4">${subject}</h5>
-                            <div class="grid grid-cols-3 gap-4 mb-6">
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">1-я подгруппа</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${subgroup1Dates.length}</div>
-                                    <span class="text-gray-400 text-sm">занятий</span>
-                                </div>
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">2-я подгруппа</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${subgroup2Dates.length}</div>
-                                    <span class="text-gray-400 text-sm">занятий</span>
-                                </div>
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">ВУЦ</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${vucDays.length}</div>
-                                    <span class="text-gray-400 text-sm">дней</span>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-3">
-                                    <h6 class="text-blue-400 font-medium">1-я подгруппа</h6>
-                                    <div class="grid gap-2">
-                                        ${subgroup1Dates.map(([dateTime, info]) => {
-                                            const {date, time} = formatDateTime(dateTime);
-                                            const dayOfWeek = getDayOfWeek(date);
-                                            return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-white">${date}</span>
-                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
-                                                    </div>
-                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
-                                                </div>
-                                            `;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                                <div class="space-y-3">
-                                    <h6 class="text-blue-400 font-medium">2-я подгруппа</h6>
-                                    <div class="grid gap-2">
-                                        ${subgroup2Dates.map(([dateTime, info]) => {
-                                            const {date, time} = formatDateTime(dateTime);
-                                            const dayOfWeek = getDayOfWeek(date);
-                                            return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-white">${date}</span>
-                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
-                                                    </div>
-                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
-                                                </div>
-                                            `;
-                                        }).join('')}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    carouselContainer.appendChild(subjectCard);
-                }
-
-                // Создаем точки индикаторов
-                const totalSlides = carouselContainer.children.length;
-                const visibleSlides = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
-                const totalDots = Math.ceil(totalSlides / visibleSlides);
-
-                for (let i = 0; i < totalDots; i++) {
-                    const dot = document.createElement('button');
-                    dot.className = 'w-2 h-2 rounded-full bg-gray-600 transition-all duration-300';
-                    dot.addEventListener('click', () => {
-                        const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                        currentPosition = -(i * slideWidth * visibleSlides);
-                        updateCarousel();
-                    });
-                    dotsContainer.appendChild(dot);
-                }
-
-                // Обработчики свайпов
-                carouselContainer.addEventListener('mousedown', dragStart);
-                carouselContainer.addEventListener('touchstart', dragStart);
-                carouselContainer.addEventListener('mouseup', dragEnd);
-                carouselContainer.addEventListener('touchend', dragEnd);
-                carouselContainer.addEventListener('mousemove', drag);
-                carouselContainer.addEventListener('touchmove', drag);
-                carouselContainer.addEventListener('mouseleave', dragEnd);
-
-                function dragStart(e) {
-                    isDragging = true;
-                    startPos = e.type === 'mousedown' ? e.pageX : e.touches[0].clientX;
-                    prevTranslate = currentPosition;
-                    carouselContainer.style.cursor = 'grabbing';
-                }
-
-                function drag(e) {
-                    if (!isDragging) return;
-                    e.preventDefault();
-                    const currentPos = e.type === 'mousemove' ? e.pageX : e.touches[0].clientX;
-                    const diff = (currentPos - startPos) * 3.5; // Увеличиваем скорость движения
-                    currentPosition = prevTranslate + diff;
-                    
-                    // Добавляем эластичность на краях
-                    if (currentPosition > 0) {
-                        currentPosition = currentPosition * 0.3;
-                    } else if (currentPosition < -(carouselContainer.scrollWidth - carouselContainer.clientWidth)) {
-                        const overscroll = currentPosition + (carouselContainer.scrollWidth - carouselContainer.clientWidth);
-                        currentPosition = -(carouselContainer.scrollWidth - carouselContainer.clientWidth) + overscroll * 0.3;
-                    }
-                    
-                    updateCarousel();
-                }
-
-                function dragEnd() {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    carouselContainer.style.cursor = 'grab';
-                    
-                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                    let snapPosition;
-                    
-                    // Определяем направление свайпа
-                    const swipeDirection = currentPosition < prevTranslate ? -1 : 1;
-                    const swipeStrength = Math.abs(currentPosition - prevTranslate);
-                    
-                    if (swipeStrength > slideWidth * 0.1) {
-                        // Если свайп достаточно сильный, переходим к следующему/предыдущему слайду
-                        snapPosition = Math.round((currentPosition - (slideWidth * 0.3 * swipeDirection)) / slideWidth) * slideWidth;
-                    } else {
-                        // Иначе возвращаемся к текущему слайду
-                        snapPosition = Math.round(currentPosition / slideWidth) * slideWidth;
-                    }
-                    
-                    // Анимируем переход
-                    currentPosition = Math.min(0, Math.max(snapPosition, -(carouselContainer.scrollWidth - carouselContainer.clientWidth)));
-                    carouselContainer.style.transition = 'transform 0.3s ease-out';
-                    updateCarousel();
-                    
-                    // Сбрасываем transition после анимации
-                    setTimeout(() => {
-                        carouselContainer.style.transition = '';
-                    }, 300);
-                }
-
-                // Добавляем обработчики для кнопок навигации
-                prevButton.addEventListener('click', () => {
-                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                    currentPosition = Math.min(currentPosition + slideWidth, 0);
-                    carouselContainer.style.transition = 'transform 0.3s ease-out';
-                    updateCarousel();
-                    setTimeout(() => {
-                        carouselContainer.style.transition = '';
-                    }, 300);
-                });
-
-                nextButton.addEventListener('click', () => {
-                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                    const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
-                    currentPosition = Math.max(currentPosition - slideWidth, maxScroll);
-                    carouselContainer.style.transition = 'transform 0.3s ease-out';
-                    updateCarousel();
-                    setTimeout(() => {
-                        carouselContainer.style.transition = '';
-                    }, 300);
-                });
-
-                // Обновляем функцию updateCarousel
-                const updateCarousel = () => {
-                    carouselContainer.style.transform = `translateX(${currentPosition}px)`;
-                    
-                    // Показываем/скрываем кнопки навигации
-                    prevButton.classList.toggle('hidden', currentPosition >= 0);
-                    nextButton.classList.toggle('hidden', currentPosition <= -(carouselContainer.scrollWidth - carouselContainer.clientWidth));
-
-                    // Обновляем активную точку
-                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                    const activeIndex = Math.round(Math.abs(currentPosition) / (slideWidth * visibleSlides));
-                    
-                    dotsContainer.querySelectorAll('button').forEach((dot, index) => {
-                        if (index === activeIndex) {
-                            dot.classList.add('bg-blue-400', 'w-4');
-                            dot.classList.remove('bg-gray-600');
-                        } else {
-                            dot.classList.remove('bg-blue-400', 'w-4');
-                            dot.classList.add('bg-gray-600');
-                        }
-                    });
-                };
-
-                // Обновляем обработчик изменения размера окна
-                window.addEventListener('resize', () => {
-                    const newVisibleSlides = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
-                    if (newVisibleSlides !== visibleSlides) {
-                        location.reload();
-                    }
-                    updateCarousel();
-                });
-
-                // Инициализация
-                updateCarousel();
-            }
 
             function updateFavoriteButton() {
                 const selectedGroup = groupSelect.value;
@@ -2627,6 +2354,7 @@
                 
                 // Сохраняем только новые данные о подгруппах
                 localStorage.setItem('teacherSubgroups', JSON.stringify(teacherSubgroups));
+                updateSubgroupsDisplay(); // Добавляем вызов функции
 
                 if (window.innerWidth <= 768 && !isFullView) {
                     const daysContainer = document.createElement('div');
@@ -3388,6 +3116,271 @@
                 subgroupModal.classList.add('hidden');
                 location.reload();
             });
+        });
+
+        function formatDateTime(dateTimeStr) {
+            const [date, time] = dateTimeStr.split('_');
+            return {
+                date: date,
+                time: time ? time.replace('-', ' - ') : ''
+            };
+        }
+
+        function getDayOfWeek(dateStr) {
+            const days = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+            const date = new Date(dateStr.split('.').reverse().join('-'));
+            return days[date.getDay()];
+        }
+
+        // Функция для обновления отображения статистики подгрупп
+        function updateSubgroupsDisplay() {
+            const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups')) || {};
+            const statsSection = document.querySelector('.subgroups-statistics');
+            const content = document.getElementById('subgroups-content');
+
+            if (Object.keys(teacherSubgroups).length > 0) {
+                statsSection.classList.remove('hidden');
+                
+                // Создаем контейнер для карусели
+                content.innerHTML = `
+                    <div class="relative">
+                        <div class="overflow-hidden touch-pan-x">
+                            <div class="carousel-container flex transition-transform duration-300 ease-in-out gap-4 pb-4">
+                            </div>
+                        </div>
+                        <button class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-r hidden z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 bg-gray-800/90 hover:bg-gray-700/90 text-white p-2 rounded-l hidden z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <div class="carousel-dots flex justify-center gap-2 mt-4"></div>
+                    </div>
+                `;
+
+                const carouselContainer = content.querySelector('.carousel-container');
+                const prevButton = content.querySelector('.carousel-prev');
+                const nextButton = content.querySelector('.carousel-next');
+                const dotsContainer = content.querySelector('.carousel-dots');
+
+                // Инициализируем переменные для карусели
+                let currentPosition = 0;
+                let isDragging = false;
+                let startPos = 0;
+                let currentTranslate = 0;
+                let prevTranslate = 0;
+
+                // Добавляем стили для активного состояния карусели
+                carouselContainer.style.cursor = 'grab';
+
+                for (const [key, data] of Object.entries(teacherSubgroups)) {
+                    if (!data.dates) continue;
+
+                    const [subject, teacher] = key.split('_');
+                    const dates = data.dates || {};
+                    const subgroup1Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 1);
+                    const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
+                    const vucDays = Object.entries(dates).filter(([_, info]) => info.isVUC);
+
+                    const subjectCard = document.createElement('div');
+                    subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
+                    subjectCard.innerHTML = `
+                        <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-6 h-full border border-gray-700">
+                            <h5 class="text-lg font-medium text-white mb-4">${subject}</h5>
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">1-я подгруппа</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${subgroup1Dates.length}</div>
+                                    <span class="text-gray-400 text-sm">занятий</span>
+                                </div>
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">2-я подгруппа</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${subgroup2Dates.length}</div>
+                                    <span class="text-gray-400 text-sm">занятий</span>
+                                </div>
+                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
+                                    <span class="text-blue-400 text-sm">ВУЦ</span>
+                                    <div class="text-2xl font-bold text-white mt-1">${vucDays.length}</div>
+                                    <span class="text-gray-400 text-sm">дней</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <h6 class="text-blue-400 font-medium">1-я подгруппа</h6>
+                                    <div class="grid gap-2">
+                                        ${subgroup1Dates.map(([dateTime, info]) => {
+                                            const {date, time} = formatDateTime(dateTime);
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
+                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-white">${date}</span>
+                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                    </div>
+                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
+                        </div>
+                    `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <h6 class="text-blue-400 font-medium">2-я подгруппа</h6>
+                                    <div class="grid gap-2">
+                                        ${subgroup2Dates.map(([dateTime, info]) => {
+                                            const {date, time} = formatDateTime(dateTime);
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
+                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-white">${date}</span>
+                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                    </div>
+                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    carouselContainer.appendChild(subjectCard);
+                }
+
+                // Создаем точки индикаторов
+                const totalSlides = carouselContainer.children.length;
+                const visibleSlides = window.innerWidth >= 1024 ? 1 : window.innerWidth >= 768 ? 2 : 1;
+                const totalDots = Math.ceil(totalSlides / visibleSlides);
+
+                for (let i = 0; i < totalDots; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'w-2 h-2 rounded-full bg-gray-600 transition-all duration-300';
+                    dot.addEventListener('click', () => {
+                        const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                        currentPosition = -(i * slideWidth * visibleSlides);
+                        updateCarousel();
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+
+                // Обработчики свайпов
+                carouselContainer.addEventListener('mousedown', dragStart);
+                carouselContainer.addEventListener('touchstart', dragStart);
+                carouselContainer.addEventListener('mouseup', dragEnd);
+                carouselContainer.addEventListener('touchend', dragEnd);
+                carouselContainer.addEventListener('mousemove', drag);
+                carouselContainer.addEventListener('touchmove', drag);
+                carouselContainer.addEventListener('mouseleave', dragEnd);
+
+                function dragStart(e) {
+                    isDragging = true;
+                    startPos = e.type === 'mousedown' ? e.pageX : e.touches[0].clientX;
+                    prevTranslate = currentPosition;
+                    carouselContainer.style.cursor = 'grabbing';
+                }
+
+                function drag(e) {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const currentPos = e.type === 'mousemove' ? e.pageX : e.touches[0].clientX;
+                    const diff = (currentPos - startPos) * 3.5;
+                    currentPosition = prevTranslate + diff;
+                    
+                    if (currentPosition > 0) {
+                        currentPosition = currentPosition * 0.3;
+                    } else if (currentPosition < -(carouselContainer.scrollWidth - carouselContainer.clientWidth)) {
+                        const overscroll = currentPosition + (carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                        currentPosition = -(carouselContainer.scrollWidth - carouselContainer.clientWidth) + overscroll * 0.3;
+                    }
+                    
+                    updateCarousel();
+                }
+
+                function dragEnd() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    carouselContainer.style.cursor = 'grab';
+                    
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    let snapPosition;
+                    
+                    const swipeDirection = currentPosition < prevTranslate ? -1 : 1;
+                    const swipeStrength = Math.abs(currentPosition - prevTranslate);
+                    
+                    if (swipeStrength > slideWidth * 0.1) {
+                        snapPosition = Math.round((currentPosition - (slideWidth * 0.3 * swipeDirection)) / slideWidth) * slideWidth;
+                    } else {
+                        snapPosition = Math.round(currentPosition / slideWidth) * slideWidth;
+                    }
+                    
+                    currentPosition = Math.min(0, Math.max(snapPosition, -(carouselContainer.scrollWidth - carouselContainer.clientWidth)));
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                }
+
+                // Добавляем обработчики для кнопок навигации
+                prevButton.addEventListener('click', () => {
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    currentPosition = Math.min(currentPosition + slideWidth, 0);
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                });
+
+                nextButton.addEventListener('click', () => {
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                    currentPosition = Math.max(currentPosition - slideWidth, maxScroll);
+                    carouselContainer.style.transition = 'transform 0.3s ease-out';
+                    updateCarousel();
+                    setTimeout(() => {
+                        carouselContainer.style.transition = '';
+                    }, 300);
+                });
+
+                function updateCarousel() {
+                    carouselContainer.style.transform = `translateX(${currentPosition}px)`;
+                    
+                    prevButton.classList.toggle('hidden', currentPosition >= 0);
+                    nextButton.classList.toggle('hidden', currentPosition <= -(carouselContainer.scrollWidth - carouselContainer.clientWidth));
+
+                    const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                    const activeIndex = Math.round(Math.abs(currentPosition) / (slideWidth * visibleSlides));
+                    
+                    dotsContainer.querySelectorAll('button').forEach((dot, index) => {
+                        if (index === activeIndex) {
+                            dot.classList.add('bg-blue-400', 'w-4');
+                            dot.classList.remove('bg-gray-600');
+                        } else {
+                            dot.classList.remove('bg-blue-400', 'w-4');
+                            dot.classList.add('bg-gray-600');
+                        }
+                    });
+                }
+
+                // Инициализация
+                updateCarousel();
+            } else {
+                statsSection.classList.add('hidden');
+            }
+        }
+
+        // Вызываем функцию при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSubgroupsDisplay();
         });
     </script>
 
