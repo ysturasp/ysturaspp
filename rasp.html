@@ -3026,14 +3026,11 @@
                                     
                                     // Проверяем, относится ли дата к текущему семестру
                                     const isCurrentSemester = (() => {
-                                        if (currentMonth >= 1 && currentMonth <= 5) {
+                                        if (currentMonth >= 1 && currentMonth <= 5 || currentMonth === 0) {
                                             return lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5;
                                         }
                                         if (currentMonth >= 8 && currentMonth <= 11) {
                                             return lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11;
-                                        }
-                                        if (currentMonth === 0) {
-                                            return lessonDate.getMonth() >= 8 || lessonDate.getMonth() === 0;
                                         }
                                         return false;
                                     })();
@@ -3189,59 +3186,61 @@
                     const subjectCard = document.createElement('div');
                     subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
                     subjectCard.innerHTML = `
-                        <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-6 h-full border border-gray-700">
-                            <h5 class="text-lg font-medium text-white mb-4">${subject}</h5>
-                            <div class="grid grid-cols-3 gap-4 mb-6">
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">1-я подгруппа</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${subgroup1Dates.length}</div>
-                                    <span class="text-gray-400 text-sm">занятий</span>
+                        <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-3 md:p-6 h-full border border-gray-700">
+                            <h5 class="text-base md:text-lg font-medium text-white mb-3 md:mb-4">${subject}</h5>
+                            <div class="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-6">
+                                <div class="text-center p-1.5 md:p-3 bg-gray-800 rounded-lg">
+                                    <span class="text-blue-400 text-xs md:text-sm">1-я подгр.</span>
+                                    <div class="text-lg md:text-2xl font-bold text-white">${subgroup1Dates.length}</div>
+                                    <span class="text-gray-400 text-xs md:text-sm">занятий</span>
                                 </div>
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">2-я подгруппа</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${subgroup2Dates.length}</div>
-                                    <span class="text-gray-400 text-sm">занятий</span>
+                                <div class="text-center p-1.5 md:p-3 bg-gray-800 rounded-lg">
+                                    <span class="text-blue-400 text-xs md:text-sm">2-я подгр.</span>
+                                    <div class="text-lg md:text-2xl font-bold text-white">${subgroup2Dates.length}</div>
+                                    <span class="text-gray-400 text-xs md:text-sm">занятий</span>
                                 </div>
-                                <div class="text-center p-3 bg-gray-800/70 rounded-lg">
-                                    <span class="text-blue-400 text-sm">ВУЦ</span>
-                                    <div class="text-2xl font-bold text-white mt-1">${vucDays.length}</div>
-                                    <span class="text-gray-400 text-sm">дней</span>
+                                <div class="text-center p-1.5 md:p-3 bg-gray-800 rounded-lg">
+                                    <span class="text-blue-400 text-xs md:text-sm">ВУЦ</span>
+                                    <div class="text-lg md:text-2xl font-bold text-white">${vucDays.length}</div>
+                                    <span class="text-gray-400 text-xs md:text-sm">дней</span>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-3">
-                                    <h6 class="text-blue-400 font-medium">1-я подгруппа</h6>
-                                    <div class="grid gap-2">
+                            <div class="grid grid-cols-2 gap-2 md:gap-4">
+                                <div class="space-y-2 md:space-y-3">
+                                    <h6 class="text-blue-400 font-medium text-sm md:text-base">1-я подгруппа</h6>
+                                    <div class="grid gap-1.5 md:gap-2">
                                         ${subgroup1Dates.map(([dateTime, info]) => {
                                             const {date, time} = formatDateTime(dateTime);
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-white">${date}</span>
-                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
+                                                    ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
+                                                    <div class="flex items-center gap-1.5 md:gap-2">
+                                                        <span class="text-white text-sm md:text-base">${date}</span>
+                                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
                                                     </div>
-                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
-                        </div>
-                    `;
+                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5 md:mt-1">${time}</div>` : ''}
+                                                </div>
+                                            `;
                                         }).join('')}
                                     </div>
                                 </div>
-                                <div class="space-y-3">
-                                    <h6 class="text-blue-400 font-medium">2-я подгруппа</h6>
-                                    <div class="grid gap-2">
+                                <div class="space-y-2 md:space-y-3">
+                                    <h6 class="text-blue-400 font-medium text-sm md:text-base">2-я подгруппа</h6>
+                                    <div class="grid gap-1.5 md:gap-2">
                                         ${subgroup2Dates.map(([dateTime, info]) => {
                                             const {date, time} = formatDateTime(dateTime);
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
-                                                <div class="bg-gray-800/70 p-2 rounded ${info.isVUC ? 'border-l-2 border-blue-400 bg-gray-800' : ''}">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="text-white">${date}</span>
-                                                        <span class="text-gray-400 text-sm">(${dayOfWeek})</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-sm ml-auto">(ВУЦ)</span>' : ''}
+                                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
+                                                    ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
+                                                    <div class="flex items-center gap-1.5 md:gap-2">
+                                                        <span class="text-white text-sm md:text-base">${date}</span>
+                                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
                                                     </div>
-                                                    ${time ? `<div class="text-gray-400 text-sm mt-1">${time}</div>` : ''}
+                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5 md:mt-1">${time}</div>` : ''}
                                                 </div>
                                             `;
                                         }).join('')}
