@@ -564,6 +564,15 @@
                         </div>
                         <div class="mb-4">
                             <label class="block text-white mb-2">Выберите предметы для деления на подгруппы:</label>
+                            <div class="flex items-center p-4 mb-4 text-yellow-900 font-bold bg-yellow-50 rounded-lg" role="alert">
+                                <svg class="flex-shrink-0 w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
+                                </svg>
+                                <span class="sr-only">Внимание</span>
+                                <div class="text-xs md:text-sm">
+                                    Перед выбором предметов для деления на подгруппы убедитесь, что алгоритм распределения подгруппы для данного предмета работает корректно (посмотреть можно в секции "Распределение подгрупп" под расписанием)
+                                </div>
+                            </div>
                             <!-- <select id="subgroupSelect" class="w-full p-2 bg-slate-900 text-white rounded-lg">
                                 <option value="">Все подгруппы</option>
                                 <option value="1">Первая подгруппа</option>
@@ -3062,21 +3071,35 @@
                     }
                 }
 
+                // Если нет лабораторных работ, показываем сообщение
+                if (uniqueLabWorks.size === 0) {
+                    labWorksList.innerHTML = '<div class="text-white text-center p-4">Предметов для деления на подгруппы не найдено</div>';
+                    return;
+                }
+
                 // Создаем элементы управления для каждой лабораторной работы
                 uniqueLabWorks.forEach(labName => {
                     const labDiv = document.createElement('div');
                     labDiv.className = 'flex items-center justify-between p-3 bg-slate-900 rounded-lg';
                     
+                    const label = document.createElement('label');
+                    label.className = 'switch';
+                    
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
-                    checkbox.className = 'form-checkbox h-5 w-5 text-blue-600';
                     checkbox.checked = subgroupSettings[labName] || false;
                     checkbox.dataset.labName = labName;
+
+                    const slider = document.createElement('span');
+                    slider.className = 'slider round';
+
+                    label.appendChild(checkbox);
+                    label.appendChild(slider);
 
                     labDiv.innerHTML = `
                         <span class="text-white flex-grow">${labName}</span>
                     `;
-                    labDiv.prepend(checkbox);
+                    labDiv.appendChild(label);
                     
                     labWorksList.appendChild(labDiv);
                 });
@@ -3184,10 +3207,18 @@
                 // Добавляем стили для активного состояния карусели
                 carouselContainer.style.cursor = 'grab';
 
+                // Группируем данные по предметам
+                const groupedSubjects = {};
                 for (const [key, data] of Object.entries(teacherSubgroups)) {
                     if (!data.dates) continue;
+                    const [subject] = key.split('_');
+                    if (!groupedSubjects[subject]) {
+                        groupedSubjects[subject] = { dates: {} };
+                    }
+                    Object.assign(groupedSubjects[subject].dates, data.dates);
+                }
 
-                    const [subject, teacher] = key.split('_');
+                for (const [subject, data] of Object.entries(groupedSubjects)) {
                     const dates = data.dates || {};
                     const subgroup1Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 1);
                     const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
