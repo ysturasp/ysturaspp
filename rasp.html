@@ -20,6 +20,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer data-domain="ysturasp.me" src="https://plausible.io/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="easter-eggs.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         ::selection {
@@ -296,13 +297,15 @@
         }
 
         .military-card::before {
-            content: '🇷🇺';
+            content: '';
             position: absolute;
-            top: 6px;
+            top: 14px;
             left: 120px;
-            font-size: 28px;
+            width: 28px;
+            height: 28px;
+            background-image: url('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/refs/heads/main/Flags/Flag%20Russia.webp');
+            background-size: cover;
             opacity: 0.9;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
             z-index: 1;
         }
 
@@ -3396,7 +3399,7 @@
 
                 // Создаем точки индикаторов
                 const totalSlides = carouselContainer.children.length;
-                const visibleSlides = window.innerWidth >= 1024 ? 1 : window.innerWidth >= 768 ? 2 : 1;
+                const visibleSlides = window.innerWidth >= 1024 ? 1 : window.innerWidth >= 768 ? 1 : 1;
                 const totalDots = Math.ceil(totalSlides / visibleSlides);
 
                 for (let i = 0; i < totalDots; i++) {
