@@ -2536,10 +2536,10 @@
                         subgroupStats[subject] = { 1: 0, 2: 0 };
                     }
 
-                    let lastAssignedSubgroup = null;
-                    let lastNonVucSubgroup = null;
+                    const vucLessons = [];
+                    const nonVucLessons = [];
 
-                    lessons.forEach((lesson, index) => {
+                    lessons.forEach(lesson => {
                         const date = new Date(lesson.date);
                         const formattedDate = date.toLocaleDateString('ru-RU');
                         const currentDay = scheduleData.items
@@ -2547,36 +2547,57 @@
                             .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === formattedDate);
 
                         const isVUC = currentDay && currentDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
-                        const prevLesson = index > 0 ? lessons[index - 1] : null;
-
-                        let prevHadVUC = false;
-                        if (prevLesson) {
-                            const prevDate = new Date(prevLesson.date).toLocaleDateString('ru-RU');
-                            const prevDay = scheduleData.items
-                                .flatMap(w => w.days)
-                                .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === prevDate);
-                            prevHadVUC = prevDay && prevDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
+                        
+                        if (isVUC) {
+                            vucLessons.push({ lesson, date, formattedDate, isVUC });
+                        } else {
+                            nonVucLessons.push({ lesson, date, formattedDate, isVUC });
                         }
+                    });
 
+                    vucLessons.forEach(({ lesson, formattedDate, isVUC }) => {
                         if (!teacherSubgroups[lesson.key]) {
                             teacherSubgroups[lesson.key] = { dates: {} };
                         }
 
                         const dateTimeKey = `${formattedDate}_${lesson.time}`;
                         teacherSubgroups[lesson.key].dates[dateTimeKey] = {
-                            subgroup: isVUC ? 2 : (prevHadVUC ? 1 : (lastNonVucSubgroup === null ? 1 : (lastNonVucSubgroup === 1 ? 2 : 1))),
+                            subgroup: 2,
                             isVUC: isVUC
                         };
+                        subgroupStats[subject][2]++;
+                    });
 
-                        const assignedSubgroup = teacherSubgroups[lesson.key].dates[dateTimeKey].subgroup;
-                        subgroupStats[subject][assignedSubgroup]++;
-
-                        console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${assignedSubgroup}-я подгруппа${isVUC ? ' (ВУЦ)' : (prevHadVUC ? ' (после дня с ВУЦ)' : '')}`);
-
-                        lastAssignedSubgroup = assignedSubgroup;
-                        if (!isVUC) {
-                            lastNonVucSubgroup = assignedSubgroup;
+                    nonVucLessons.forEach(({ lesson, date, formattedDate, isVUC }, index) => {
+                        if (!teacherSubgroups[lesson.key]) {
+                            teacherSubgroups[lesson.key] = { dates: {} };
                         }
+
+                        const dateTimeKey = `${formattedDate}_${lesson.time}`;
+                        
+                        if (index === nonVucLessons.length - 1) {
+                            const subgroup1Count = subgroupStats[subject][1];
+                            const subgroup2Count = subgroupStats[subject][2];
+                            const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
+                            
+                            teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                                subgroup: assignedSubgroup,
+                                isVUC: isVUC
+                            };
+                            subgroupStats[subject][assignedSubgroup]++;
+                        } else {
+                            const subgroup1Count = subgroupStats[subject][1];
+                            const subgroup2Count = subgroupStats[subject][2];
+                            const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
+                            
+                            teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                                subgroup: assignedSubgroup,
+                                isVUC: isVUC
+                            };
+                            subgroupStats[subject][assignedSubgroup]++;
+                        }
+
+                        console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${teacherSubgroups[lesson.key].dates[dateTimeKey].subgroup}-я подгруппа${isVUC ? ' (ВУЦ)' : ''}`);
                     });
                 });
 
