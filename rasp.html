@@ -559,7 +559,7 @@
                     <p class="font-semibold mb-">Расписание наполняется</p> -->
                 </div>
                 <!-- <p class="text-sm">Расписание находится в стадии добавления. Точное расписание появится ближе к началу семестра</p> -->
-                    
+
                 <div id="week-info"
                     class="text-14 font-medium -tracking-3 text-black leading-inter-trimmed truncate flex-shrink-full">
                 </div>
@@ -789,9 +789,14 @@
                             class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
                     </div>
                     <div class="bg-slate-900 mt-2 p-4 rounded-lg shadow-md">
-                        <p class="text-center text-white text-sm">Здесь представлено распределения подгрупп нашим алгоритмом для лабораторных работ. Выберите предметы для деления и согласуйте это с группой</p>
-                        <p class="text-center text-green-400 text-sm mt-2">При делении учитывается ВУЦ: <br> 1-я подгруппа не попадает на эти дни.</p>
-                        <p class="text-center text-white text-sm mt-2">Не стесняйтесь писать в <a href="/support" class="text-blue-500 hover:text-blue-300">поддержку</a>, если заметите какие-либо неточности или ошибки — это поможет нам сделать продукт лучше!</p>
+                        <p class="text-center text-white text-sm">Здесь представлено распределения подгрупп нашим
+                            алгоритмом для лабораторных работ. Выберите предметы для деления и согласуйте это с группой
+                        </p>
+                        <p class="text-center text-green-400 text-sm mt-2">При делении учитывается ВУЦ: <br> 1-я
+                            подгруппа не попадает на эти дни.</p>
+                        <p class="text-center text-white text-sm mt-2">Не стесняйтесь писать в <a href="/support"
+                                class="text-blue-500 hover:text-blue-300">поддержку</a>, если заметите какие-либо
+                            неточности или ошибки — это поможет нам сделать продукт лучше!</p>
 
                     </div>
                 </div>
@@ -2547,7 +2552,7 @@
                             .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === formattedDate);
 
                         const isVUC = currentDay && currentDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
-                        
+
                         if (isVUC) {
                             vucLessons.push({ lesson, date, formattedDate, isVUC });
                         } else {
@@ -2574,12 +2579,12 @@
                         }
 
                         const dateTimeKey = `${formattedDate}_${lesson.time}`;
-                        
+
                         if (index === nonVucLessons.length - 1) {
                             const subgroup1Count = subgroupStats[subject][1];
                             const subgroup2Count = subgroupStats[subject][2];
                             const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
-                            
+
                             teacherSubgroups[lesson.key].dates[dateTimeKey] = {
                                 subgroup: assignedSubgroup,
                                 isVUC: isVUC
@@ -2589,7 +2594,7 @@
                             const subgroup1Count = subgroupStats[subject][1];
                             const subgroup2Count = subgroupStats[subject][2];
                             const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
-                            
+
                             teacherSubgroups[lesson.key].dates[dateTimeKey] = {
                                 subgroup: assignedSubgroup,
                                 isVUC: isVUC
@@ -3365,10 +3370,27 @@
 
         function formatDateTime(dateTimeStr) {
             const [date, time] = dateTimeStr.split('_');
+            const weekNumber = getWeekNumber(date);
             return {
                 date: date,
-                time: time ? time.replace('-', ' - ') : ''
+                time: time ? time.replace('-', ' - ') : '',
+                week: weekNumber
             };
+        }
+
+        function getWeekNumber(dateStr) {
+            const [day, month, year] = dateStr.split('.');
+            const date = new Date(`${year}-${month}-${day}`);
+
+            for (let i = 0; i < weekRanges.length; i++) {
+                const weekStart = new Date(weekRanges[i].start);
+                const weekEnd = new Date(weekRanges[i].end);
+
+                if (date >= weekStart && date <= weekEnd) {
+                    return i + 1;
+                }
+            }
+            return null;
         }
 
         function getDayOfWeek(dateStr) {
@@ -3462,20 +3484,22 @@
                                     <h6 class="text-blue-400 font-medium text-sm md:text-base">1-я подгруппа</h6>
                                     <div class="grid gap-1.5 md:gap-2">
                                         ${subgroup1Dates.map(([dateTime, info]) => {
-                        const { date, time } = formatDateTime(dateTime);
-                        const dayOfWeek = getDayOfWeek(date);
-                        return `
+                                            const { date, time, week } = formatDateTime(dateTime);
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
                                                 <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
                                                     ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
                                                     <div class="flex items-center gap-1.5 md:gap-2">
                                                         <span class="text-white text-sm md:text-base">${date}</span>
                                                         <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
                                                         ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
                                                     </div>
-                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5 md:mt-1">${time}</div>` : ''}
+                                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
+                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
                                                 </div>
                                             `;
-                    }).join('')}
+                                        }).join('')}
                                     </div>
                                 </div>
 
@@ -3483,20 +3507,22 @@
                                     <h6 class="text-blue-400 font-medium text-sm md:text-base">2-я подгруппа</h6>
                                     <div class="grid gap-1.5 md:gap-2">
                                         ${subgroup2Dates.map(([dateTime, info]) => {
-                        const { date, time } = formatDateTime(dateTime);
-                        const dayOfWeek = getDayOfWeek(date);
-                        return `
+                                            const { date, time, week } = formatDateTime(dateTime);
+                                            const dayOfWeek = getDayOfWeek(date);
+                                            return `
                                                 <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
                                                     ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
                                                     <div class="flex items-center gap-1.5 md:gap-2">
                                                         <span class="text-white text-sm md:text-base">${date}</span>
                                                         <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
                                                         ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
                                                     </div>
-                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5 md:mt-1">${time}</div>` : ''}
+                                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
+                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
                                                 </div>
                                             `;
-                    }).join('')}
+                                        }).join('')}
                                     </div>
                                 </div>
                             </div>
