@@ -1552,7 +1552,7 @@
         });
 
         const weekRanges = (() => {
-            const currentDate = new Date("2025-03-03");
+            const currentDate = new Date();
             const currentMonth = currentDate.getMonth();
             const currentYear = currentDate.getFullYear();
 
@@ -1605,7 +1605,7 @@
         })();
 
         function setDefaultWeekForNewUser() {
-            const today = new Date("2025-03-03");
+            const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
 
@@ -1621,7 +1621,7 @@
         }
 
         function getCurrentWeekMessage() {
-            const today = new Date("2025-03-03");
+            const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
 
@@ -2145,7 +2145,7 @@
 
             titleElement.innerText = `Расписание для группы ${group} на ${week} неделю`;
 
-            const today = new Date("2025-03-03");
+            const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
             const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
 
@@ -2248,7 +2248,7 @@
                 const dayInfo = day.info;
                 const formattedDate = formatDate(dayInfo.date);
                 const lessonDate = new Date(dayInfo.date);
-                const currentDate = new Date("2025-03-03");
+                const currentDate = new Date();
 
                 const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
                 const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
@@ -2278,7 +2278,7 @@
                     }
                 }
 
-                const today = new Date("2025-03-03");
+                const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
                 const isToday = lessonDate.getTime() === today.getTime();
@@ -2397,7 +2397,7 @@
             if (filteredWeek) {
                 filteredWeek.days = filteredWeek.days.filter(day => {
                     const lessonDate = new Date(day.info.date);
-                    const currentDate = new Date("2025-03-03");
+                    const currentDate = new Date();
 
                     const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
                     const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
@@ -2492,7 +2492,7 @@
                     if (weekItem.days) {
                         weekItem.days = weekItem.days.filter(day => {
                             const lessonDate = new Date(day.info.date);
-                            const currentDate = new Date("2025-03-03");
+                            const currentDate = new Date();
 
                             const isSpring = currentDate.getMonth() >= 2 && currentDate.getMonth() <= 5;
                             const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
@@ -2544,7 +2544,7 @@
                             if (weekItem.days) {
                                 weekItem.days.forEach(day => {
                                     const lessonDate = new Date(day.info.date);
-                                    const currentDate = new Date("2025-03-03");
+                                    const currentDate = new Date();
                                     const currentMonth = currentDate.getMonth();
 
                                     const isCurrentSemester = (() => {
@@ -2677,7 +2677,7 @@
                         dayButton.className = 'flex flex-col items-center p-2 sm:p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]';
                         dayButton.style.width = '70px';
 
-                        const today = new Date("2025-03-03");
+                        const today = new Date();
                         today.setHours(0, 0, 0, 0);
                         const isToday = lessonDate.getTime() === today.getTime();
 
@@ -2884,7 +2884,7 @@
                 Экзамен: { completed: 0, total: 0 }
             };
 
-            const currentDate = new Date("2025-03-03");
+            const currentDate = new Date();
             const currentMonth = currentDate.getMonth();
 
             const container = document.getElementById('statistics-container');
@@ -3305,7 +3305,7 @@
                 const group = document.getElementById('group-select').value;
                 if (!group) return;
 
-                const currentDate = new Date("2025-03-03");
+                const currentDate = new Date();
                 const currentMonth = currentDate.getMonth();
 
                 const uniqueLabWorks = new Map();
@@ -3517,7 +3517,7 @@
 
                     const totalLessons = (() => {
                         const group = document.getElementById('group-select').value;
-                        const currentDate = new Date("2025-03-03");
+                        const currentDate = new Date();
                         const currentMonth = currentDate.getMonth();
                         let count = 0;
 
@@ -3836,7 +3836,7 @@
     <script type="text/javascript">
         (function (m, e, t, r, i, k, a) {
             m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
-            m[i].l = 1 * new Date("2025-03-03");
+            m[i].l = 1 * new Date();
             for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
             k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
         })
@@ -3858,7 +3858,7 @@
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date("2025-03-03"));
+        gtag('js', new Date());
 
         gtag('config', 'G-0K2G90RDS0');
     </script>
