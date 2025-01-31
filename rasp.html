@@ -415,17 +415,20 @@
             <div class="relative">
                 <h2
                     class="text-3xl md:text-4xl font-bold text-white mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                    🎉 Новая Функция! 🎉
+                    🎉 Крупный Апдейт! 🎉
                 </h2>
                 <div class="space-y-4">
                     <p class="text-xl text-white text-center leading-relaxed">
-                        Теперь вы можете <span class="font-bold text-yellow-400">выбрать лабораторные работы для деления
+                        Теперь вы можете <span class="font-bold text-yellow-400">выбрать лабораторные работы для автоматического разделения
                             по подгруппам</span>!
                     </p>
                     <div class="bg-slate-700/50 p-4 rounded-lg">
                         <p class="text-gray-300 text-center">
                             ✨ Забудьте о сложностях с распределением! Наш умный алгоритм поможет организовать подгруппы
                             быстро и эффективно
+                        </p>
+                        <p class="text-yellow-400 text-center">
+                            PS: даже ВУЦ учтём <span class="text-2xl">😉</span>
                         </p>
                     </div>
                     <div class="flex justify-center mt-6">
@@ -1811,7 +1814,7 @@
 
                 setTimeout(() => {
                     notification.remove();
-                }, 500);
+                }, 5000);
             }, 10000);
         }
 
@@ -2532,7 +2535,53 @@
                     }
                 });
 
-                Object.entries(subjectLessons).forEach(([subject, lessons]) => {
+                const allSubjectLessons = {};
+
+                for (let week = 1; week <= 18; week++) {
+                    const weekData = JSON.parse(localStorage.getItem(`${group}_${week}`));
+                    if (weekData && weekData.data) {
+                        weekData.data.items.forEach(weekItem => {
+                            if (weekItem.days) {
+                                weekItem.days.forEach(day => {
+                                    const lessonDate = new Date(day.info.date);
+                                    const currentDate = new Date("2025-03-03");
+                                    const currentMonth = currentDate.getMonth();
+
+                                    const isCurrentSemester = (() => {
+                                        if (currentMonth >= 1 && currentMonth <= 5 || currentMonth === 0) {
+                                            return lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5;
+                                        }
+                                        if (currentMonth >= 8 && currentMonth <= 11) {
+                                            return lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11;
+                                        }
+                                        return false;
+                                    })();
+
+                                    if (!isCurrentSemester) return;
+
+                                    if (day && day.lessons) {
+                                        day.lessons.forEach(lesson => {
+                                            if (lesson.type === 8) {
+                                                const key = `${lesson.lessonName}_${lesson.teacherName}`;
+                                                if (!allSubjectLessons[lesson.lessonName]) {
+                                                    allSubjectLessons[lesson.lessonName] = [];
+                                                }
+                                                allSubjectLessons[lesson.lessonName].push({
+                                                    key,
+                                                    date: day.info.date,
+                                                    time: lesson.timeRange,
+                                                    hasVuc: day.lessons.some(l => l.lessonName.includes('ВУЦ'))
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+
+                Object.entries(allSubjectLessons).forEach(([subject, lessons]) => {
                     console.log(`\n=== ${subject} ===`);
 
                     lessons.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -2547,11 +2596,8 @@
                     lessons.forEach(lesson => {
                         const date = new Date(lesson.date);
                         const formattedDate = date.toLocaleDateString('ru-RU');
-                        const currentDay = scheduleData.items
-                            .flatMap(w => w.days)
-                            .find(d => new Date(d.info.date).toLocaleDateString('ru-RU') === formattedDate);
-
-                        const isVUC = currentDay && currentDay.lessons.some(l => l.lessonName.includes('ВУЦ'));
+                        
+                        const isVUC = lesson.hasVuc;
 
                         if (isVUC) {
                             vucLessons.push({ lesson, date, formattedDate, isVUC });
@@ -3262,7 +3308,7 @@
                 const currentDate = new Date("2025-03-03");
                 const currentMonth = currentDate.getMonth();
 
-                const uniqueLabWorks = new Set();
+                const uniqueLabWorks = new Map();
 
                 for (let week = 1; week <= 18; week++) {
                     const scheduleData = JSON.parse(localStorage.getItem(`${group}_${week}`));
@@ -3283,14 +3329,14 @@
                                         return false;
                                     })();
 
-                                    if (!isCurrentSemester) {
-                                        return;
-                                    }
+                                    if (!isCurrentSemester) return;
 
                                     if (day && day.lessons) {
                                         day.lessons.forEach(lesson => {
                                             if (lesson.type === 8) {
-                                                uniqueLabWorks.add(lesson.lessonName);
+                                                uniqueLabWorks.set(lesson.lessonName, {
+                                                    isDivision: lesson.isDivision || false
+                                                });
                                             }
                                         });
                                     }
@@ -3305,7 +3351,7 @@
                     return;
                 }
 
-                uniqueLabWorks.forEach(labName => {
+                uniqueLabWorks.forEach((info, labName) => {
                     const labDiv = document.createElement('div');
                     labDiv.className = 'flex items-center justify-between p-3 bg-slate-900 rounded-lg';
 
@@ -3316,6 +3362,11 @@
                     checkbox.type = 'checkbox';
                     checkbox.checked = subgroupSettings[labName] || false;
                     checkbox.dataset.labName = labName;
+                    
+                    // пока можно и потоковые разделять
+                    // if (!info.isDivision) {
+                    //     checkbox.disabled = true;
+                    // }
 
                     const slider = document.createElement('span');
                     slider.className = 'slider round';
@@ -3323,9 +3374,17 @@
                     label.appendChild(checkbox);
                     label.appendChild(slider);
 
-                    labDiv.innerHTML = `
-                        <span class="text-white flex-grow">${labName}</span>
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'text-white flex-grow flex flex-col gap-1';
+                    nameSpan.innerHTML = `
+                        ${!info.isDivision ? 
+                            '<span class="text-xs px-2 py-1 bg-yellow-600 rounded-full self-start" title="Потоковое занятие">Всей группой</span>' : 
+                            '<span class="text-xs px-2 py-1 bg-green-600 rounded-full self-start" title="Рекомендуется разделение на подгруппы">По подгруппам</span>'
+                        }
+                        <span>${labName}</span>
                     `;
+
+                    labDiv.appendChild(nameSpan);
                     labDiv.appendChild(label);
 
                     labWorksList.appendChild(labDiv);
@@ -3456,11 +3515,75 @@
                     const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
                     const vucDays = Object.entries(dates).filter(([_, info]) => info.isVUC);
 
+                    const totalLessons = (() => {
+                        const group = document.getElementById('group-select').value;
+                        const currentDate = new Date("2025-03-03");
+                        const currentMonth = currentDate.getMonth();
+                        let count = 0;
+
+                        for (let week = 1; week <= 18; week++) {
+                            const scheduleData = JSON.parse(localStorage.getItem(`${group}_${week}`));
+                            if (scheduleData && scheduleData.data) {
+                                scheduleData.data.items.forEach(weekItem => {
+                                    weekItem.days.forEach(day => {
+                                        const lessonDate = new Date(day.info.date);
+                                        
+                                        const isCurrentSemester = (() => {
+                                            if (currentMonth >= 1 && currentMonth <= 5 || currentMonth === 0) {
+                                                return lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5;
+                                            }
+                                            if (currentMonth >= 8 && currentMonth <= 11) {
+                                                return lessonDate.getMonth() >= 8 && lessonDate.getMonth() <= 11;
+                                            }
+                                            return false;
+                                        })();
+
+                                        if (!isCurrentSemester) return;
+
+                                        if (day.lessons) {
+                                            count += day.lessons.filter(l => 
+                                                l.lessonName === subject && 
+                                                l.type === 8
+                                            ).length;
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                        return count;
+                    })();
+
+                    const distributedLessons = subgroup1Dates.length + subgroup2Dates.length;
+                    console.log(`${subject}: распределено ${distributedLessons} из ${totalLessons} занятий (${Math.round(distributedLessons/totalLessons*100)}%)`);
+
+                    const isDevision = (() => {
+                        const group = document.getElementById('group-select').value;
+                        for (let week = 1; week <= 18; week++) {
+                            const scheduleData = JSON.parse(localStorage.getItem(`${group}_${week}`));
+                            if (scheduleData && scheduleData.data) {
+                                const lesson = scheduleData.data.items
+                                    .flatMap(w => w.days)
+                                    .flatMap(d => d?.lessons || [])
+                                    .find(l => l.lessonName === subject && l.type === 8);
+                                if (lesson) {
+                                    return !lesson.isDivision;
+                                }
+                            }
+                        }
+                        return false;
+                    })();
+
                     const subjectCard = document.createElement('div');
                     subjectCard.className = 'flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.75rem)]';
                     subjectCard.innerHTML = `
                         <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-3 md:p-6 h-full border border-gray-700">
-                            <h5 class="text-base md:text-lg font-medium text-white mb-3 md:mb-4">${subject}</h5>
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+                                <h5 class="text-base md:text-lg font-medium text-white">${subject}</h5>
+                                ${isDevision ? 
+                                    '<span class="text-xs px-2 py-1 bg-yellow-600 rounded-full self-start md:self-auto" title="Потоковое занятие">Всей группой</span>' : 
+                                    '<span class="text-xs px-2 py-1 bg-green-600 rounded-full self-start md:self-auto" title="Рекомендуется разделение на подгруппы">По подгруппам</span>'
+                                }
+                            </div>
                             <div class="grid grid-cols-3 gap-2 md:gap-4 mb-3 md:mb-6">
                                 <div class="text-center p-1.5 md:p-3 bg-gray-800 rounded-lg">
                                     <span class="text-blue-400 text-xs md:text-sm">1-я подгр.</span>
@@ -3478,7 +3601,7 @@
                                     <span class="text-gray-400 text-xs md:text-sm">дней</span>
                                 </div>
                             </div>
-
+                            <div class="text-xs text-gray-400 mb-2">* Синяя полоса слева означает день с ВУЦ</div>
                             <div class="grid grid-cols-2 gap-2 md:gap-4">
                                 <div class="space-y-2 md:space-y-3">
                                     <h6 class="text-blue-400 font-medium text-sm md:text-base">1-я подгруппа</h6>
@@ -3488,7 +3611,6 @@
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
                                                 <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
                                                     <div class="flex items-center gap-1.5 md:gap-2">
                                                         <span class="text-white text-sm md:text-base">${date}</span>
                                                         <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
@@ -3502,7 +3624,6 @@
                                         }).join('')}
                                     </div>
                                 </div>
-
                                 <div class="space-y-2 md:space-y-3">
                                     <h6 class="text-blue-400 font-medium text-sm md:text-base">2-я подгруппа</h6>
                                     <div class="grid gap-1.5 md:gap-2">
@@ -3511,7 +3632,6 @@
                                             const dayOfWeek = getDayOfWeek(date);
                                             return `
                                                 <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    ${info.isVUC ? '<div class="text-blue-400 text-xs mb-0.5 md:hidden">ВУЦ</div>' : ''}
                                                     <div class="flex items-center gap-1.5 md:gap-2">
                                                         <span class="text-white text-sm md:text-base">${date}</span>
                                                         <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
