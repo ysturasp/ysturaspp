@@ -21,7 +21,8 @@
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer data-domain="ysturasp.me" src="https://plausible.io/js/script.js"></script>
-<script src="https://js.sentry-cdn.com/b0e4737908e85576ba620dd2b8fdae66.min.js" crossorigin="anonymous"></script>
+    <script src="easter-eggs.js"></script>
+    <script src="https://js.sentry-cdn.com/b0e4737908e85576ba620dd2b8fdae66.min.js" crossorigin="anonymous"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         ::selection {
@@ -467,7 +468,7 @@
             <div class="result mt-4" id="instructorsResult"></div>
         </section>
 
-        <section id="top-antitop-section" class="bg-slate-800 rounded-lg p-6 mt-8">
+        <section id="top-antop-section" class="bg-slate-800 rounded-lg p-6 mt-8">
             <h2 class="text-2xl font-semibold text-white mb-4">📊 Рейтинг предметов</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -1241,19 +1242,19 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                    <div class="rounded-lg p-4 text-center grade-element cursor-pointer" style="border: 3px solid #f8fafc;">
                         <h3 class="text-xl font-bold mb-2">Пятерок</h3>
                         <p class="text-slate-300 text-2xl">${count5}</p>
                     </div>
-                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                    <div class="rounded-lg p-4 text-center grade-element cursor-pointer" style="border: 3px solid #f8fafc;">
                         <h3 class="text-xl font-bold mb-2">Четверок</h3>
                         <p class="text-slate-300 text-2xl">${count4}</p>
                     </div>
-                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                    <div class="rounded-lg p-4 text-center grade-element cursor-pointer" style="border: 3px solid #f8fafc;">
                         <h3 class="text-xl font-bold mb-2">Троек</h3>
                         <p class="text-slate-300 text-2xl">${count3}</p>
                     </div>
-                    <div class="rounded-lg p-4 text-center" style="border: 3px solid #f8fafc;">
+                    <div class="rounded-lg p-4 text-center grade-element cursor-pointer" style="border: 3px solid #f8fafc;">
                         <h3 class="text-xl font-bold mb-2">Двоек</h3>
                         <p class="text-slate-300 text-2xl">${count2}</p>
                     </div>
@@ -1264,6 +1265,11 @@
             `;
 
             resultDiv.innerHTML = statisticsHTML;
+
+            const gradeElements = document.querySelectorAll('.grade-element');
+            gradeElements.forEach(element => {
+                element.addEventListener('click', handleGradeClick);
+            });
 
             const ctx = document.getElementById('gradesChart').getContext('2d');
             new Chart(ctx, {
