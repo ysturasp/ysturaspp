@@ -23,6 +23,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer data-domain="ysturasp.me" src="https://plausible.io/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
     <script src="easter-eggs.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -241,15 +244,18 @@
 
         .notification {
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transform: translateY(100%);
+            transition: all 0.3s ease-in-out;
         }
 
         .notification.show {
             opacity: 1;
+            transform: translateY(0);
         }
 
         .notification.hide {
             opacity: 0;
+            transform: translateY(100%);
         }
 
         #mobile-menu.show {
@@ -786,10 +792,15 @@
         <section class="subgroups-statistics container mx-auto px-4 py-8 hidden">
             <div class="bg-slate-800 backdrop-blur rounded-lg shadow-lg overflow-hidden">
                 <div class="border-b border-gray-700 bg-gray-900/50 px-4 py-5 sm:px-6">
-                    <div class="flex justify-center items-center">
-                        <h2 class="text-center text-lg md:text-2xl font-semibold text-white">Распределение подгрупп</h2>
-                        <span
-                            class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                        <div class="flex items-center">
+                            <h2 class="text-center text-lg md:text-2xl font-semibold text-white">Распределение подгрупп</h2>
+                            <span class="flex ml-2 mb-2 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+                        </div>
+                        <button id="shareSubgroupsBtn" class="p-2 md:mt-0 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center">
+                            <span class="text-xl mr-2">🔗</span>
+                            <span>Поделиться</span>
+                        </button>
                     </div>
                     <div class="bg-slate-900 mt-2 p-4 rounded-lg shadow-md">
                         <p class="text-center text-white text-sm">Здесь представлено распределения подгрупп нашим
@@ -3835,7 +3846,64 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateSubgroupsDisplay();
         });
+
+        document.getElementById('shareSubgroupsBtn').addEventListener('click', async () => {
+            const subgroupsContent = document.getElementById('subgroups-content');
+            const cards = subgroupsContent.querySelectorAll('.bg-gray-900');
+            const group = document.getElementById('group-select').value;
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification flex items-center justify-between';
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Подготовка PDF...</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            try {
+                const { shareSubgroupsPDF } = await import('./subgroups-pdf.js');
+                await shareSubgroupsPDF(cards, group, true);
+                
+                notification.classList.remove('bg-blue-500');
+                notification.classList.add('bg-green-500');
+                notification.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">✅</span>
+                        <span>PDF скачивается...</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Ошибка при создании PDF:', error);
+                
+                notification.classList.remove('bg-blue-500');
+                notification.classList.add('bg-red-500');
+                notification.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">❌</span>
+                        <span>Ошибка при создании PDF</span>
+                    </div>
+                `;
+            } finally {
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 3000);
+            }
+        });
     </script>
+    <script src="subgroups-pdf.js" type="module"></script>
 
     <!-- Snow with weather -->
     <!-- <link href="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/snow.min.css" rel="stylesheet">
