@@ -2549,7 +2549,7 @@
                                             key,
                                             date: day.info.date,
                                             time: lesson.timeRange,
-                                            hasVuc: day.lessons.some(l => l.lessonName.includes('ВУЦ'))
+                                            hasVuc: day.lessons.some(l => l.lessonName && l.lessonName.includes('ВУЦ'))
                                         });
                                     }
                                 });
@@ -2593,7 +2593,7 @@
                                                     key,
                                                     date: day.info.date,
                                                     time: lesson.timeRange,
-                                                    hasVuc: day.lessons.some(l => l.lessonName.includes('ВУЦ'))
+                                                    hasVuc: day.lessons.some(l => l.lessonName && l.lessonName.includes('ВУЦ'))
                                                 });
                                             }
                                         });
