@@ -2345,7 +2345,7 @@
                     const lessonContainer = document.createElement('div');
                     lessonContainer.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
 
-                    if (lesson.lessonName.includes('ВУЦ')) {
+                    if (lesson.lessonName && lesson.lessonName.includes('ВУЦ')) {
                         lessonContainer.className += ' military-card';
                         lessonContainer.style.background = `
                             radial-gradient(ellipse at 10% 10%, rgba(39, 48, 33, 0.9) 10%, transparent 50%),
