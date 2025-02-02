@@ -414,7 +414,7 @@
 
 <body class="bg-slate-900 text-gray-300 antialiased">
     <div id="newFeatureModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm transition-all duration-300"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm transition-all duration-300 hidden"
         style="-webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);">
         <div class="bg-gradient-to-br from-slate-900/95 to-slate-800/95 p-8 rounded-2xl max-w-2xl mx-4 transform transition-all duration-500 scale-100 opacity-100 shadow-2xl border-2 border-blue-500"
             style="backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);">
@@ -477,20 +477,20 @@
             });
             modal.classList.add('opacity-0');
             setTimeout(() => {
-                modal.style.display = 'none';
+                modal.classList.add('hidden');
             }, 300);
             localStorage.setItem('newFeatureModalShown', 'true');
         }
 
         window.addEventListener('load', () => {
+            const modal = document.getElementById('newFeatureModal');
             if (!localStorage.getItem('newFeatureModalShown')) {
+                modal.classList.remove('hidden');
                 confetti({
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 }
                 });
-            } else {
-                document.getElementById('newFeatureModal').style.display = 'none';
             }
         });
     </script>
