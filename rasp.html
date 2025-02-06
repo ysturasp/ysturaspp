@@ -1993,17 +1993,21 @@
 
             const cacheKey = `${group}_${week}`;
             const cachedData = localStorage.getItem(cacheKey);
-            const cacheDuration = 1000 * 60 * 60 * 24; // 24 часа
+            const cacheDuration = 1000 * 60; // 1 минута
 
             let scheduleData;
             let fetchData = true;
 
             if (cachedData) {
                 const parsedData = JSON.parse(cachedData);
-                if (Date.now() - parsedData.timestamp < cacheDuration) {
+                const currentTime = Date.now();
+                
+                if (currentTime - parsedData.timestamp < cacheDuration) {
                     displaySchedule(parsedData.data, group, week);
                     displaySubjectStatistics(parsedData.data);
                     fetchData = false;
+                } else {
+                    localStorage.removeItem(cacheKey);
                 }
             }
 
@@ -3914,6 +3918,27 @@
                 }, 3000);
             }
         });
+
+        function clearOldCache() {
+            const cacheDuration = 1000 * 60; // 1 минута
+            const currentTime = Date.now();
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.includes('_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if (data && data.timestamp && (currentTime - data.timestamp > cacheDuration)) {
+                            localStorage.removeItem(key);
+                        }
+                    } catch (e) {
+                        console.error('Ошибка при проверке кэша:', e);
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('load', clearOldCache);
     </script>
     <script src="subgroups-pdf.js" type="module"></script>
 
