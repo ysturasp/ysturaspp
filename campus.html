@@ -14,6 +14,8 @@
     <meta name="description" content="Корпуса и общежития ЯГТУ, Карта кампуса, Статистика, Расписание | ystuRASP">
     <meta name="keywords" content="Корпуса ЯГТУ, Общежития ЯГТУ, Карта кампуса ЯГТУ, Статистика ЯГТУ, Расписание ЯГТУ, ystuRASP, Ярославский технический университет, ЯГТУ расписание, ЯГТУ кампус, ЯГТУ общежития">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         ::selection {
@@ -111,8 +113,24 @@
         #mobile-menu.hide {
             animation: fadeOutScale 0.2s ease-in forwards;
         }
-        .map-container iframe {
-            filter: invert(85%) hue-rotate(180deg);
+        .map-container {
+            width: 100%;
+            height: 624px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+        .mapboxgl-popup-content {
+            background: #1e293b;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -178,10 +196,9 @@
                 <h2 class="text-3xl font-semibold text-white">Карта кампуса ЯГТУ</h2>
             </div>
             <div class="w-full overflow-hidden rounded-lg">
-                <div class="map-container" style="background-color: #1e293b; border-radius: 10px; padding: 0px;">
-                    <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A569dcf05a73db71dd51e66760884f653773ddaf035cd6a990ba8ffa685d428b9&amp;source=constructor"
-                            width="100%" height="624" frameborder="0" allowfullscreen></iframe>
-                </div>                
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
             </div>
         </section>
     </main>
@@ -221,6 +238,110 @@
     </footer>
 
     <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoieXN0dXJhc3AiLCJhIjoiY202djhha2pmMDdiNDJpczg0bXY4bHByZiJ9.Y2vkDoOU5roo3ADdrEWJyQ';
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/navigation-night-v1',
+            center: [39.856503, 57.587234],
+            zoom: 15,
+            projection: 'globe',
+            pitch: 55,
+            bearing: -10
+        });
+
+        map.on('style.load', () => {
+            map.setFog({
+                color: 'rgb(15, 23, 42)',
+                'high-color': 'rgb(15, 23, 42)',
+                'horizon-blend': 0.1,
+                'space-color': 'rgb(15, 23, 42)',
+                'star-intensity': 0.8
+            });
+        });
+
+        map.on('load', () => {
+            map.addLayer({
+                'id': 'building-layer',
+                'type': 'fill-extrusion',
+                'source': {
+                    'type': 'vector',
+                    'url': 'mapbox://mapbox.mapbox-streets-v8'
+                },
+                'source-layer': 'building',
+                'paint': {
+                    'fill-extrusion-color': '#1e293b',
+                    'fill-extrusion-height': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        0,
+                        0,
+                        15.05,
+                        ['get', 'height']
+                    ],
+                    'fill-extrusion-base': 0,
+                    'fill-extrusion-opacity': 0.6,
+                    'fill-extrusion-vertical-gradient': true
+                }
+            });
+
+            fetch('Кампус.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    map.addSource('campus', {
+                        type: 'geojson',
+                        data: data
+                    });
+
+                    map.addLayer({
+                        id: 'campus-points',
+                        type: 'circle',
+                        source: 'campus',
+                        paint: {
+                            'circle-radius': 8,
+                            'circle-color': '#3b82f6',
+                            'circle-stroke-width': 3,
+                            'circle-stroke-color': '#ffffff',
+                            'circle-opacity': 0.9,
+                            'circle-stroke-opacity': 0.9
+                        }
+                    });
+
+                    map.addLayer({
+                        id: 'campus-labels',
+                        type: 'symbol',
+                        source: 'campus',
+                        layout: {
+                            'text-field': ['get', 'iconCaption'],
+                            'text-size': 14,
+                            'text-offset': [0, -2.5],
+                            'text-anchor': 'top',
+                            'text-allow-overlap': true,
+                            'text-ignore-placement': true,
+                            'text-transform': 'uppercase',
+                            'text-letter-spacing': 0.05
+                        },
+                        paint: {
+                            'text-color': '#ffffff',
+                            'text-halo-color': '#1e293b',
+                            'text-halo-width': 3,
+                            'text-opacity': 0.9
+                        }
+                    });
+
+                    map.on('mouseenter', 'campus-points', () => {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+                    map.on('mouseleave', 'campus-points', () => {
+                        map.getCanvas().style.cursor = '';
+                    });
+                });
+        });
+
+        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.FullscreenControl());
+
         const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
