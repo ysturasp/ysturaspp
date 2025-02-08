@@ -148,14 +148,25 @@
                     const cacheNames = await caches.keys();
                     await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
                     
-                    console.log('Кэш PWA успешно очищен');
+                    const currentPath = window.location.pathname;
+                    const newDomain = 'https://ysturasp.netlify.app';
+                    
+                    if (currentPath !== '/404.html') {
+                        window.location.href = newDomain + currentPath;
+                    } else {
+                        window.location.href = newDomain;
+                    }
+                    
                 } catch (error) {
                     console.error('Ошибка при очистке кэша:', error);
+                    window.location.href = 'https://ysturasp.netlify.app';
                 }
+            } else {
+                window.location.href = 'https://ysturasp.netlify.app';
             }
         }
 
-        clearCacheAndRedirect();
+        window.addEventListener('load', clearCacheAndRedirect);
 
         const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
