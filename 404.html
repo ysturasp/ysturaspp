@@ -136,6 +136,27 @@
     </main>
 
     <script>
+        async function clearCacheAndRedirect() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    for(let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+                    
+                    console.log('Кэш PWA успешно очищен');
+                } catch (error) {
+                    console.error('Ошибка при очистке кэша:', error);
+                }
+            }
+        }
+
+        clearCacheAndRedirect();
+
         const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
