@@ -468,31 +468,31 @@
     </style>
 
     <script>
-        function closeNewFeatureModal() {
-            const modal = document.getElementById('newFeatureModal');
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-            modal.classList.add('opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-            localStorage.setItem('newFeatureModalShown', 'true');
-        }
+        // function closeNewFeatureModal() {
+        //     const modal = document.getElementById('newFeatureModal');
+        //     confetti({
+        //         particleCount: 100,
+        //         spread: 70,
+        //         origin: { y: 0.6 }
+        //     });
+        //     modal.classList.add('opacity-0');
+        //     setTimeout(() => {
+        //         modal.classList.add('hidden');
+        //     }, 300);
+        //     localStorage.setItem('newFeatureModalShown', 'true');
+        // }
 
-        window.addEventListener('load', () => {
-            const modal = document.getElementById('newFeatureModal');
-            if (!localStorage.getItem('newFeatureModalShown')) {
-                modal.classList.remove('hidden');
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-        });
+        // window.addEventListener('load', () => {
+        //     const modal = document.getElementById('newFeatureModal');
+        //     if (!localStorage.getItem('newFeatureModalShown')) {
+        //         modal.classList.remove('hidden');
+        //         confetti({
+        //             particleCount: 100,
+        //             spread: 70,
+        //             origin: { y: 0.6 }
+        //         });
+        //     }
+        // });
     </script>
 
     <header class="container mx-auto sticky top-4 px-3 z-50">
@@ -1081,27 +1081,27 @@
             let modalShownCount = localStorage.getItem('modalShownCount') || 0;
             let modalDismissed = localStorage.getItem('modalDismissed');
 
-            if (modalShownCount < 3 && !modalDismissed) {
-                setTimeout(function () {
-                    infoModal.classList.remove('hidden');
-                    infoModal.classList.add('modal-background-show');
-                    modalContent.classList.add('modal-content-show');
-                }, 2000);
-            }
+            // if (modalShownCount < 3 && !modalDismissed) {
+            //     setTimeout(function () {
+            //         infoModal.classList.remove('hidden');
+            //         infoModal.classList.add('modal-background-show');
+            //         modalContent.classList.add('modal-content-show');
+            //     }, 2000);
+            // }
 
-            closeButton.addEventListener('click', function () {
-                closeModal();
-                modalShownCount++;
-                localStorage.setItem('modalShownCount', modalShownCount);
-            });
+            // closeButton.addEventListener('click', function () {
+            //     closeModal();
+            //     modalShownCount++;
+            //     localStorage.setItem('modalShownCount', modalShownCount);
+            // });
 
-            infoModal.addEventListener('click', function (event) {
-                if (event.target === infoModal) {
-                    closeModal();
-                    modalShownCount++;
-                    localStorage.setItem('modalShownCount', modalShownCount);
-                }
-            });
+            // infoModal.addEventListener('click', function (event) {
+            //     if (event.target === infoModal) {
+            //         closeModal();
+            //         modalShownCount++;
+            //         localStorage.setItem('modalShownCount', modalShownCount);
+            //     }
+            // });
 
             tryButton.addEventListener('click', function () {
                 localStorage.setItem('modalDismissed', true);
