@@ -27,6 +27,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
     <script src="easter-eggs.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
@@ -408,6 +409,42 @@
 
         .military-card .text-blue-400:hover {
             color: #b3c9b3 !important;
+        }
+
+        .table-modal-content {
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+        }
+        
+        @media (max-height: 600px) {
+            .table-modal-content {
+                max-height: 95vh;
+            }
+        }
+
+        .table-modal-content {
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+        }
+        
+        @media (max-height: 600px) {
+            .table-modal-content {
+                max-height: 95vh;
+            }
         }
     </style>
 </head>
@@ -800,11 +837,18 @@
                             <span
                                 class="flex ml-2 mb-2 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
                         </div>
-                        <button id="shareSubgroupsBtn"
-                            class="p-2 md:mt-0 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center">
-                            <span class="text-xl mr-2">🔗</span>
-                            <span>Поделиться</span>
-                        </button>
+                        <div class="flex gap-2">
+                            <button id="shareSubgroupsBtn" 
+                                class="p-2 md:mt-0 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center">
+                                <span class="text-xl mr-2">🔗</span>
+                                <span>Поделиться</span>
+                            </button>
+                            <button id="exportTableBtn"
+                                class="p-2 md:mt-0 bg-green-700 text-white rounded-lg hover:bg-green-600 transition-all flex items-center justify-center">
+                                <span class="text-xl mr-2">📊</span>
+                                <span>Экспорт таблицы</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="bg-slate-900 mt-2 p-4 rounded-lg shadow-md">
                         <p class="text-center text-white text-sm">Здесь представлено распределения подгрупп нашим
@@ -952,6 +996,27 @@
                 class="absolute top-4 right-4 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition">
                 <span class="text-lg font-bold">✖️</span>
             </button>
+        </div>
+    </div>
+
+    <div id="tableModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 p-4 rounded-lg w-full mx-4 table-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl text-white font-bold">Таблица распределения подгрупп</h3>
+                <button id="closeTableModal" class="text-white text-2xl">&times;</button>
+            </div>
+            <div id="tableContainer" class="table-container">
+                <table id="subgroupsTable" class="w-full text-sm text-left text-white">
+                </table>
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button id="downloadTableBtn" class="p-2 bg-green-700 text-white rounded-lg hover:bg-green-600">
+                    <span class="flex items-center">
+                        <span class="text-xl mr-2">📥</span>
+                        <span>Скачать Excel</span>
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3939,6 +4004,318 @@
         }
 
         window.addEventListener('load', clearOldCache);
+
+        function createSubgroupsTable() {
+            const teacherSubgroups = JSON.parse(localStorage.getItem('teacherSubgroups') || '{}');
+            const table = document.getElementById('subgroupsTable');
+            table.innerHTML = '';
+    
+            const subjects = new Set();
+            const dates = new Set();
+            const dateToWeek = new Map();
+    
+            Object.entries(teacherSubgroups).forEach(([key, data]) => {
+                const [subject] = key.split('_');
+                subjects.add(subject);
+                Object.keys(data.dates || {}).forEach(dateTime => {
+                    const [date] = dateTime.split('_');
+                    dates.add(date);
+                    const [day, month, year] = date.split('.');
+                    const dateObj = new Date(`${year}-${month}-${day}`);
+                    for (let i = 0; i < weekRanges.length; i++) {
+                        const weekStart = new Date(weekRanges[i].start);
+                        const weekEnd = new Date(weekRanges[i].end);
+                        if (dateObj >= weekStart && dateObj <= weekEnd) {
+                            dateToWeek.set(date, i + 1);
+                            break;
+                        }
+                    }
+                });
+            });
+    
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'bg-slate-700';
+            
+            headerRow.innerHTML = '<th colspan="2" class="px-4 py-2 text-center"></th>';
+            
+            const subjectStats = {};
+            subjects.forEach(subject => {
+                subjectStats[subject] = { group1: 0, group2: 0 };
+                Object.entries(teacherSubgroups).forEach(([key, data]) => {
+                    const [subjectName] = key.split('_');
+                    if (subjectName === subject) {
+                        Object.values(data.dates || {}).forEach(info => {
+                            if (info.subgroup === 1) subjectStats[subject].group1++;
+                            if (info.subgroup === 2) subjectStats[subject].group2++;
+                        });
+                    }
+                });
+            });
+            
+            subjects.forEach(subject => {
+                headerRow.innerHTML += `
+                    <th colspan="2" class="px-4 py-2 text-center border-l border-slate-600">
+                        <div class="font-medium">${subject}</div>
+                        <div class="text-xs text-yellow-400 mt-1">
+                            1-я: ${subjectStats[subject].group1} зан. | 2-я: ${subjectStats[subject].group2} зан.
+                        </div>
+                    </th>
+                `;
+            });
+            thead.appendChild(headerRow);
+    
+            const subheaderRow = document.createElement('tr');
+            subheaderRow.className = 'bg-slate-700';
+            subheaderRow.innerHTML = `
+                <th class="px-4 py-2 text-center">Неделя</th>
+                <th class="px-4 py-2 text-center">Дата</th>
+            `;
+            subjects.forEach(() => {
+                subheaderRow.innerHTML += `
+                    <th class="px-4 py-2 text-center border-l border-slate-600">Время</th>
+                    <th class="px-4 py-2 text-center">Подгруппа</th>
+                `;
+            });
+            thead.appendChild(subheaderRow);
+            table.appendChild(thead);
+    
+            const tbody = document.createElement('tbody');
+            
+            const weekGroups = new Map();
+            Array.from(dates).sort().forEach(date => {
+                const week = dateToWeek.get(date);
+                if (!weekGroups.has(week)) {
+                    weekGroups.set(week, []);
+                }
+                weekGroups.get(week).push(date);
+            });
+    
+            Array.from(weekGroups.entries()).sort((a, b) => a[0] - b[0]).forEach(([week, weekDates]) => {
+        const isCurrentWeek = (() => {
+            const today = new Date();
+            const weekRange = weekRanges[week - 1];
+            const weekStart = new Date(weekRange.start);
+            const weekEnd = new Date(weekRange.end);
+            return today >= weekStart && today <= weekEnd;
+        })();
+        
+                const firstRow = document.createElement('tr');
+                firstRow.className = `border-b border-slate-600 hover:bg-slate-700 ${isCurrentWeek ? 'bg-blue-900' : ''}`;
+                
+                const weekCell = document.createElement('td');
+                weekCell.className = `px-4 py-2 text-center ${isCurrentWeek ? 'bg-blue-900' : 'bg-slate-700'}`;
+                weekCell.rowSpan = weekDates.length;
+                weekCell.textContent = `${week}-я`;
+                firstRow.appendChild(weekCell);
+                
+                firstRow.innerHTML += `<td class="px-4 py-2">${weekDates[0]}</td>`;
+                
+                subjects.forEach(subject => {
+                    let timeCell = '';
+                    let subgroupCell = '';
+                    
+                    Object.entries(teacherSubgroups).forEach(([key, data]) => {
+                        const [subjectName] = key.split('_');
+                        if (subjectName === subject) {
+                            Object.entries(data.dates || {}).forEach(([dateTime, info]) => {
+                                const [cellDate, time] = dateTime.split('_');
+                                if (cellDate === weekDates[0]) {
+                                    timeCell = time;
+                                    subgroupCell = `${info.subgroup}-я${info.isVUC ? ' (ВУЦ)' : ''}`;
+                                }
+                            });
+                        }
+                    });
+                    
+                    firstRow.innerHTML += `
+                        <td class="px-4 py-2 text-center border-l border-slate-600">${timeCell}</td>
+                        <td class="px-4 py-2 text-center">${subgroupCell}</td>
+                    `;
+                });
+                
+                tbody.appendChild(firstRow);
+                
+                weekDates.slice(1).forEach(date => {
+                    const row = document.createElement('tr');
+                    row.className = `border-b border-slate-600 hover:bg-slate-700 ${isCurrentWeek ? 'bg-blue-900' : ''}`;
+                    
+                    row.innerHTML = `<td class="px-4 py-2" style="padding-left: 1rem;">${date}</td>`;
+                    
+                    subjects.forEach(subject => {
+                        let timeCell = '';
+                        let subgroupCell = '';
+                        
+                        Object.entries(teacherSubgroups).forEach(([key, data]) => {
+                            const [subjectName] = key.split('_');
+                            if (subjectName === subject) {
+                                Object.entries(data.dates || {}).forEach(([dateTime, info]) => {
+                                    const [cellDate, time] = dateTime.split('_');
+                                    if (cellDate === date) {
+                                        timeCell = time;
+                                        subgroupCell = `${info.subgroup}-я${info.isVUC ? ' (ВУЦ)' : ''}`;
+                                    }
+                                });
+                            }
+                        });
+                        
+                        row.innerHTML += `
+                            <td class="px-4 py-2 text-center border-l border-slate-600">${timeCell}</td>
+                            <td class="px-4 py-2 text-center">${subgroupCell}</td>
+                        `;
+                    });
+                    
+                    tbody.appendChild(row);
+                });
+            });
+            
+            table.appendChild(tbody);
+        }
+
+        document.getElementById('exportTableBtn').addEventListener('click', () => {
+            document.getElementById('tableModal').style.display = 'flex';
+            createSubgroupsTable();
+        });
+
+        document.getElementById('closeTableModal').addEventListener('click', () => {
+            document.getElementById('tableModal').style.display = 'none';
+        });
+
+        document.getElementById('downloadTableBtn').addEventListener('click', downloadTableAsExcel);
+
+        document.getElementById('tableModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('tableModal')) {
+                document.getElementById('tableModal').style.display = 'none';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('tableModal').style.display = 'none';
+            }
+        });
+
+        function downloadTableAsExcel() {
+            const table = document.getElementById('subgroupsTable');
+            const wb = XLSX.utils.book_new();
+            
+            const matrix = [];
+            const merges = [];
+            let currentRow = 0;
+            
+            const headers = Array.from(table.querySelectorAll('thead tr'));
+            headers.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowData = [];
+                let colIndex = 0;
+                
+                cells.forEach(cell => {
+                    const colspan = parseInt(cell.getAttribute('colspan')) || 1;
+                    const rowspan = parseInt(cell.getAttribute('rowspan')) || 1;
+                    
+                    if (colspan > 1 || rowspan > 1) {
+                        merges.push({
+                            s: { r: currentRow, c: colIndex },
+                            e: { r: currentRow + rowspan - 1, c: colIndex + colspan - 1 }
+                        });
+                    }
+                    
+                    rowData.push(cell.textContent.trim());
+                    for (let i = 1; i < colspan; i++) {
+                        rowData.push('');
+                    }
+                    colIndex += colspan;
+                });
+                
+                matrix.push(rowData);
+                currentRow++;
+            });
+            
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            rows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll('td');
+                const rowData = [];
+                let colIndex = 0;
+                
+                if (!cells[0].hasAttribute('rowspan')) {
+                    rowData.push('');
+                    colIndex++;
+                }
+                
+                cells.forEach(cell => {
+                    const colspan = parseInt(cell.getAttribute('colspan')) || 1;
+                    const rowspan = parseInt(cell.getAttribute('rowspan')) || 1;
+                    
+                    if (colspan > 1 || rowspan > 1) {
+                        merges.push({
+                            s: { r: currentRow, c: colIndex },
+                            e: { r: currentRow + rowspan - 1, c: colIndex + colspan - 1 }
+                        });
+                    }
+                    
+                    rowData.push(cell.textContent.trim());
+                    for (let i = 1; i < colspan; i++) {
+                        rowData.push('');
+                    }
+                    colIndex += colspan;
+                });
+                
+                matrix.push(rowData);
+                currentRow++;
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(matrix);
+            
+            ws['!merges'] = merges;
+            
+            const cols = [];
+            for (let i = 0; i < matrix[0].length; i++) {
+                cols.push({ wch: i === 0 ? 8 : 15 });
+            }
+            ws['!cols'] = cols;
+            
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r; R <= range.e.r; R++) {
+                for (let C = range.s.c; C <= range.e.c; C++) {
+                    const address = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[address]) continue;
+                    
+                    ws[address].s = {
+                        alignment: { vertical: 'center', horizontal: 'center', wrapText: true },
+                        border: {
+                            top: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            left: { style: 'thin' },
+                            right: { style: 'thin' }
+                        },
+                        font: { name: 'Arial', sz: 10 }
+                    };
+                    
+                    if (R <= 1) {
+                        ws[address].s = {
+                            ...ws[address].s,
+                            fill: { fgColor: { rgb: "4A5568" } },
+                            font: { bold: true, color: { rgb: "FFFFFF" }, name: 'Arial', sz: 10 }
+                        };
+                    }
+                    
+                    if (C === 0 && R > 1) {
+                        ws[address].s = {
+                            ...ws[address].s,
+                            fill: { fgColor: { rgb: "4A5568" } },
+                            font: { bold: true, color: { rgb: "FFFFFF" }, name: 'Arial', sz: 10 }
+                        };
+                    }
+                }
+            }
+            
+            XLSX.utils.book_append_sheet(wb, ws, "Подгруппы");
+            
+            const today = new Date();
+            const date = today.toLocaleDateString('ru-RU').replace(/\./g, '-');
+            
+            XLSX.writeFile(wb, `Подгруппы_${date}.xlsx`);
+        }
     </script>
     <script src="subgroups-pdf.js" type="module"></script>
 
