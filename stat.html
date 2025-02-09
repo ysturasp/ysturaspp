@@ -23,7 +23,17 @@
     <script src="easter-eggs.js"></script>
     <script src="https://js.sentry-cdn.com/b0e4737908e85576ba620dd2b8fdae66.min.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="preloader.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            }
+        });
+    </script>
+    <script src="preloader.js" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         ::selection {
