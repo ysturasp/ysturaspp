@@ -423,24 +423,55 @@
             min-height: 0;
         }
         
-        @media (max-height: 600px) {
-            .table-modal-content {
-                max-height: 95vh;
+        @media (max-width: 768px) {
+            #subgroupsTable {
+                font-size: 0.75rem;
+            }
+            
+            #subgroupsTable th,
+            #subgroupsTable td {
+                padding: 0.25rem !important;
+                max-width: 5rem !important;
+            }
+            
+            #subgroupsTable th {
+                font-size: 0.7rem;
+                white-space: normal !important;
+                vertical-align: middle;
+                line-height: 1.2;
+                height: auto;
+            }
+            
+            #subgroupsTable thead tr:first-child th {
+                white-space: normal !important;
+                word-wrap: break-word;
+                min-width: 4.5rem !important;
+                max-width: 5rem !important;
+            }
+            
+            #subgroupsTable .text-xs {
+                font-size: 0.65rem;
+                line-height: 1;
+            }
+            
+            #subgroupsTable td:first-child,
+            #subgroupsTable th:first-child {
+                width: 2rem !important;
+                min-width: 2rem !important;
+            }
+            
+            #subgroupsTable td:nth-child(2),
+            #subgroupsTable th:nth-child(2) {
+                width: 4rem !important;
+                min-width: 4rem !important;
+            }
+            
+            #subgroupsTable td {
+                white-space: nowrap;
+                text-align: center;
             }
         }
 
-        .table-modal-content {
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .table-container {
-            flex: 1;
-            overflow: auto;
-            min-height: 0;
-        }
-        
         @media (max-height: 600px) {
             .table-modal-content {
                 max-height: 95vh;
