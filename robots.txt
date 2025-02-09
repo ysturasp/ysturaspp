@@ -1,5 +1,5 @@
 User-agent: *
 Disallow: 
-Host: ysturasp.me
-Sitemap: http://ysturasp.me/sitemap.xml
-Feed: http://ysturasp.me/turbo-feed.xml
+Host: ysturasp.netlify.app
+Sitemap: https://ysturasp.netlify.app/sitemap.xml
+Feed: https://ysturasp.netlify.app/turbo-feed.xml

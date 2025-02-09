@@ -2,14 +2,14 @@
 <rss xmlns:yandex="http://news.yandex.ru" xmlns:media="http://search.yahoo.com/mrss/" xmlns:turbo="http://turbo.yandex.ru" version="2.0">
     <channel>
         <title>ystuRASP - Расписание ЯГТУ</title>
-        <link>https://ysturasp.me</link>
+        <link>https://ysturasp.netlify.app</link>
         <description>Расписание ЯГТУ, статистика, информация о кампусе и многое другое</description>
         <language>ru</language>
         <turbo:analytics type="Yandex" id="94936076"></turbo:analytics>
 
         <!-- Главная страница -->
         <item turbo="true">
-            <link>https://ysturasp.me/</link>
+            <link>https://ysturasp.netlify.app/</link>
             <turbo:content>
                 <![CDATA[
                     <header>
@@ -17,21 +17,21 @@
                     </header>
                     <h2>Добро пожаловать в ystuRASP!</h2>
                     <p>Удобный сервис для просмотра расписания занятий ЯГТУ, статистики и информации о кампусе.</p>
-                    <button formaction="https://ysturasp.me/rasp">Перейти к расписанию</button>
-                    <button formaction="https://ysturasp.me/stat">Посмотреть статистику</button>
+                    <button formaction="https://ysturasp.netlify.app/rasp">Перейти к расписанию</button>
+                    <button formaction="https://ysturasp.netlify.app/stat">Посмотреть статистику</button>
                 ]]>
             </turbo:content>
         </item>
 
         <!-- Расписание -->
         <item turbo="true">
-            <link>https://ysturasp.me/rasp</link>
+            <link>https://ysturasp.netlify.app/rasp</link>
             <turbo:content>
                 <![CDATA[
                     <header>
                         <h1>Расписание занятий ЯГТУ</h1>
                         <figure>
-                            <img src="https://ysturasp.me/images/cat.png" />
+                            <img src="https://ysturasp.netlify.app/images/cat.png" />
                         </figure>
                     </header>
 
@@ -40,9 +40,9 @@
                         <div data-type="message">
                             <p>Выберите тип расписания:</p>
                         </div>
-                        <button formaction="https://ysturasp.me/rasp">Расписание групп</button>
-                        <button formaction="https://ysturasp.me/raspprep">Расписание преподавателей</button>
-                        <button formaction="https://ysturasp.me/raspaudience">Расписание аудиторий</button>
+                        <button formaction="https://ysturasp.netlify.app/rasp">Расписание групп</button>
+                        <button formaction="https://ysturasp.netlify.app/raspprep">Расписание преподавателей</button>
+                        <button formaction="https://ysturasp.netlify.app/raspaudience">Расписание аудиторий</button>
                     </div>
 
                     <h2>Возможности расписания:</h2>
@@ -67,7 +67,7 @@
                         <div data-type="message">
                             <p>Установите приложение на телефон для быстрого доступа:</p>
                         </div>
-                        <button formaction="https://ysturasp.me/installapp">Установить приложение</button>
+                        <button formaction="https://ysturasp.netlify.app/installapp">Установить приложение</button>
                     </div>
 
                     <p>💡 Подсказка: Вы можете добавить расписание в избранное для быстрого доступа.</p>
@@ -79,21 +79,21 @@
 
         <!-- Статистика -->
         <item turbo="true">
-            <link>https://ysturasp.me/stat</link>
+            <link>https://ysturasp.netlify.app/stat</link>
             <turbo:content>
                 <![CDATA[
                     <header>
                         <h1>Статистика ЯГТУ</h1>
                     </header>
                     <p>Статистика успеваемости и другие показатели</p>
-                    <button formaction="https://ysturasp.me/stat">Открыть полную версию</button>
+                    <button formaction="https://ysturasp.netlify.app/stat">Открыть полную версию</button>
                 ]]>
             </turbo:content>
         </item>
 
         <!-- Кампус -->
         <item turbo="true">
-            <link>https://ysturasp.me/campus</link>
+            <link>https://ysturasp.netlify.app/campus</link>
             <turbo:content>
                 <![CDATA[
                     <header>
@@ -101,23 +101,23 @@
                     </header>
                     <p>Информация о корпусах и общежитиях ЯГТУ</p>
                     <figure>
-                        <img src="https://ysturasp.me/images/cat.png" />
+                        <img src="https://ysturasp.netlify.app/images/cat.png" />
                     </figure>
-                    <button formaction="https://ysturasp.me/campus">Открыть полную версию</button>
+                    <button formaction="https://ysturasp.netlify.app/campus">Открыть полную версию</button>
                 ]]>
             </turbo:content>
         </item>
 
         <!-- О нас -->
         <item turbo="true">
-            <link>https://ysturasp.me/about</link>
+            <link>https://ysturasp.netlify.app/about</link>
             <turbo:content>
                 <![CDATA[
                     <header>
                         <h1>О проекте ystuRASP</h1>
                     </header>
                     <p>Информация о проекте ystuRASP и его разработчиках</p>
-                    <button formaction="https://ysturasp.me/about">Открыть полную версию</button>
+                    <button formaction="https://ysturasp.netlify.app/about">Открыть полную версию</button>
                 ]]>
             </turbo:content>
         </item>
