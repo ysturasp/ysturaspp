@@ -2462,7 +2462,7 @@
 
                     const teacherFullName = lesson.teacherName || '';
                     const teacherNameParts = teacherFullName.split(' ');
-                    const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join(' ') : teacherFullName;
+                    const teacherNameShortened = teacherNameParts.length > 1 ? teacherNameParts.slice(1).join('_') : teacherFullName;
 
                     let subgroupIndicator = '';
                     if (lesson.type === 8) {

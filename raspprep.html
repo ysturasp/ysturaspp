@@ -563,8 +563,9 @@
                 const teacherParam = urlParams.get('teacher');
                 if (teacherParam) {
                     const teacherParamLower = teacherParam.toLowerCase();
-                    const matchedTeacher = teachers.find(teacher => teacher.name.toLowerCase() === teacherParamLower)
-                        || teachersShort[teacherParamLower];
+                    const teacherParamWithSpaces = teacherParamLower.replace('_', ' ');
+                    const matchedTeacher = teachers.find(teacher => teacher.name.toLowerCase() === teacherParamWithSpaces)
+                        || teachersShort[teacherParamWithSpaces];
                     
                     if (matchedTeacher) {
                         inputElement.value = matchedTeacher.name;
@@ -576,7 +577,7 @@
                         console.error('Доступные преподаватели:');
                         console.table(teachers.map(teacher => ({
                             "Полное имя": teacher.name,
-                            "Сокращенное имя": `${teacher.name.split(' ')[0]} ${teacher.name.split(' ')[1][0]}.${teacher.name.split(' ')[2][0]}.`
+                            "Сокращенное имя": `${teacher.name.split(' ')[0]}_${teacher.name.split(' ')[1][0]}${teacher.name.split(' ')[2][0]}`
                         })));
                     }
                 }
@@ -666,7 +667,7 @@
                 const firstName = nameParts[1].charAt(0);
                 const middleName = nameParts[2] ? nameParts[2].charAt(0) : '';
                 
-                return `${lastName} ${firstName}${middleName}`.trim();
+                return `${lastName}_${firstName}${middleName}`.trim();
             }
 
             function ShowCopyNotification() {
@@ -1262,7 +1263,7 @@
                 
                 const fullName = inputElement.value;
                 const nameParts = fullName.split(' ');
-                const shortName = `${nameParts[0]} ${nameParts[1][0]}${nameParts[2][0]}`;
+                const shortName = `${nameParts[0]}_${nameParts[1][0]}${nameParts[2][0]}`;
                 
                 titleElement.innerText = `Расписание преподавателя ${shortName} на ${week} неделю`;
 
