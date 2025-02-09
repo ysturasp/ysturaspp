@@ -1,6 +1,5 @@
-function createPreloader() {
-    const currentSession = sessionStorage.getItem('preloaderShown');
-    if (currentSession === 'true') {
+(function() {
+    if (sessionStorage.getItem('preloaderShown') === 'true') {
         return;
     }
 
@@ -39,6 +38,8 @@ function createPreloader() {
             height: 120px;
             position: relative;
             margin-bottom: 20px;
+            opacity: 0;
+            transform: scale(0.5);
         }
 
         .preloader-cat img {
@@ -68,6 +69,7 @@ function createPreloader() {
             font-weight: 500;
             opacity: 0;
             margin-top: 1rem;
+            transform: translateY(20px);
         }
 
         .preloader-progress {
@@ -107,12 +109,21 @@ function createPreloader() {
     `;
 
     document.head.appendChild(styleSheet);
-    document.body.insertAdjacentHTML('afterbegin', preloaderHTML);
-}
 
-function initPreloader() {
-    const currentSession = sessionStorage.getItem('preloaderShown');
-    if (currentSession === 'true') {
+    const preloaderContainer = document.createElement('div');
+    preloaderContainer.innerHTML = preloaderHTML;
+    
+    if (document.body) {
+        document.body.insertBefore(preloaderContainer.firstElementChild, document.body.firstChild);
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.insertBefore(preloaderContainer.firstElementChild, document.body.firstChild);
+        });
+    }
+})();
+
+function initPreloaderAnimation() {
+    if (sessionStorage.getItem('preloaderShown') === 'true') {
         return;
     }
 
@@ -184,24 +195,31 @@ function initPreloader() {
         easing: 'easeInOutQuad'
     });
 
-    setTimeout(() => {
-        const preloader = document.querySelector('.preloader');
-        if (!preloader) return;
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const preloader = document.querySelector('.preloader');
+            if (!preloader) return;
 
-        anime({
-            targets: '.preloader',
-            opacity: 0,
-            duration: 1000,
-            easing: 'easeOutExpo',
-            complete: function() {
-                preloader.style.display = 'none';
-                sessionStorage.setItem('preloaderShown', 'true');
-            }
-        });
-    }, 2500);
+            anime({
+                targets: '.preloader',
+                opacity: 0,
+                duration: 1000,
+                easing: 'easeOutExpo',
+                complete: function() {
+                    preloader.style.display = 'none';
+                    sessionStorage.setItem('preloaderShown', 'true');
+                }
+            });
+        }, 500);
+    });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    createPreloader();
-    initPreloader();
-});
+if (window.anime) {
+    initPreloaderAnimation();
+} else {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.anime) {
+            initPreloaderAnimation();
+        }
+    });
+}
