@@ -26,7 +26,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
     <script src="easter-eggs.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Заменяем обычную загрузку на отложенную -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -4223,6 +4223,8 @@
             document.getElementById('tableModal').style.display = 'none';
         });
 
+        document.getElementById('exportTableBtn').addEventListener('click', loadXLSX);
+
         document.getElementById('downloadTableBtn').addEventListener('click', downloadTableAsExcel);
 
         document.getElementById('tableModal').addEventListener('click', (e) => {
@@ -4358,6 +4360,25 @@
             
             XLSX.writeFile(wb, `Подгруппы_${date}.xlsx`);
         }
+
+        function loadXLSX() {
+            return new Promise((resolve, reject) => {
+                if (window.XLSX) {
+                    resolve(window.XLSX);
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+                script.async = true;
+                script.onload = () => resolve(window.XLSX);
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Использовать только когда нужно:
+        // await loadXLSX();
     </script>
     <script src="subgroups-pdf.js" type="module"></script>
 
