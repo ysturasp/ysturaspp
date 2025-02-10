@@ -552,7 +552,7 @@
             let teachersShort = {};
 
             try {
-                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_teachers');
+                const response = await fetch('https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/actual_teachers');
                 const data = await response.json();
                 teachers = data.items;
 
@@ -846,7 +846,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/teacher/${teacherId}`);
+                    const response = await fetch(`https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/teacher/${teacherId}`);
                     if (!response.ok) throw new Error('Ошибка при получении расписания');
 
                     const scheduleData = await response.json();

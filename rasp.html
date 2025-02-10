@@ -1336,7 +1336,7 @@
             }
 
             try {
-                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups');
+                const response = await fetch('https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/actual_groups');
                 const data = await response.json();
                 const institutes = data.items;
 
@@ -2147,7 +2147,7 @@
                         });
                     }, 4000);
 
-                    const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`);
+                    const response = await fetch(`https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/group/${group}`);
 
                     clearTimeout(timeoutHandler);
 
@@ -2920,7 +2920,7 @@
             if (instituteParam) {
                 const instituteName = instituteParam.replace(/_/g, ' ');
 
-                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups');
+                const response = await fetch('https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/actual_groups');
                 const data = await response.json();
                 const institutes = data.items;
 
