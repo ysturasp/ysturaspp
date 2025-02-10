@@ -548,7 +548,7 @@
             inputElement.parentElement.appendChild(errorMessageElement);
 
             try {
-                const response = await fetch('https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_audiences');
+                const response = await fetch('https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/actual_audiences');
 
                 if (response.status === 429) {
                     const retryDelay = 20 * 1000;
@@ -816,7 +816,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://gg-api.ystuty.ru/s/schedule/v1/schedule/audience/${audienceId}`);
+                    const response = await fetch(`https://api-ochre-eta-11.vercel.app/s/schedule/v1/schedule/audience/${audienceId}`);
                     
                     if (response.status === 429) {
                         let retryAfter = 20;
