@@ -1096,10 +1096,6 @@
     </footer>
 
     <script>
-        if (window.Telegram?.WebApp) {
-            document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const instituteSelect = document.getElementById('institute-select');
             const groupSelect = document.getElementById('group-select');
@@ -1117,6 +1113,10 @@
             const favoriteIcon = document.getElementById('favorite-icon');
 
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+            if (window.location.hash.includes('tgWebAppData')) {
+                document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
+            }
 
             function updateFavoriteButton() {
                 const selectedGroup = groupSelect.value;
