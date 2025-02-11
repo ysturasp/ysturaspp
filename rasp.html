@@ -658,7 +658,7 @@
                 <h2 class="text-2xl md:text-4xl font-semibold text-white ml-2">Расписание занятий</h2>
             </div>
 
-            <div class="bg-green-100 rounded-lg py-2 px-6 mb-4 text-base text-green-700" role="alert">
+            <div class="bg-green-100 rounded-lg py-2 px-6 mb-4 text-base text-green-700 hide-in-tg" role="alert">
                 мы всё настроили, теперь должно работать всегда и с впн и без. Для максимального удобства использования вот наше <a
                     href="https://t.me/ysturasp_bot/ysturasp_webapp" class="font-bold">мини-приложение в Telegram</a>.
             </div>
@@ -1096,6 +1096,10 @@
     </footer>
 
     <script>
+        if (window.Telegram?.WebApp) {
+            document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const instituteSelect = document.getElementById('institute-select');
             const groupSelect = document.getElementById('group-select');
@@ -1113,7 +1117,6 @@
             const favoriteIcon = document.getElementById('favorite-icon');
 
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-
 
             function updateFavoriteButton() {
                 const selectedGroup = groupSelect.value;
