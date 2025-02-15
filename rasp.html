@@ -2722,75 +2722,92 @@
 
                     lessons.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-                    if (!subgroupStats[subject]) {
-                        subgroupStats[subject] = { 1: 0, 2: 0 };
+                    const lessonGroups = subject === 'null' 
+                        ? Object.groupBy(lessons, lesson => lesson.key)
+                        : { [subject]: lessons };
+
+                    for (const [groupKey, groupLessons] of Object.entries(lessonGroups)) {
+                        const teacherName = subject === 'null' ? groupKey.split('_')[1] : '';
+                        const displayName = subject === 'null' ? `${subject} (${teacherName})` : subject;
+
+                        if (!subgroupStats[groupKey]) {
+                            subgroupStats[groupKey] = { 1: 0, 2: 0 };
+                        }
+
+                        const vucLessons = [];
+                        const nonVucLessons = [];
+
+                        groupLessons.forEach(lesson => {
+                            const date = new Date(lesson.date);
+                            const formattedDate = date.toLocaleDateString('ru-RU');
+
+                            const isVUC = lesson.hasVuc;
+
+                            if (isVUC) {
+                                vucLessons.push({ lesson, date, formattedDate, isVUC });
+                            } else {
+                                nonVucLessons.push({ lesson, date, formattedDate, isVUC });
+                            }
+                        });
+
+                        vucLessons.forEach(({ lesson, formattedDate, isVUC }) => {
+                            if (!teacherSubgroups[lesson.key]) {
+                                teacherSubgroups[lesson.key] = { dates: {} };
+                            }
+
+                            const dateTimeKey = `${formattedDate}_${lesson.time}`;
+                            teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                                subgroup: 2,
+                                isVUC: isVUC
+                            };
+                            subgroupStats[groupKey][2]++;
+                        });
+
+                        nonVucLessons.forEach(({ lesson, date, formattedDate, isVUC }, index) => {
+                            if (!teacherSubgroups[lesson.key]) {
+                                teacherSubgroups[lesson.key] = { dates: {} };
+                            }
+
+                            const dateTimeKey = `${formattedDate}_${lesson.time}`;
+
+                            if (index === nonVucLessons.length - 1) {
+                                const subgroup1Count = subgroupStats[groupKey][1];
+                                const subgroup2Count = subgroupStats[groupKey][2];
+                                const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
+
+                                teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                                    subgroup: assignedSubgroup,
+                                    isVUC: isVUC
+                                };
+                                subgroupStats[groupKey][assignedSubgroup]++;
+                            } else {
+                                const subgroup1Count = subgroupStats[groupKey][1];
+                                const subgroup2Count = subgroupStats[groupKey][2];
+                                const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
+
+                                teacherSubgroups[lesson.key].dates[dateTimeKey] = {
+                                    subgroup: assignedSubgroup,
+                                    isVUC: isVUC
+                                };
+                                subgroupStats[groupKey][assignedSubgroup]++;
+                            }
+
+                            console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${teacherSubgroups[lesson.key].dates[dateTimeKey].subgroup}-я подгруппа${isVUC ? ' (ВУЦ)' : ''}`);
+                        });
+
+                        if (subject === 'null') {
+                            console.log(`\n${displayName}:`);
+                            console.log(`  Подгруппа 1: ${subgroupStats[groupKey][1]} занятий`);
+                            console.log(`  Подгруппа 2: ${subgroupStats[groupKey][2]} занятий`);
+                        }
                     }
-
-                    const vucLessons = [];
-                    const nonVucLessons = [];
-
-                    lessons.forEach(lesson => {
-                        const date = new Date(lesson.date);
-                        const formattedDate = date.toLocaleDateString('ru-RU');
-
-                        const isVUC = lesson.hasVuc;
-
-                        if (isVUC) {
-                            vucLessons.push({ lesson, date, formattedDate, isVUC });
-                        } else {
-                            nonVucLessons.push({ lesson, date, formattedDate, isVUC });
-                        }
-                    });
-
-                    vucLessons.forEach(({ lesson, formattedDate, isVUC }) => {
-                        if (!teacherSubgroups[lesson.key]) {
-                            teacherSubgroups[lesson.key] = { dates: {} };
-                        }
-
-                        const dateTimeKey = `${formattedDate}_${lesson.time}`;
-                        teacherSubgroups[lesson.key].dates[dateTimeKey] = {
-                            subgroup: 2,
-                            isVUC: isVUC
-                        };
-                        subgroupStats[subject][2]++;
-                    });
-
-                    nonVucLessons.forEach(({ lesson, date, formattedDate, isVUC }, index) => {
-                        if (!teacherSubgroups[lesson.key]) {
-                            teacherSubgroups[lesson.key] = { dates: {} };
-                        }
-
-                        const dateTimeKey = `${formattedDate}_${lesson.time}`;
-
-                        if (index === nonVucLessons.length - 1) {
-                            const subgroup1Count = subgroupStats[subject][1];
-                            const subgroup2Count = subgroupStats[subject][2];
-                            const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
-
-                            teacherSubgroups[lesson.key].dates[dateTimeKey] = {
-                                subgroup: assignedSubgroup,
-                                isVUC: isVUC
-                            };
-                            subgroupStats[subject][assignedSubgroup]++;
-                        } else {
-                            const subgroup1Count = subgroupStats[subject][1];
-                            const subgroup2Count = subgroupStats[subject][2];
-                            const assignedSubgroup = subgroup1Count <= subgroup2Count ? 1 : 2;
-
-                            teacherSubgroups[lesson.key].dates[dateTimeKey] = {
-                                subgroup: assignedSubgroup,
-                                isVUC: isVUC
-                            };
-                            subgroupStats[subject][assignedSubgroup]++;
-                        }
-
-                        console.log(`  ${formattedDate} (${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()]}) - ${teacherSubgroups[lesson.key].dates[dateTimeKey].subgroup}-я подгруппа${isVUC ? ' (ВУЦ)' : ''}`);
-                    });
                 });
 
                 console.log('\n=== Итоговая статистика по предметам ===');
-                Object.entries(subgroupStats).forEach(([subject, stats]) => {
-                    console.log(`\n${subject}:`);
+                Object.entries(subgroupStats).forEach(([groupKey, stats]) => {
+                    const [subject, teacher] = groupKey.split('_');
+                    const displayName = subject === 'null' ? `${subject} (${teacher})` : subject;
+                    console.log(`\n${displayName}:`);
                     console.log(`  Подгруппа 1: ${stats[1]} занятий`);
                     console.log(`  Подгруппа 2: ${stats[2]} занятий`);
                 });
@@ -3638,18 +3655,22 @@
                 const groupedSubjects = {};
                 for (const [key, data] of Object.entries(teacherSubgroups)) {
                     if (!data.dates) continue;
-                    const [subject] = key.split('_');
-                    if (!groupedSubjects[subject]) {
-                        groupedSubjects[subject] = { dates: {} };
+                    const [subject, teacher] = key.split('_');
+                    const groupKey = subject === 'null' ? `${subject}_${teacher}` : subject;
+                    if (!groupedSubjects[groupKey]) {
+                        groupedSubjects[groupKey] = { dates: {}, teacher: teacher };
                     }
-                    Object.assign(groupedSubjects[subject].dates, data.dates);
+                    Object.assign(groupedSubjects[groupKey].dates, data.dates);
                 }
 
-                for (const [subject, data] of Object.entries(groupedSubjects)) {
+                for (const [groupKey, data] of Object.entries(groupedSubjects)) {
                     const dates = data.dates || {};
                     const subgroup1Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 1);
                     const subgroup2Dates = Object.entries(dates).filter(([_, info]) => info.subgroup === 2);
                     const vucDays = Object.entries(dates).filter(([_, info]) => info.isVUC);
+
+                    const [subject, teacher] = groupKey.split('_');
+                    const displayName = subject === 'null' ? `null (${data.teacher})` : subject;
 
                     const totalLessons = (() => {
                         const group = document.getElementById('group-select').value;
@@ -3714,7 +3735,7 @@
                     subjectCard.innerHTML = `
                         <div class="bg-gray-900 backdrop-blur rounded-lg shadow p-3 md:p-6 h-full border border-gray-700">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
-                                <h5 class="text-base md:text-lg font-medium text-white">${subject}</h5>
+                                <h5 class="text-base md:text-lg font-medium text-white">${displayName}</h5>
                                 ${isDevision ?
                             '<span class="text-xs px-2 py-1 bg-yellow-600 rounded-full self-start md:self-auto" title="Потоковое занятие">Всей группой</span>' :
                             '<span class="text-xs px-2 py-1 bg-green-600 rounded-full self-start md:self-auto" title="Рекомендуется разделение на подгруппы">По подгруппам</span>'
