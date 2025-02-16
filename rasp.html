@@ -3075,12 +3075,15 @@
                     }
 
                     day.lessons.forEach(lesson => {
-                        const subject = lesson.lessonName;
+                        const subjectKey = lesson.lessonName === null ? 
+                            `null (${lesson.teacherName})` : 
+                            lesson.lessonName;
+                        
                         const type = lesson.type;
                         const typeName = lessonTypes[type] || 'Другое';
 
-                        if (!statistics[subject]) {
-                            statistics[subject] = {
+                        if (!statistics[subjectKey]) {
+                            statistics[subjectKey] = {
                                 Лекция: { completed: 0, total: 0 },
                                 Практика: { completed: 0, total: 0 },
                                 'Лабораторная работа': { completed: 0, total: 0 },
@@ -3091,8 +3094,8 @@
                             };
                         }
 
-                        if (statistics[subject][typeName]) {
-                            statistics[subject][typeName].total++;
+                        if (statistics[subjectKey][typeName]) {
+                            statistics[subjectKey][typeName].total++;
                         }
 
                         if (globalCounts[typeName]) {
@@ -3100,14 +3103,14 @@
                         }
 
                         if (lessonDate < currentDate) {
-                            if (statistics[subject][typeName] !== undefined) {
-                                statistics[subject][typeName].completed++;
+                            if (statistics[subjectKey][typeName] !== undefined) {
+                                statistics[subjectKey][typeName].completed++;
                                 globalCounts[typeName].completed++;
                             }
                         }
 
                         if (type === 256) {
-                            statistics[subject].exams.push({
+                            statistics[subjectKey].exams.push({
                                 date: lessonDate.toLocaleDateString(),
                                 time: lessonDate.toLocaleTimeString(),
                                 auditory: lesson.auditoryName,
@@ -4080,8 +4083,10 @@
             const dateToWeek = new Map();
     
             Object.entries(teacherSubgroups).forEach(([key, data]) => {
-                const [subject] = key.split('_');
-                subjects.add(subject);
+                const [subject, teacher] = key.split('_');
+                const displaySubject = subject === 'null' ? `null (${teacher})` : subject;
+                subjects.add(displaySubject);
+                
                 Object.keys(data.dates || {}).forEach(dateTime => {
                     const [date] = dateTime.split('_');
                     dates.add(date);
@@ -4108,8 +4113,9 @@
             subjects.forEach(subject => {
                 subjectStats[subject] = { group1: 0, group2: 0 };
                 Object.entries(teacherSubgroups).forEach(([key, data]) => {
-                    const [subjectName] = key.split('_');
-                    if (subjectName === subject) {
+                    const [subjectName, teacher] = key.split('_');
+                    const displaySubject = subjectName === 'null' ? `null (${teacher})` : subjectName;
+                    if (displaySubject === subject) {
                         Object.values(data.dates || {}).forEach(info => {
                             if (info.subgroup === 1) subjectStats[subject].group1++;
                             if (info.subgroup === 2) subjectStats[subject].group2++;
@@ -4181,8 +4187,9 @@
                     let subgroupCell = '';
                     
                     Object.entries(teacherSubgroups).forEach(([key, data]) => {
-                        const [subjectName] = key.split('_');
-                        if (subjectName === subject) {
+                        const [subjectName, teacher] = key.split('_');
+                        const displaySubject = subjectName === 'null' ? `null (${teacher})` : subjectName;
+                        if (displaySubject === subject) {
                             Object.entries(data.dates || {}).forEach(([dateTime, info]) => {
                                 const [cellDate, time] = dateTime.split('_');
                                 if (cellDate === weekDates[0]) {
@@ -4212,8 +4219,9 @@
                         let subgroupCell = '';
                         
                         Object.entries(teacherSubgroups).forEach(([key, data]) => {
-                            const [subjectName] = key.split('_');
-                            if (subjectName === subject) {
+                            const [subjectName, teacher] = key.split('_');
+                            const displaySubject = subjectName === 'null' ? `null (${teacher})` : subjectName;
+                            if (displaySubject === subject) {
                                 Object.entries(data.dates || {}).forEach(([dateTime, info]) => {
                                     const [cellDate, time] = dateTime.split('_');
                                     if (cellDate === date) {
