@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-title" content="ystuRASP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Отказ от ответственности сервиса ystuRASP - расписание ЯГТУ">
+    <link rel="icon" href="images/cat.png" type="image/png">
+    <title>Отказ от ответственности - ystuRASP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        ::selection {
+            background-color: #ffc935;
+            color: #000000;
+            border-radius: 5px;
+            padding: 1.2em;
+        }
+        img::selection {
+            background-color: transparent;
+            color: inherit;
+        }        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dark .bg-slate-800 {
+            background-color: #1e293b;
+        }
+
+        .dark .text-white {
+            color: #ffffff;
+        }
+
+        .dark .text-slate-400 {
+            color: #94a3b8;
+        }
+
+        .bg-slate-900 {
+            background-color: #111827;
+        }
+
+        .hover\\:bg-blue-700:hover {
+            background-color: #1e40af;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .icon-square {
+            width: 70px;
+            height: 70px;
+            margin-right: 0 auto;
+            vertical-align: middle;
+        }
+
+        .loading-indicator {
+            width: 320px;
+            height: 320px;
+            background: url('https://ustaliy.ru/wp-content/uploads/2020/04/orig-5.gif') no-repeat center center;
+            background-size: cover;
+            border-radius: 20%;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1e293bc4;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        @keyframes fadeInScale {
+            0% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOutScale {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+        }
+        #mobile-menu.show {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        #mobile-menu.hide {
+            animation: fadeOutScale 0.2s ease-in forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300 antialiased">
+    <header class="container mx-auto sticky top-4 px-3 z-50">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+            <nav class="hidden lg:flex gap-x-4">
+                <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <img src="images/cat.png" class="w-10 h-10 mr-2" />
+                    <span class="text-sm md:text-base">ystuRASP Главная</span>
+                </a>
+                <a href="/stat" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Статистика
+                </a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Расписание
+                </a>
+                <a href="/campus" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Кампус
+                </a>
+                <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Экспорт/Импорт
+                </a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    О нас
+                </a>
+            </nav>
+            <div class="relative lg:hidden">
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
+                    <svg class="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="https://boosty.to/ysturasp.me/donate" class="p-1 md:p-2 bg-blue-700 text-white rounded-lg text-sm md:text-sm hover:bg-blue-600 transition-all border-2 border-blue-700 hover:border-blue-600">
+                    Поддержать проект <span class="text-xl align-middle">💸</span>
+                </a>
+                <a href="https://id.ystuty.ru/" target="_blank" class="p-1 md:p-2 bg-slate-900 text-white rounded-lg text-sm md:text-sm transition-all flex items-center justify-center border-2 border-blue-500 hover:border-blue-400">
+                    <span class="text-xl">👤</span>
+                </a>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
+            <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
+            <a href="/stat" class="block py-2 hover:text-blue-400 text-sm md:text-base">Статистика</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/campus" class="block py-2 hover:text-blue-400 text-sm md:text-base">Кампус</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Экспорт/Импорт</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
+        <section class="flex flex-col gap-y-8 py-6 md:py-8">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-8">Отказ от ответственности</h1>
+                
+                <div class="space-y-6 text-slate-400">
+                    <h2 class="text-2xl font-semibold text-white">1. Общие положения</h2>
+                    <p>1.1. Настоящее положение об «Отказе от ответственности» является официальным Положением Интернет-ресурса «ystuRASP» (далее — «Сайт»), который оказывает информационные услуги доступные для пользователей Сайта (далее — «Пользователь») на момент использования Сайта и его функциональных возможностей.</p>
+                    
+                    <p>1.2. Используя Сайт, Пользователь выражает свое безоговорочное согласие с настоящим документом, а также принимает всю ответственность, которая может быть возложена на него в рамках использования функционала Сайта.</p>
+                    
+                    <h3 class="text-xl font-semibold text-white mt-6">1.3. Администрация Сайта не несет ответственность за:</h3>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>Сохранность и точность передаваемых Пользователем данных и информации</li>
+                        <li>Достоверность расписания и другой информации, получаемой из внешних источников</li>
+                        <li>Возможные сбои и перерывы в работе Сервиса</li>
+                        <li>Любой ущерб устройствам Пользователя</li>
+                        <li>Потерю данных или невозможность доступа к сервису</li>
+                        <li>Любые технические сбои или иные проблемы любых телефонных сетей или служб, компьютерных систем, серверов или провайдеров</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-white mt-8">2. Отказ от гарантии</h2>
+                    <p>2.1. Администрация Сайта не гарантирует, что:</p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>Сайт будет работать бесперебойно и безошибочно</li>
+                        <li>Расписание и другая информация будет всегда актуальной и точной</li>
+                        <li>Все функции сайта будут доступны в любой момент времени</li>
+                        <li>Сервис будет соответствовать вашим требованиям</li>
+                        <li>Качество любых услуг, информации или других материалов, полученных через сервис, будет соответствовать вашим ожиданиям</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-white mt-8">2.2. Использование данных</h2>
+                    <p>Администрация Сайта имеет право:</p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>Собирать и анализировать данные об использовании сервиса</li>
+                        <li>Использовать анонимные данные для улучшения работы сервиса</li>
+                        <li>Передавать обезличенные данные третьим лицам для анализа и улучшения качества сервиса</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-white mt-8">2.3. Интеллектуальная собственность</h2>
+                    <p>2.3.1. Весь контент, представленный на сайте, включая, но не ограничиваясь: тексты, графические изображения, интерфейс и программный код, является собственностью Администрации Сайта или используется с разрешения правообладателей.</p>
+                    
+                    <p>2.3.2. Использование материалов сайта без согласия правообладателей не допускается.</p>
+
+                    <h2 class="text-2xl font-semibold text-white mt-8">2.4. Условия использования</h2>
+                    <p>При использовании сервиса запрещается:</p>
+                    <ul class="list-disc list-inside space-y-2 ml-4">
+                        <li>Использовать автоматизированные скрипты для сбора информации</li>
+                        <li>Предпринимать действия, которые могут привести к непропорционально большой нагрузке на инфраструктуру сервиса</li>
+                        <li>Использовать сервис для распространения рекламы или других коммерческих целей</li>
+                        <li>Нарушать работу сервиса любым способом</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-semibold text-white mt-8">3. Заключительные положения</h2>
+                    <p>3.1. Администрация Сайта оставляет за собой право вносить изменения в текст настоящего Положения, не уведомляя об этом Пользователей.</p>
+                    
+                    <p>3.2. Если Пользователь не согласен с условиями настоящего Положения, он обязан прекратить использование Сайта.</p>
+
+                    <p>3.3. Администрация сайта оставляет за собой право в любой момент изменить предоставляемые услуги или прекратить работу сервиса без предварительного уведомления пользователей.</p>
+
+                    <div class="mt-8 text-slate-300">
+                        <p>Сервис для обращений: <a href="/support" class="text-blue-400 hover:text-blue-300">ysturasp.netlify.app/support</a></p>
+                        <p class="mt-2">Дата последнего обновления: 16 февраля 2025 года</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function() {
+            if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'hide');
+                mobileMenu.classList.add('show');
+            } else {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            });
+        });
+    </script>
+</body>
+</html>
