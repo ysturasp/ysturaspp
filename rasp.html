@@ -2740,7 +2740,14 @@
                     lessons.sort((a, b) => new Date(a.date) - new Date(b.date));
 
                     const lessonGroups = subject === 'null' 
-                        ? Object.groupBy(lessons, lesson => lesson.key)
+                        ? lessons.reduce((acc, lesson) => {
+                            const key = lesson.key;
+                            if (!acc[key]) {
+                                acc[key] = [];
+                            }
+                            acc[key].push(lesson);
+                            return acc;
+                        }, {})
                         : { [subject]: lessons };
 
                     for (const [groupKey, groupLessons] of Object.entries(lessonGroups)) {
