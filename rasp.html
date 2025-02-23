@@ -865,7 +865,7 @@
 
         <section id="hidden-subjects-section" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
             <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Скрытые предметы</h2>
-            <div id="hidden-subjects" class="grid grid-cols-1 gap-4"></div>
+            <div id="hidden-subjects" class="grid grid-cols-1 gap-2"></div>
         </section>
 
         <section class="subgroups-statistics container mx-auto px-4 py-8 hidden">
@@ -1992,9 +1992,9 @@
             for (let subject in hiddenSubjects) {
                 hiddenSubjects[subject].forEach(item => {
                     const subjectElement = document.createElement('div');
-                    subjectElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center';
+                    subjectElement.className = 'bg-slate-800 p-1 rounded-lg flex justify-between items-center';
                     subjectElement.innerHTML = `
-                        <p class="text-lg font-bold text-white">${subject} (${lessonTypes[item.type]}, ${item.teacher})</p>
+                        <p class="text-sm md:text-lg font-semibold text-white">${subject} (${lessonTypes[item.type]}, ${item.teacher})</p>
                         <label class="switch">
                             <input type="checkbox" onchange="showSubject('${group}', '${subject}', ${item.type}, '${item.teacher}')">
                             <span class="slider round"></span>
