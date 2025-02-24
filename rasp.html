@@ -574,6 +574,35 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+
+        .online-users-counter[data-groups]::after {
+            content: attr(data-groups);
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.95);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: pre;
+            text-align: center;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .online-users-counter[data-groups]:hover::after {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .online-users-counter[data-groups]::after {
+                bottom: auto;
+                top: calc(100% + 8px);
+            }
+        }
     </style>
 
     <!-- Добавьте эти скрипты в секцию head перед закрывающим тегом </head> -->
@@ -4730,13 +4759,17 @@
             }
         });
 
-        function updateUserStatus(online) {
+        function updateUserStatus(online, group = '') {
             const userStatusRef = database.ref('/online/' + userId);
             
             if (online) {
-                userStatusRef.set(true)
-                    .then(() => console.log('Статус онлайн установлен'))
-                    .catch(error => console.error('Ошибка установки статуса:', error));
+                userStatusRef.set({
+                    online: true,
+                    group: group,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                })
+                .then(() => console.log('Статус онлайн установлен'))
+                .catch(error => console.error('Ошибка установки статуса:', error));
                 
                 userStatusRef.onDisconnect().remove()
                     .then(() => console.log('Установлен обработчик отключения'))
@@ -4748,12 +4781,38 @@
             }
         }
 
+        document.getElementById('schedule-form').addEventListener('submit', (event) => {
+            const group = document.getElementById('group-select').value;
+            updateUserStatus(true, group);
+        });
+
         const onlineRef = database.ref('/online');
         onlineRef.on('value', (snapshot) => {
-            const count = snapshot.numChildren();
-            console.log('Количество онлайн пользователей:', count);
+            const users = snapshot.val() || {};
+            const count = Object.keys(users).length;
+            
+            const groupStats = {};
+            Object.values(users).forEach(user => {
+                if (user.group) {
+                    groupStats[user.group] = (groupStats[user.group] || 0) + 1;
+                }
+            });
+
             document.getElementById('online-count-desktop').textContent = count;
             document.getElementById('online-count-mobile').textContent = count;
+
+            const groupInfo = 'Количество пользователей на сайте прямо сейчас\n' +
+                Object.entries(groupStats)
+                .map(([group, count]) => `${group}: ${count} чел.`)
+                .join('\n');
+                
+            const desktopCounter = document.querySelector('.online-users-counter.desktop');
+            const mobileCounter = document.querySelector('.online-users-counter.mobile');
+            
+            if (groupInfo) {
+                desktopCounter.setAttribute('data-groups', groupInfo);
+                mobileCounter.setAttribute('data-groups', groupInfo);
+            }
         }, (error) => {
             console.error('Ошибка получения данных:', error);
         });
@@ -4768,7 +4827,8 @@
                 .then((snapshot) => {
                     if (!snapshot.exists()) {
                         console.log('Восстановление соединения...');
-                        updateUserStatus(true);
+                        const group = document.getElementById('group-select').value;
+                        updateUserStatus(true, group);
                     }
                 })
                 .catch(error => console.error('Ошибка проверки статуса:', error));
