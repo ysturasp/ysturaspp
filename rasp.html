@@ -605,7 +605,6 @@
         }
     </style>
 
-    <!-- Добавьте эти скрипты в секцию head перед закрывающим тегом </head> -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 </head>
@@ -4753,33 +4752,45 @@
         connectedRef.on('value', (snap) => {
             if (snap.val() === true) {
                 console.log('Подключено к Firebase');
-                updateUserStatus(true);
+                const group = document.getElementById('group-select')?.value || '';
+                updateUserStatus(true, group);
             } else {
                 console.log('Отключено от Firebase');
             }
         });
 
         function updateUserStatus(online, group = '') {
-            const userStatusRef = database.ref('/online/' + userId);
-            
-            if (online) {
-                userStatusRef.set({
-                    online: true,
-                    group: group,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                })
-                .then(() => console.log('Статус онлайн установлен'))
-                .catch(error => console.error('Ошибка установки статуса:', error));
+            if (group && group.trim()) {
+                const userStatusRef = database.ref('/online/' + userId);
                 
-                userStatusRef.onDisconnect().remove()
-                    .then(() => console.log('Установлен обработчик отключения'))
-                    .catch(error => console.error('Ошибка установки обработчика отключения:', error));
+                if (online) {
+                    userStatusRef.set({
+                        online: true,
+                        group: group,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    })
+                    .then(() => console.log('Статус онлайн установлен'))
+                    .catch(error => console.error('Ошибка установки статуса:', error));
+                    
+                    userStatusRef.onDisconnect().remove()
+                        .then(() => console.log('Установлен обработчик отключения'))
+                        .catch(error => console.error('Ошибка установки обработчика отключения:', error));
+                } else {
+                    userStatusRef.remove()
+                        .then(() => console.log('Статус офлайн установлен'))
+                        .catch(error => console.error('Ошибка удаления статуса:', error));
+                }
             } else {
-                userStatusRef.remove()
-                    .then(() => console.log('Статус офлайн установлен'))
-                    .catch(error => console.error('Ошибка удаления статуса:', error));
+                console.log('Группа не выбрана, статус не обновлен');
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const group = document.getElementById('group-select')?.value || '';
+            if (group) {
+                updateUserStatus(true, group);
+            }
+        });
 
         document.getElementById('schedule-form').addEventListener('submit', (event) => {
             const group = document.getElementById('group-select').value;
