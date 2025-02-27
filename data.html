@@ -777,7 +777,13 @@
                 const subgroupSettings = settings.subgroupSettings ? 
                     JSON.parse(JSON.parse(settings.subgroupSettings).subgroupSettings) : {};
 
-                const group = Object.keys(hiddenSubjects)[0]?.split('hiddenSubjects_')[1] || '';
+                let group = '';
+                if (Object.keys(hiddenSubjects).length > 0) {
+                    group = Object.keys(hiddenSubjects)[0]?.split('hiddenSubjects_')[1] || '';
+                } else {
+                    const match = settings.name.match(/\((.*?)\)$/);
+                    group = match ? match[1] : '';
+                }
                 
                 confirmDialog.querySelector('div').innerHTML = `
                     <div class="bg-slate-800 rounded-lg max-w-3xl w-full mx-auto my-auto">
@@ -935,17 +941,14 @@
                 }
             });
 
-            // Обработчик для всех кастомных чекбоксов
             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 const svg = checkbox.nextElementSibling.querySelector('svg');
                 
-                // Инициализация состояния
                 if (checkbox.checked) {
                     svg.classList.remove('hidden');
                     checkbox.nextElementSibling.classList.add('border-blue-500');
                 }
                 
-                // Обработчик изменения
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         svg.classList.remove('hidden');
