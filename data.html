@@ -175,6 +175,98 @@
                     <button onclick="confirmClearCache()" class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">Удалить данные</button>
                 </div>
             </section>
+
+            <section class="bg-slate-800 rounded-lg p-6 mt-8">
+                <h2 class="md:text-3xl text-xl font-semibold text-white mb-4">Поделиться настройками</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="bg-slate-900 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-2">Мои настройки</h3>
+                        <div class="flex flex-wrap gap-4 mb-4">
+                            <div class="flex items-center">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="shareHiddenSubjects" class="hidden">
+                                    <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
+                                        <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-400">Скрытые предметы</span>
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="shareSubgroupSettings" class="hidden peer">
+                                    <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
+                                        <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-400">Настройки подгрупп</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex gap-2 flex-1">
+                                <input type="text" id="settingsName" placeholder="Название настроек" 
+                                       class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none focus:border-blue-500 flex-1">
+                                <button onclick="regenerateName()"
+                                        class="p-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all">
+                                    🎲
+                                </button>
+                            </div>
+                            <button onclick="shareSettings()" 
+                                    class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                                Поделиться настройками
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="bg-slate-800 rounded-lg mb-4">
+                        <h4 class="text-white font-semibold mb-3">Фильтры</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <input type="text" 
+                                       id="searchFilter" 
+                                       placeholder="Поиск по названию" 
+                                       class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <select id="groupFilter" 
+                                        class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="">Все группы</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="typeFilter" 
+                                        class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="">Все типы</option>
+                                    <option value="hidden">Скрытые предметы</option>
+                                    <option value="subgroups">Настройки подгрупп</option>
+                                    <option value="both">Оба типа</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="verifiedFilter" class="hidden peer">
+                                    <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
+                                        <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-400">Только проверенные</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="bg-slate-900 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-white mb-4">Доступные настройки</h3>
+                        <div id="sharedSettingsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <h2 class="text-2xl font-semibold text-white mt-4">Зачем это нужно:</h2>
             <div class="flex flex-wrap justify-center gap-6 p-0 mt-4">
                 <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
@@ -208,97 +300,6 @@
                     <div class="flex flex-wrap justify-center gap-2 mb-4">
                         <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Информация</span>
                         <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="bg-slate-800 rounded-lg p-6 mt-8">
-            <h2 class="md:text-3xl text-xl font-semibold text-white mb-4">Поделиться настройками</h2>
-            <div class="flex flex-col gap-4">
-                <div class="bg-slate-900 p-4 rounded-lg">
-                    <h3 class="text-lg font-semibold text-white mb-2">Мои настройки</h3>
-                    <div class="flex flex-wrap gap-4 mb-4">
-                        <div class="flex items-center">
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="shareHiddenSubjects" class="hidden">
-                                <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
-                                    <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-slate-400">Скрытые предметы</span>
-                            </label>
-                        </div>
-                        <div class="flex items-center">
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="shareSubgroupSettings" class="hidden peer">
-                                <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
-                                    <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-slate-400">Настройки подгрупп</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <div class="flex gap-2 flex-1">
-                            <input type="text" id="settingsName" placeholder="Название настроек" 
-                                   class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none focus:border-blue-500 flex-1">
-                            <button onclick="regenerateName()"
-                                    class="p-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all">
-                                🎲
-                            </button>
-                        </div>
-                        <button onclick="shareSettings()" 
-                                class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
-                            Поделиться настройками
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800 rounded-lg mb-4">
-                    <h4 class="text-white font-semibold mb-3">Фильтры</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <input type="text" 
-                                   id="searchFilter" 
-                                   placeholder="Поиск по названию" 
-                                   class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div>
-                            <select id="groupFilter" 
-                                    class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
-                                <option value="">Все группы</option>
-                            </select>
-                        </div>
-                        <div>
-                            <select id="typeFilter" 
-                                    class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
-                                <option value="">Все типы</option>
-                                <option value="hidden">Скрытые предметы</option>
-                                <option value="subgroups">Настройки подгрупп</option>
-                                <option value="both">Оба типа</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center">
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="verifiedFilter" class="hidden peer">
-                                <div class="w-5 h-5 border-2 border-slate-500 rounded flex items-center justify-center mr-2 transition-colors peer-checked:border-blue-500">
-                                    <svg class="w-3 h-3 text-blue-500 hidden" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <span class="text-slate-400">Только проверенные</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900 p-4 rounded-lg">
-                    <h3 class="text-lg font-semibold text-white mb-4">Доступные настройки</h3>
-                    <div id="sharedSettingsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     </div>
                 </div>
             </div>
