@@ -208,14 +208,15 @@
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex gap-2 flex-1">
                                 <input type="text" id="settingsName" placeholder="Название настроек" 
-                                       class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none focus:border-blue-500 flex-1">
+                                       class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none border border-blue-500 flex-1 transition-colors"
+                                       autocomplete="off" autocorrect="off" autocapitalize="off">
                                 <button onclick="regenerateName()"
                                         class="p-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-all">
                                     🎲
                                 </button>
                             </div>
                             <button onclick="shareSettings()" 
-                                    class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                                    class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                 Поделиться настройками
                             </button>
                         </div>
@@ -228,7 +229,8 @@
                                 <input type="text" 
                                        id="searchFilter" 
                                        placeholder="Поиск по названию" 
-                                       class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                       class="w-full p-2 bg-slate-900 text-white rounded-lg focus:outline-none focus:border-blue-500"
+                                       autocomplete="off" autocorrect="off" autocapitalize="off">
                             </div>
                             <div>
                                 <select id="groupFilter" 
@@ -622,104 +624,107 @@
             });
         }
 
-        async function loadSharedSettings() {
+        let existingSettingsNames = [];
+
+        function loadSharedSettings() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?action=get`, {
+                fetch(`${SCRIPT_URL}?action=get`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'text/plain;charset=utf-8',
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    existingSettingsNames = data.map(setting => setting.name.toLowerCase());
+                    
+                    const groups = new Set(data.map(setting => extractGroupFromName(setting.name)).filter(Boolean));
+                    const groupFilter = document.getElementById('groupFilter');
+                    groupFilter.innerHTML = '<option value="">Все группы</option>' + 
+                        Array.from(groups).map(group => `<option value="${group}">${group}</option>`).join('');
 
-                const text = await response.text();
-                const data = JSON.parse(text);
-                
-                const groups = new Set(data.map(setting => extractGroupFromName(setting.name)).filter(Boolean));
-                const groupFilter = document.getElementById('groupFilter');
-                groupFilter.innerHTML = '<option value="">Все группы</option>' + 
-                    Array.from(groups).map(group => `<option value="${group}">${group}</option>`).join('');
+                    function updateDisplay() {
+                        const filteredData = filterSettings(data);
+                        const container = document.getElementById('sharedSettingsList');
+                        container.innerHTML = '';
 
-                function updateDisplay() {
-                    const filteredData = filterSettings(data);
-                    const container = document.getElementById('sharedSettingsList');
-                    container.innerHTML = '';
+                        if (!filteredData || filteredData.length === 0) {
+                            container.innerHTML = `
+                                <div class="bg-slate-800 p-4 rounded-lg col-span-full">
+                                    <p class="text-slate-400 text-center">Настройки не найдены</p>
+                                </div>
+                            `;
+                            return;
+                        }
 
-                    if (!filteredData || filteredData.length === 0) {
-                        container.innerHTML = `
-                            <div class="bg-slate-800 p-4 rounded-lg col-span-full">
-                                <p class="text-slate-400 text-center">Настройки не найдены</p>
-                            </div>
-                        `;
-                        return;
+                        filteredData.forEach(setting => {
+                            const card = document.createElement('div');
+                            card.className = 'bg-slate-800 p-4 rounded-lg';
+                            
+                            const escapedName = setting.name
+                                .replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/'/g, '&#039;');
+
+                            const group = extractGroupFromName(escapedName);
+                            const nameWithoutGroup = escapedName.replace(/ \(.*?\)$/, '');
+
+                            const verifiedBadge = setting.verified ? 
+                               `<svg class="w-5 h-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                               </svg>` : '';
+
+                            card.innerHTML = `
+                                <h4 class="text-white font-semibold mb-1">
+                                    ${nameWithoutGroup}
+                                    <span class="inline-flex items-center align-text-bottom">
+                                        <span class="relative group mr-1">
+                                            ${verifiedBadge}
+                                            ${setting.verified ? `
+                                                <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                                                    Проверено администратором
+                                                </div>
+                                            ` : ''}
+                                        </span>
+                                    </span>
+                                </h4>
+                                ${group ? `<p class="text-slate-400 text-sm">Группа: ${group}</p>` : ''}
+                                <p class="text-slate-400 text-sm mb-1">Опубликовано: ${new Date(setting.date).toLocaleString('ru-RU', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</p>
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    ${setting.hasHiddenSubjects ? 
+                                        '<span class="text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded">Скрытые предметы</span>' : ''}
+                                    ${setting.hasSubgroupSettings ? 
+                                        '<span class="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">Настройки подгрупп</span>' : ''}
+                                </div>
+                                <button onclick="applySettings('${setting.id}')" 
+                                        class="w-full p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
+                                    Применить настройки
+                                </button>
+                            `;
+                            container.appendChild(card);
+                        });
                     }
 
-                    filteredData.forEach(setting => {
-                        const card = document.createElement('div');
-                        card.className = 'bg-slate-800 p-4 rounded-lg';
-                        
-                        const escapedName = setting.name
-                            .replace(/&/g, '&amp;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;')
-                            .replace(/"/g, '&quot;')
-                            .replace(/'/g, '&#039;');
+                    document.getElementById('searchFilter').addEventListener('input', updateDisplay);
+                    document.getElementById('groupFilter').addEventListener('change', updateDisplay);
+                    document.getElementById('typeFilter').addEventListener('change', updateDisplay);
+                    document.getElementById('verifiedFilter').addEventListener('change', updateDisplay);
 
-                        const group = extractGroupFromName(escapedName);
-                        const nameWithoutGroup = escapedName.replace(/ \(.*?\)$/, '');
+                    updateDisplay();
 
-                        const verifiedBadge = setting.verified ? 
-                           `<svg class="w-5 h-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                           </svg>` : '';
-
-                        card.innerHTML = `
-                            <h4 class="text-white font-semibold mb-1">
-                                ${nameWithoutGroup}
-                                <span class="inline-flex items-center align-text-bottom">
-                                    <span class="relative group mr-1">
-                                        ${verifiedBadge}
-                                        ${setting.verified ? `
-                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-blue-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                                                Проверено администратором
-                                            </div>
-                                        ` : ''}
-                                    </span>
-                                </span>
-                            </h4>
-                            ${group ? `<p class="text-slate-400 text-sm">Группа: ${group}</p>` : ''}
-                            <p class="text-slate-400 text-sm mb-1">Опубликовано: ${new Date(setting.date).toLocaleString('ru-RU', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}</p>
-                            <div class="flex flex-wrap gap-2 mb-3">
-                                ${setting.hasHiddenSubjects ? 
-                                    '<span class="text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded">Скрытые предметы</span>' : ''}
-                                ${setting.hasSubgroupSettings ? 
-                                    '<span class="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">Настройки подгрупп</span>' : ''}
-                            </div>
-                            <button onclick="applySettings('${setting.id}')" 
-                                    class="w-full p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
-                                Применить настройки
-                            </button>
-                        `;
-                        container.appendChild(card);
-                    });
-                }
-
-                document.getElementById('searchFilter').addEventListener('input', updateDisplay);
-                document.getElementById('groupFilter').addEventListener('change', updateDisplay);
-                document.getElementById('typeFilter').addEventListener('change', updateDisplay);
-                document.getElementById('verifiedFilter').addEventListener('change', updateDisplay);
-
-                updateDisplay();
-
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке настроек:', error);
+                    showNotification('Ошибка при загрузке настроек', 'error');
+                });
             } catch (error) {
                 console.error('Ошибка при загрузке настроек:', error);
                 showNotification('Ошибка при загрузке настроек', 'error');
@@ -935,9 +940,13 @@
             const settingsNameInput = document.getElementById('settingsName');
             settingsNameInput.value = generateRandomName();
             
+            settingsNameInput.addEventListener('input', checkSettingsName);
+            settingsNameInput.addEventListener('change', checkSettingsName);
+            
             settingsNameInput.addEventListener('click', () => {
                 if (!settingsNameInput.value.trim()) {
                     settingsNameInput.value = generateRandomName();
+                    checkSettingsName();
                 }
             });
 
@@ -964,6 +973,45 @@
         function regenerateName() {
             const settingsNameInput = document.getElementById('settingsName');
             settingsNameInput.value = generateRandomName();
+            checkSettingsName();
+        }
+
+        function checkSettingsName() {
+            const nameInput = document.getElementById('settingsName');
+            const shareButton = document.querySelector('button[onclick="shareSettings()"]');
+            const userGroup = localStorage.getItem('lastGroup') || '';
+            const displayName = userGroup ? `${nameInput.value.trim()} (${userGroup})` : nameInput.value.trim();
+
+            const isDuplicate = existingSettingsNames.includes(displayName.toLowerCase());
+
+            if (isDuplicate) {
+                const parentContainer = nameInput.parentNode;
+                if (!parentContainer.classList.contains('group')) {
+                    parentContainer.classList.add('relative', 'group');
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-red-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap';
+                    tooltip.textContent = 'Настройки с таким названием уже существуют';
+                    parentContainer.appendChild(tooltip);
+                }
+
+                nameInput.classList.remove('focus:border-blue-500', 'border-slate-500');
+                nameInput.classList.add('border', 'border-red-500', 'focus:border-red-500');
+                shareButton.disabled = true;
+                shareButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                const parentContainer = nameInput.parentNode;
+                const tooltip = parentContainer.querySelector('div[class*="absolute"]');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+                parentContainer.classList.remove('relative', 'group');
+
+                nameInput.classList.remove('border-red-500', 'focus:border-red-500');
+                nameInput.classList.add('border', 'border-slate-500', 'focus:border-blue-500');
+                shareButton.disabled = false;
+                shareButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         }
 
         function generateToken() {
@@ -1056,10 +1104,17 @@
             });
         }
 
-        async function shareSettings() {
+        function shareSettings() {
+            if (shareSettings.isProcessing) {
+                showNotification('Пожалуйста, подождите...', 'warning');
+                return;
+            }
+            shareSettings.isProcessing = true;
+
             const name = document.getElementById('settingsName').value.trim();
             if (!name) {
                 showNotification('Пожалуйста, введите название для ваших настроек', 'warning');
+                shareSettings.isProcessing = false;
                 return;
             }
 
@@ -1068,32 +1123,49 @@
 
             if (!shareHidden && !shareSubgroups) {
                 showNotification('Пожалуйста, выберите хотя бы один тип настроек для публикации', 'warning');
+                shareSettings.isProcessing = false;
                 return;
             }
 
             const userGroup = localStorage.getItem('lastGroup') || '';
             const displayName = userGroup ? `${name} (${userGroup})` : name;
 
-            const humanToken = await generateToken();
-
-            const settings = {
-                name: displayName,
-                date: new Date().toISOString(),
-                hiddenSubjects: shareHidden ? JSON.stringify(collectHiddenSubjects()) : undefined,
-                subgroupSettings: shareSubgroups ? JSON.stringify(collectSubgroupSettings()) : undefined,
-                token: humanToken
-            };
-
-            Object.keys(settings).forEach(key => {
-                if (settings[key] === undefined) {
-                    delete settings[key];
+            fetch(`${SCRIPT_URL}?action=get`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
                 }
-            });
+            })
+            .then(response => response.json())
+            .then(existingSettings => {
+                const isDuplicate = existingSettings.some(setting => 
+                    setting.name.toLowerCase() === displayName.toLowerCase()
+                );
 
-            try {
+                if (isDuplicate) {
+                    throw new Error('Настройки с таким названием уже существуют. Пожалуйста, выберите другое название.');
+                }
+
+                return generateToken();
+            })
+            .then(humanToken => {
+                const settings = {
+                    name: displayName,
+                    date: new Date().toISOString(),
+                    hiddenSubjects: shareHidden ? JSON.stringify(collectHiddenSubjects()) : undefined,
+                    subgroupSettings: shareSubgroups ? JSON.stringify(collectSubgroupSettings()) : undefined,
+                    token: humanToken
+                };
+
+                Object.keys(settings).forEach(key => {
+                    if (settings[key] === undefined) {
+                        delete settings[key];
+                    }
+                });
+
                 showNotification('Публикация настроек...', 'info');
                 
-                const response = await fetch(SCRIPT_URL, {
+                return fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain;charset=utf-8',
@@ -1103,13 +1175,14 @@
                         settings: settings
                     })
                 });
-
+            })
+            .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-
-                const result = await response.json();
-                
+                return response.json();
+            })
+            .then(result => {
                 if (result.error) {
                     throw new Error(result.error);
                 }
@@ -1120,10 +1193,16 @@
 
                 showNotification('Настройки успешно опубликованы!', 'success');
                 setTimeout(() => loadSharedSettings(), 1500);
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Ошибка при публикации настроек:', error);
                 showNotification(error.message || 'Ошибка при публикации настроек', 'error');
-            }
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    shareSettings.isProcessing = false;
+                }, 2000);
+            });
         }
 
         function collectHiddenSubjects() {
