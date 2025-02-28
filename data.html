@@ -508,7 +508,7 @@
             });
         });
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTQG7Ktb-uPQuA3a_g1YD2q_Khjjk9gfdlvyzxGazZIn5HuHq84ey9o3OfSGU4hNGgmA/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBVMayPTAwazb_ihPVk2acaqzKd0BYrd-vQP8rPlBnEVYkQPo0NPPviZhZr9UkemZ0GQ/exec';
 
         function showNotification(message, type = 'info') {
             const existingNotification = document.querySelector('.notification');
@@ -966,6 +966,96 @@
             settingsNameInput.value = generateRandomName();
         }
 
+        function generateToken() {
+            const events = [];
+            let startTime = Date.now();
+            let mouseMoves = 0;
+            let mousePositions = [];
+            let scrolls = 0;
+            let scrollPositions = [];
+            let clicks = 0;
+            let clickPositions = [];
+            let keystrokes = 0;
+            let lastEventTime = startTime;
+            let eventIntervals = [];
+
+            function handleMouseMove(e) {
+                mouseMoves++;
+                mousePositions.push([e.clientX, e.clientY]);
+                const now = Date.now();
+                eventIntervals.push(now - lastEventTime);
+                lastEventTime = now;
+            }
+
+            function handleScroll() {
+                scrolls++;
+                scrollPositions.push(window.scrollY);
+                const now = Date.now();
+                eventIntervals.push(now - lastEventTime);
+                lastEventTime = now;
+            }
+
+            function handleClick(e) {
+                clicks++;
+                clickPositions.push([e.clientX, e.clientY]);
+                const now = Date.now();
+                eventIntervals.push(now - lastEventTime);
+                lastEventTime = now;
+            }
+
+            function handleKeypress(e) {
+                keystrokes++;
+                const now = Date.now();
+                eventIntervals.push(now - lastEventTime);
+                lastEventTime = now;
+            }
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('scroll', handleScroll);
+            document.addEventListener('click', handleClick);
+            document.addEventListener('keypress', handleKeypress);
+
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('scroll', handleScroll);
+                    document.removeEventListener('click', handleClick);
+                    document.removeEventListener('keypress', handleKeypress);
+
+                    const timeSpent = Date.now() - startTime;
+                    
+                    const entropy = {
+                        timeSpent,
+                        mouseMoves,
+                        mousePositions: mousePositions.slice(-10),
+                        scrolls,
+                        scrollPositions: scrollPositions.slice(-5),
+                        clicks,
+                        clickPositions,
+                        keystrokes,
+                        eventIntervals: eventIntervals.slice(-20),
+                        userAgent: navigator.userAgent,
+                        screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                        timestamp: Date.now(),
+                        random: crypto.getRandomValues(new Uint32Array(4))
+                    };
+
+                    const entropyStr = JSON.stringify(entropy);
+                    
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(entropyStr);
+                    
+                    crypto.subtle.digest('SHA-256', data).then(hashBuffer => {
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        
+                        const finalToken = btoa(`${hashHex}_${Date.now()}`).replace(/=/g, '');
+                        resolve(finalToken);
+                    });
+                }, 1000);
+            });
+        }
+
         async function shareSettings() {
             const name = document.getElementById('settingsName').value.trim();
             if (!name) {
@@ -984,11 +1074,14 @@
             const userGroup = localStorage.getItem('lastGroup') || '';
             const displayName = userGroup ? `${name} (${userGroup})` : name;
 
+            const humanToken = await generateToken();
+
             const settings = {
                 name: displayName,
                 date: new Date().toISOString(),
                 hiddenSubjects: shareHidden ? JSON.stringify(collectHiddenSubjects()) : undefined,
-                subgroupSettings: shareSubgroups ? JSON.stringify(collectSubgroupSettings()) : undefined
+                subgroupSettings: shareSubgroups ? JSON.stringify(collectSubgroupSettings()) : undefined,
+                token: humanToken
             };
 
             Object.keys(settings).forEach(key => {
@@ -1000,7 +1093,7 @@
             try {
                 showNotification('Публикация настроек...', 'info');
                 
-                await fetch(SCRIPT_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'text/plain;charset=utf-8',
@@ -1011,11 +1104,25 @@
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                if (!result.success) {
+                    throw new Error('Неизвестная ошибка при публикации настроек');
+                }
+
                 showNotification('Настройки успешно опубликованы!', 'success');
                 setTimeout(() => loadSharedSettings(), 1500);
             } catch (error) {
                 console.error('Ошибка при публикации настроек:', error);
-                showNotification('Ошибка при публикации настроек', 'error');
+                showNotification(error.message || 'Ошибка при публикации настроек', 'error');
             }
         }
 
