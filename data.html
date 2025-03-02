@@ -170,7 +170,7 @@
                 <h2 class="md:text-3xl text-xl font-semibold text-white mb-4">Экспорт и импорт Ваших данных</h2>
                 <div class="flex flex-col md:flex-row gap-4">
                     <button onclick="downloadCache()" class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">Скачать мои данные (JSON)</button>
-                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importCache(event)">
+                    <input type="file" id="importFile" class="hidden" accept=".json" onchange="importCache(event)" autocomplete="off" autocorrect="off" autocapitalize="off">
                     <button onclick="document.getElementById('importFile').click()" class="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">Импортировать данные</button>
                     <button onclick="confirmClearCache()" class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">Удалить данные</button>
                 </div>
@@ -262,8 +262,14 @@
                     </div>
     
                     <div class="bg-slate-900 p-4 rounded-lg">
-                        <h3 class="text-lg font-semibold text-white mb-4">Доступные настройки</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-white">Доступные настройки</h3>
+                            <button id="edit-settings-btn" class="p-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all">Редактировать/Удалить настройки</button>
+                        </div>
                         <div id="sharedSettingsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="col-span-full flex justify-center items-center p-8">
+                                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -356,6 +362,32 @@
         </div>
     </div>
     
+    <div id="tokenModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden" onclick="closeTokenModal(event)">
+        <div class="bg-slate-900 rounded-lg p-5 ml-3 mr-3 text-center">
+            <h2 class="text-xl font-semibold text-white mb-4">Введите токен</h2>
+            <input type="text" id="tokenInput" class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none" placeholder="Токен" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <div class="flex justify-center gap-4 mt-4">
+                <button onclick="editSettings()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">Редактировать</button>
+                <button onclick="deleteSettings()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">Удалить</button>
+                <button onclick="closeTokenModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all">Отмена</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="editSettingsModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden" onclick="closeEditSettingsModal(event)">
+        <div class="bg-slate-900 rounded-lg p-5 ml-3 mr-3 text-center">
+            <h2 class="text-xl font-semibold text-white mb-4">Редактирование настроек</h2>
+            <p class="text-slate-400 mb-2">Старое название: <span id="oldName"></span></p>
+            <p class="text-slate-400 mb-2"><h4 class="text-white font-semibold mb-2">Скрытые предметы:</h4><span id="oldHiddenSubjects"></span></p>
+            <p class="text-slate-400 mb-2"><h4 class="text-white font-semibold mb-2">Настройки подгрупп:</h4><span id="oldSubgroupSettings"></span></p>
+            <input type="text" id="newName" class="p-2 bg-slate-800 text-white rounded-lg focus:outline-none" placeholder="Новое название" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <div class="flex justify-center gap-4 mt-4">
+                <button onclick="saveEditedSettings()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">Сохранить</button>
+                <button onclick="closeEditSettingsModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all">Отмена</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function importCache(event) {
             const file = event.target.files[0];
@@ -510,7 +542,7 @@
             });
         });
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBVMayPTAwazb_ihPVk2acaqzKd0BYrd-vQP8rPlBnEVYkQPo0NPPviZhZr9UkemZ0GQ/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby_96MwIj8oq9qdVcjFz6lRL9XM3EAV_XV8I25ZykDh4FEWqaum6ev_GmDjort26MkbsQ/exec';
 
         function showNotification(message, type = 'info') {
             const existingNotification = document.querySelector('.notification');
@@ -592,6 +624,9 @@
         }
 
         function extractGroupFromName(name) {
+            if (typeof name !== 'string') {
+                return '';
+            }
             const match = name.match(/\((.*?)\)$/);
             return match ? match[1] : '';
         }
@@ -628,6 +663,13 @@
 
         function loadSharedSettings() {
             try {
+                const container = document.getElementById('sharedSettingsList');
+                container.innerHTML = `
+                    <div class="col-span-full flex justify-center items-center p-8">
+                        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                `;
+
                 fetch(`${SCRIPT_URL}?action=get`, {
                     method: 'GET',
                     headers: {
@@ -723,6 +765,11 @@
                 })
                 .catch(error => {
                     console.error('Ошибка при загрузке настроек:', error);
+                    container.innerHTML = `
+                        <div class="bg-slate-800 p-4 rounded-lg col-span-full">
+                            <p class="text-red-400 text-center">Ошибка при загрузке настроек</p>
+                        </div>
+                    `;
                     showNotification('Ошибка при загрузке настроек', 'error');
                 });
             } catch (error) {
@@ -1174,22 +1221,24 @@
                         action: 'share',
                         settings: settings
                     })
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json().then(result => {
+                        if (result.error) {
+                            throw new Error(result.error);
+                        }
+                        return { result, humanToken };
+                    });
                 });
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-
+            .then(({ result, humanToken }) => {
                 if (!result.success) {
                     throw new Error('Неизвестная ошибка при публикации настроек');
                 }
+
+                showTokenDialog(humanToken);
 
                 showNotification('Настройки успешно опубликованы!', 'success');
                 setTimeout(() => loadSharedSettings(), 1500);
@@ -1202,6 +1251,52 @@
                 setTimeout(() => {
                     shareSettings.isProcessing = false;
                 }, 2000);
+            });
+        }
+
+        function showTokenDialog(token) {
+            const dialog = document.createElement('div');
+            dialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            
+            dialog.innerHTML = `
+                <div class="bg-slate-800 p-6 rounded-lg max-w-lg w-full mx-4 relative">
+                    <h3 class="text-xl font-bold text-white mb-4">⚠️ Важное сообщение</h3>
+                    <p class="text-slate-300 mb-4">
+                        Это ваш уникальный токен для управления настройками. Сохраните его - он будет показан только один раз!
+                    </p>
+                    <div class="bg-slate-900 p-3 rounded-lg mb-4 break-all">
+                        <p class="text-blue-400 font-mono text-sm">${token}</p>
+                    </div>
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="copyToClipboard('${token}')" 
+                                class="flex-1 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                            Копировать токен
+                        </button>
+                    </div>
+                    <p class="text-slate-400 text-sm">
+                        С помощью этого токена вы сможете управлять или удалить свои настройки в будущем.
+                    </p>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            class="absolute top-2 right-2 text-slate-400 hover:text-white p-2">
+                        ✕
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(dialog);
+
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    dialog.remove();
+                }
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('Токен скопирован в буфер обмена', 'success');
+            }).catch(() => {
+                showNotification('Не удалось скопировать токен', 'error');
             });
         }
 
@@ -1225,6 +1320,169 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadSharedSettings);
+
+        document.getElementById('edit-settings-btn').addEventListener('click', function() {
+            document.getElementById('tokenModal').classList.remove('hidden');
+        });
+
+        function closeTokenModal(event) {
+            if (event) {
+                const modalContent = document.querySelector('#tokenModal > div');
+                if (!modalContent.contains(event.target)) {
+                    document.getElementById('tokenModal').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('tokenModal').classList.add('hidden');
+            }
+        }
+
+        function editSettings() {
+            const token = document.getElementById('tokenInput').value;
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify({
+                    action: 'getOldSettings',
+                    token: token,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('oldName').textContent = data.oldName;
+
+                    const hiddenSubjects = data.hiddenSubjects && Object.keys(data.hiddenSubjects).length > 0 
+                        ? JSON.parse(data.hiddenSubjects) 
+                        : {};
+
+                    const group = Object.keys(hiddenSubjects)[0]?.split('hiddenSubjects_')[1] || '';
+
+                    document.getElementById('oldHiddenSubjects').innerHTML = Object.entries(hiddenSubjects[`hiddenSubjects_${group}`] || {})
+                        .map(([subject, types]) => `
+                            <div class="text-slate-400">
+                                <span class="text-blue-400">${subject}</span>
+                                <ul class="ml-4 list-disc">
+                                    ${types.map(type => {
+                                        const lessonTypes = {
+                                            0: 'none',
+                                            2: 'Лекция',
+                                            4: 'Практика',
+                                            8: 'Лабораторная работа',
+                                            1: 'Курсовой проект',
+                                            5: 'Консультация',
+                                            6: 'Лекция + Практика',
+                                            7: 'Дифференцированный зачет',
+                                            3: 'Экзамен',
+                                            9: 'Библиотека',
+                                            10: 'Лекция + Лабораторная работа',
+                                            11: 'Организационное собрание',
+                                            12: 'Не поддерживается'
+                                        };
+                                        const lessonType = lessonTypes[type.type] || 'Неизвестный тип';
+                                        return `<li>${type.teacher} (${lessonType})</li>`;
+                                    }).join('')}
+                                </ul>
+                            </div>
+                        `).join('') || '<p class="text-slate-400">Нет скрытых предметов</p>';
+
+                    const subgroupSettings = data.subgroupSettings;
+                    const parsedSubgroupSettings = typeof subgroupSettings === 'object' && Object.keys(subgroupSettings).length > 0 
+                        ? JSON.parse(subgroupSettings.subgroupSettings) 
+                        : {};
+
+                    document.getElementById('oldSubgroupSettings').innerHTML = Object.entries(parsedSubgroupSettings)
+                        .map(([subject, isEnabled]) => `
+                            <div class="flex items-center gap-2">
+                                <span class="${isEnabled ? 'text-green-400' : 'text-red-400'}">
+                                    ${isEnabled ? '✓' : '✗'}
+                                </span>
+                                <span class="text-slate-400">${subject === 'null' ? 'null' : subject}</span>
+                            </div>
+                        `).join('') || '<p class="text-slate-400">Нет настроек подгрупп</p>';
+
+                    document.getElementById('newName').value = data.oldName;
+                    document.getElementById('editSettingsModal').classList.remove('hidden');
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка при получении старых настроек', 'error');
+            });
+        }
+
+        function saveEditedSettings() {
+            const token = document.getElementById('tokenInput').value;
+            const newName = document.getElementById('newName').value;
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify({
+                    action: 'edit',
+                    token: token,
+                    name: newName,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Настройки успешно отредактированы!', 'success');
+                } else {
+                    showNotification(data.error, 'error');
+                }
+                closeEditSettingsModal();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка при редактировании настроек', 'error');
+            });
+        }
+
+        function closeEditSettingsModal(event) {
+            if (event) {
+                const modalContent = document.querySelector('#editSettingsModal > div');
+                if (!modalContent.contains(event.target)) {
+                    document.getElementById('editSettingsModal').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('editSettingsModal').classList.add('hidden');
+            }
+        }
+
+        function deleteSettings() {
+            const token = document.getElementById('tokenInput').value;
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify({
+                    action: 'delete',
+                    token: token,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Настройки успешно удалены!', 'success');
+                    closeTokenModal();
+                    setTimeout(() => loadSharedSettings(), 1500);
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showNotification('Ошибка при удалении настроек', 'error');
+            });
+        }
     </script>
 </body>
 </html>
