@@ -3933,18 +3933,34 @@
                                         ${subgroup1Dates.map(([dateTime, info]) => {
                             const { date, time, week } = formatDateTime(dateTime);
                             const dayOfWeek = getDayOfWeek(date);
+                            const isNextLesson = (() => {
+                                const lessonDate = new Date(date.split('.').reverse().join('-'));
+                                const today = new Date();
+                                today.setHours(0,0,0,0);
+                                return lessonDate > today && !subgroup1Dates
+                                    .some(([otherDateTime]) => {
+                                        const otherDate = new Date(otherDateTime.split('_')[0].split('.').reverse().join('-'));
+                                        return otherDate > today && otherDate < lessonDate;
+                                    });
+                            })();
+                            
                             return `
-                                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    <div class="flex items-center gap-1.5 md:gap-2">
-                                                        <span class="text-white text-sm md:text-base">${date}</span>
-                                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
-                                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
-                                                    </div>
-                                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
-                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
-                                                </div>
-                                            `;
+                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm relative ${info.isVUC ? 'border-l-2 border-blue-400' : ''} ${isNextLesson ? 'border-2 border-green-500 group' : ''}">
+                                    <div class="flex items-center gap-1.5 md:gap-2">
+                                        <span class="text-white text-sm md:text-base">${date}</span>
+                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
+                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
+                                    </div>
+                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
+                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
+                                    ${isNextLesson ? `
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10 border border-green-500">
+                                            Следующее занятие
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
                         }).join('')}
                                     </div>
                                 </div>
@@ -3954,18 +3970,34 @@
                                         ${subgroup2Dates.map(([dateTime, info]) => {
                             const { date, time, week } = formatDateTime(dateTime);
                             const dayOfWeek = getDayOfWeek(date);
+                            const isNextLesson = (() => {
+                                const lessonDate = new Date(date.split('.').reverse().join('-'));
+                                const today = new Date();
+                                today.setHours(0,0,0,0);
+                                return lessonDate > today && !subgroup2Dates
+                                    .some(([otherDateTime]) => {
+                                        const otherDate = new Date(otherDateTime.split('_')[0].split('.').reverse().join('-'));
+                                        return otherDate > today && otherDate < lessonDate;
+                                    });
+                            })();
+
                             return `
-                                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm ${info.isVUC ? 'border-l-2 border-blue-400' : ''}">
-                                                    <div class="flex items-center gap-1.5 md:gap-2">
-                                                        <span class="text-white text-sm md:text-base">${date}</span>
-                                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
-                                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
-                                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
-                                                    </div>
-                                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
-                                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
-                                                </div>
-                                            `;
+                                <div class="bg-gray-800 p-1.5 md:p-2 rounded text-sm relative ${info.isVUC ? 'border-l-2 border-blue-400' : ''} ${isNextLesson ? 'border-2 border-green-500 group' : ''}">
+                                    <div class="flex items-center gap-1.5 md:gap-2">
+                                        <span class="text-white text-sm md:text-base">${date}</span>
+                                        <span class="text-gray-400 text-xs md:text-sm">(${dayOfWeek})</span>
+                                        <span class="text-yellow-400 text-xs md:text-sm ml-1 hidden md:inline">${week} неделя</span>
+                                        ${info.isVUC ? '<span class="text-blue-400 text-xs md:text-sm ml-auto hidden md:inline">(ВУЦ)</span>' : ''}
+                                    </div>
+                                    <div class="text-yellow-400 text-xs md:text-sm mt-0.5 md:hidden">${week} неделя</div>
+                                    ${time ? `<div class="text-gray-400 text-xs md:text-sm mt-0.5">${time}</div>` : ''}
+                                    ${isNextLesson ? `
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-gray-900 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10 border border-green-500">
+                                            Следующее занятие
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
                         }).join('')}
                                     </div>
                                 </div>
