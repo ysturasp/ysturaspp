@@ -615,6 +615,43 @@
                 top: calc(100% + 8px);
             }
         }
+
+        .activity-cell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .activity-tooltip {
+            position: fixed;
+            bottom: auto;
+            left: auto;
+            transform: translate(-50%, -100%);
+            margin-top: -8px;
+            padding: 6px 8px;
+            background-color: #1e293b;
+            border: 1px solid #3b82f6;
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .activity-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #3b82f6;
+            transform: translateX(-50%) rotate(180deg);
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -1055,6 +1092,43 @@
         <section id="subject-statistics" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
             <h2 class="text-2xl md:text-4xl font-semibold text-white mb-4">Учебная нагрузка для выбранной группы</h2>
             <div id="statistics-container" class="grid grid-cols-1 gap-4"></div>
+        </section>
+
+        <section id="activity-heatmap" class="bg-slate-800 rounded-lg p-6 mt-8 hidden">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
+                <h2 class="text-2xl md:text-4xl font-semibold text-white">🙂 Лессон активити</h2>
+                <div class="flex items-center gap-2 mt-2 md:mt-0">
+                    <div class="text-sm text-slate-400">Меньше</div>
+                    <div class="flex gap-1">
+                        <div class="w-4 h-4 rounded bg-gray-700"></div>
+                        <div class="w-4 h-4 rounded bg-green-900"></div>
+                        <div class="w-4 h-4 rounded bg-green-700"></div>
+                        <div class="w-4 h-4 rounded bg-green-500"></div>
+                        <div class="w-4 h-4 rounded bg-green-300"></div>
+                    </div>
+                    <div class="text-sm text-slate-400">Больше</div>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <div class="overflow-x-auto relative">
+                    <div class="flex">
+                        <div class="w-10"></div>
+                        <div id="months-header" class="flex pl-1"></div>
+                    </div>
+                    <div class="flex">
+                        <div class="flex flex-col justify-between w-6 text-sm text-slate-400 py-1" id="weekdays-header">
+                            <div>Пн</div>
+                            <div>Вт</div>
+                            <div>Ср</div>
+                            <div>Чт</div>
+                            <div>Пт</div>
+                            <div>Сб</div>
+                            <div>Вс</div>
+                        </div>
+                        <div id="heatmap-grid" class="grid gap-1 pl-1 pt-2"></div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="pwa-section hide-in-tg">
@@ -3042,6 +3116,7 @@
                 }
 
                 updateHiddenSubjectsSection(group);
+                createActivityHeatmap(scheduleData);
             } else {
                 const chillMessage = document.createElement('p');
                 chillMessage.className = 'text-green-500 font-bold text-center';
@@ -4680,6 +4755,338 @@
         window.addEventListener('resize', () => {
             updateTabBarColor();
         });
+
+        function createActivityHeatmap(scheduleData) {
+            const heatmapSection = document.getElementById('activity-heatmap');
+            const heatmapGrid = document.getElementById('heatmap-grid');
+            const monthsHeader = document.getElementById('months-header');
+            
+            heatmapSection.querySelectorAll('.stats-container, .chart-container').forEach(el => el.remove());
+            const oldCanvas = heatmapSection.querySelector('#weekdayChart');
+            if (oldCanvas) {
+                oldCanvas.remove();
+            }
+            
+            heatmapSection.classList.remove('hidden');
+            heatmapGrid.innerHTML = '';
+            monthsHeader.innerHTML = '';
+
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            
+            let startMonth, endMonth;
+            if (currentMonth >= 1 && currentMonth <= 5) {
+                startMonth = 1;
+                endMonth = 5;
+            } else {
+                startMonth = 8;
+                endMonth = 11;
+            }
+
+            const lessonsMap = new Map();
+            
+            scheduleData.items.forEach(week => {
+                week.days.forEach(day => {
+                    const date = new Date(day.info.date);
+                    const month = date.getMonth();
+                    
+                    const isCurrentSemester = (() => {
+                        if (currentMonth >= 1 && currentMonth <= 5) {
+                            return month >= 1 && month <= 5;
+                        }
+                        if (currentMonth >= 8 && currentMonth <= 11) {
+                            return month >= 8 && month <= 11;
+                        }
+                        return false;
+                    })();
+
+                    if (isCurrentSemester) {
+                        const dateKey = date.toISOString().split('T')[0];
+                        lessonsMap.set(dateKey, day.lessons.length);
+                    }
+                });
+            });
+
+            const year = currentDate.getFullYear();
+            let totalDays = 0;
+            let monthPositions = [];
+            
+            for (let month = startMonth; month <= endMonth; month++) {
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                monthPositions.push({
+                    month,
+                    start: totalDays,
+                    days: daysInMonth
+                });
+                totalDays += daysInMonth;
+            }
+
+            monthPositions.forEach(({month, start, days}) => {
+                const monthDate = new Date(year, month, 1);
+                const monthName = monthDate.toLocaleString('ru', { month: 'short' });
+                
+                const monthHeader = document.createElement('div');
+                monthHeader.className = 'text-center text-sm text-slate-400';
+                monthHeader.style.width = `${days + 35}px`;
+                monthHeader.style.marginLeft = start === 0 ? '0' : '4px';
+                monthHeader.textContent = monthName;
+                monthsHeader.appendChild(monthHeader);
+            });
+
+            
+            monthPositions.forEach(({month}) => {
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const dateKey = date.toISOString().split('T')[0];
+                    const lessonsCount = lessonsMap.get(dateKey) || 0;
+                    
+                    const cell = document.createElement('div');
+                    cell.className = `w-4 h-4 rounded activity-cell ${getColorClass(lessonsCount)}`;
+                    cell.style.gridRow = date.getDay() || 7;
+                    cell.style.gridColumn = 'auto';
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'activity-tooltip';
+                    
+                    const dayOfWeek = date.toLocaleString('ru-RU', { weekday: 'long' });
+                    const formattedDate = date.toLocaleString('ru-RU', { 
+                        day: 'numeric',
+                        month: 'long'
+                    });
+                    
+                    const lessonsText = getLessonsText(lessonsCount);
+                    
+                    tooltip.innerHTML = `
+                        <div class="font-medium">${dayOfWeek}, ${formattedDate}</div>
+                        <div class="text-slate-300">${lessonsText}</div>
+                    `;
+                    
+                    cell.addEventListener('mouseenter', (e) => {
+                        const rect = cell.getBoundingClientRect();
+                        tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                        tooltip.style.top = `${rect.top}px`;
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        
+                        const hideTooltip = () => {
+                            tooltip.style.transition = 'opacity 0.3s ease-out, visibility 0.3s ease-out';
+                            tooltip.style.opacity = '0';
+                            tooltip.style.visibility = 'hidden';
+                        };
+
+                        const scrollHandler = () => {
+                            hideTooltip();
+                            window.removeEventListener('scroll', scrollHandler);
+                            document.querySelector('.overflow-x-auto')?.removeEventListener('scroll', scrollHandler);
+                            heatmapGrid.removeEventListener('scroll', scrollHandler);
+                        };
+                        
+                        window.addEventListener('scroll', scrollHandler);
+                        document.querySelector('.overflow-x-auto')?.addEventListener('scroll', scrollHandler);
+                        heatmapGrid.addEventListener('scroll', scrollHandler);
+                        
+                        cell.addEventListener('mouseleave', () => {
+                            window.removeEventListener('scroll', scrollHandler);
+                            document.querySelector('.overflow-x-auto')?.removeEventListener('scroll', scrollHandler);
+                            heatmapGrid.removeEventListener('scroll', scrollHandler);
+                        }, { once: true });
+                    });
+                    
+                    cell.addEventListener('mouseleave', () => {
+                        tooltip.style.transition = 'opacity 0.3s ease-out, visibility 0.3s ease-out';
+                        tooltip.style.opacity = '0';
+                        tooltip.style.visibility = 'hidden';
+                    });
+                    
+                    document.body.appendChild(tooltip);
+                    heatmapGrid.appendChild(cell);
+                }
+            });
+
+            const statsContainer = document.createElement('div');
+            statsContainer.className = 'mt-6 grid grid-cols-2 lg:grid-cols-4 gap-4 stats-container';
+
+            let totalLessons = 0;
+            let maxLessonsPerDay = 0;
+            let daysWithLessons = 0;
+            let lessonsPerWeekday = {
+                0: 0,
+                1: 0,
+                2: 0,
+                3: 0,
+                4: 0,
+                5: 0,
+                6: 0
+            };
+
+            let maxLessonsDaysCount = 0;
+
+            lessonsMap.forEach((count, dateKey) => {
+                if (count > 0) {
+                    totalLessons += count;
+                    daysWithLessons++;
+                    if (count > maxLessonsPerDay) {
+                        maxLessonsPerDay = count;
+                        maxLessonsDaysCount = 1;
+                    } else if (count === maxLessonsPerDay) {
+                        maxLessonsDaysCount++;
+                    }
+                    
+                    const date = new Date(dateKey);
+                    lessonsPerWeekday[date.getDay()] += count;
+                }
+            });
+
+            let maxDay = 0;
+            let maxDayCount = 0;
+            Object.entries(lessonsPerWeekday).forEach(([day, count]) => {
+                if (count > maxDayCount) {
+                    maxDay = parseInt(day);
+                    maxDayCount = count;
+                }
+            });
+
+            const weekdays = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+
+            const getTotalDaysInSemester = () => {
+                const year = currentDate.getFullYear();
+                let totalDays = 0;
+                
+                for (let month = startMonth; month <= endMonth; month++) {
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    totalDays += daysInMonth;
+                }
+                return totalDays;
+            };
+
+            const stats = [
+                {
+                    title: 'Всего пар',
+                    value: totalLessons,
+                    description: `В среднем ${(totalLessons / daysWithLessons).toFixed(1)} пары в день`
+                },
+                {
+                    title: 'Максимум пар в день',
+                    value: maxLessonsPerDay,
+                    description: `${maxLessonsDaysCount} ${maxLessonsDaysCount === 1 ? 'день' : 
+                                 maxLessonsDaysCount < 5 ? 'дня' : 
+                                 'дней'} с ${maxLessonsPerDay} парами`
+                },
+                {
+                    title: 'Учебных дней',
+                    value: daysWithLessons,
+                    description: `${Math.round((daysWithLessons / getTotalDaysInSemester()) * 100)}% от всего периода`
+                },
+                {
+                    title: 'Самый загруженный день',
+                    value: weekdays[maxDay],
+                    description: `${maxDayCount} пар за семестр`
+                }
+            ];
+
+            stats.forEach(stat => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800 rounded-lg';
+                card.innerHTML = `
+                    <h3 class="text-sm text-slate-400">${stat.title}</h3>
+                    <p class="text-2xl font-bold text-white mt-1">${stat.value}</p>
+                    <p class="text-sm text-slate-400 mt-1">${stat.description}</p>
+                `;
+                statsContainer.appendChild(card);
+            });
+
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'mt-4 bg-slate-800 rounded-lg chart-container';
+            chartContainer.innerHTML = `
+                <h3 class="text-sm text-slate-400 mb-2">Распределение пар по дням недели</h3>
+                <canvas id="weekdayChart" height="100"></canvas>
+            `;
+
+            heatmapSection.appendChild(statsContainer);
+            heatmapSection.appendChild(chartContainer);
+
+            const ctx = document.getElementById('weekdayChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                    datasets: [{
+                        label: 'Количество пар',
+                        data: [
+                            lessonsPerWeekday[0],
+                            lessonsPerWeekday[1],
+                            lessonsPerWeekday[2],
+                            lessonsPerWeekday[3],
+                            lessonsPerWeekday[4],
+                            lessonsPerWeekday[5],
+                            lessonsPerWeekday[6]
+                        ],
+                        backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function getColorClass(count) {
+            if (count === 0) return 'bg-gray-700';
+            if (count <= 2) return 'bg-green-900';
+            if (count <= 4) return 'bg-green-700';
+            if (count <= 6) return 'bg-green-500';
+            return 'bg-green-300';
+        }
+
+        function getLessonsText(count) {
+            if (count === 0) return 'Нет занятий';
+            
+            const lastDigit = count % 10;
+            const lastTwoDigits = count % 100;
+            
+            if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+                return `${count} пар`;
+            }
+            
+            switch (lastDigit) {
+                case 1:
+                    return `${count} пара`;
+                case 2:
+                case 3:
+                case 4:
+                    return `${count} пары`;
+                default:
+                    return `${count} пар`;
+            }
+        }
 
         onlineRef.on('value', (snapshot) => {
             const count = snapshot.numChildren();
