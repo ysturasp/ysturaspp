@@ -4821,19 +4821,26 @@
                 totalDays += daysInMonth;
             }
 
-            monthPositions.forEach(({month, start, days}) => {
-                const monthDate = new Date(year, month, 1);
-                const monthName = monthDate.toLocaleString('ru', { month: 'short' });
-                
-                const monthHeader = document.createElement('div');
-                monthHeader.className = 'text-center text-sm text-slate-400';
-                monthHeader.style.width = `${days + 35}px`;
-                monthHeader.style.marginLeft = start === 0 ? '0' : '4px';
-                monthHeader.textContent = monthName;
-                monthsHeader.appendChild(monthHeader);
-            });
+            function updateMonthHeaders() {
+                monthsHeader.innerHTML = '';
+                monthPositions.forEach(({month, start, days}) => {
+                    const monthDate = new Date(year, month, 1);
+                    const monthName = monthDate.toLocaleString('ru', { month: 'short' });
+                    
+                    const monthHeader = document.createElement('div');
+                    monthHeader.className = 'text-center text-sm text-slate-400';
+                    monthHeader.style.width = `${76}px`;
+                    monthHeader.style.marginLeft = start === 0 ? (window.innerWidth <= 768 ? '30px' : '0') : '8px';
+                    monthHeader.textContent = monthName;
+                    
+                    monthsHeader.appendChild(monthHeader);
+                });
+            }
 
-            
+            updateMonthHeaders();
+
+            window.addEventListener('resize', updateMonthHeaders);
+
             monthPositions.forEach(({month}) => {
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 
