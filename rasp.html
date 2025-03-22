@@ -1712,6 +1712,7 @@
             const copyLinkButton = document.getElementById('copy-link-button');
 
             copyLinkButton.addEventListener('click', () => {
+                triggerHapticFeedback('light');
                 const institute = document.getElementById('institute-select').value.replace(/ /g, '_');
                 const group = document.getElementById('group-select').value.replace(/ /g, '_');
                 const url = `${window.location.origin}${window.location.pathname}?institute=${institute}&group=${group}`;
@@ -2649,6 +2650,7 @@
             const filteredWeek = scheduleData.items.find(item => item.number === week);
 
             function changeWeek(newWeek) {
+                triggerHapticFeedback('light');
                 if (newWeek > 18) {
                     newWeek = 1;
                 }
@@ -3146,6 +3148,7 @@
                             <span class="text-xl font-bold">${lessonDate.getDate()}</span>`;
 
                         dayButton.onclick = () => {
+                            triggerHapticFeedback('light');
                             [...daysContainer.children].forEach(btn => btn.classList.remove('bg-blue-600'));
                             dayButton.classList.add('bg-blue-600');
 
@@ -5167,6 +5170,12 @@
             document.getElementById('online-count-mobile').textContent = count;
         }, (error) => {
             console.error('Ошибка получения данных:', error);
+        });
+
+        document.querySelectorAll('.fixed.bottom-0 a').forEach(link => {
+            link.addEventListener('click', () => {
+                triggerHapticFeedback('light');
+            });
         });
     </script>
     <script src="subgroups-pdf.js" type="module"></script>
