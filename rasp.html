@@ -1326,6 +1326,12 @@
     </div>
 
     <script>
+        function triggerHapticFeedback(style = 'medium') {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const instituteSelect = document.getElementById('institute-select');
             const groupSelect = document.getElementById('group-select');
@@ -1366,6 +1372,7 @@
             }
 
             favoriteButton.addEventListener('click', () => {
+                triggerHapticFeedback('rigid');
                 const selectedGroup = groupSelect.value;
                 const selectedInstitute = instituteSelect.value;
 
@@ -1911,6 +1918,32 @@
             groupSelect.addEventListener('change', toggleVisibility);
 
             toggleVisibility();
+
+            const leftButton = document.createElement('button');
+            leftButton.innerText = '👈';
+            leftButton.className = 'p-2 mr-2 text-3xl bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all';
+            leftButton.onclick = () => {
+                triggerHapticFeedback('light');
+                changeWeek(week - 1);
+            };
+
+            const rightButton = document.createElement('button');
+            rightButton.innerText = '👉';
+            rightButton.className = 'p-2 ml-2 text-3xl bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all';
+            rightButton.onclick = () => {
+                triggerHapticFeedback('light');
+                changeWeek(week + 1);
+            };
+
+            titleContainer.appendChild(leftButton);
+            titleContainer.appendChild(titleElement);
+            titleContainer.appendChild(rightButton);
+
+            saveSubgroupSettings.addEventListener('click', () => {
+                triggerHapticFeedback('medium');
+                updateLabWorksList();
+                subgroupModal.classList.remove('hidden');
+            });
         });
 
         const weekRanges = (() => {
@@ -2026,6 +2059,7 @@
         const mobileMenu = document.getElementById('mobile-menu');
 
         mobileMenuButton.addEventListener('click', function () {
+            triggerHapticFeedback('light');
             if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
                 mobileMenu.classList.remove('hidden', 'hide');
                 mobileMenu.classList.add('show');
@@ -2068,6 +2102,7 @@
         });
 
         function toggleSubjectVisibility(group, subjectName, lessonType, teacherName, isVisible) {
+            triggerHapticFeedback('soft');
             let hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
             if (!isVisible) {
                 if (!hiddenSubjects[subjectName]) {
@@ -2311,6 +2346,7 @@
         }
 
         document.getElementById('schedule-form').addEventListener('submit', async (event) => {
+            triggerHapticFeedback('medium');
             event.preventDefault();
             const institute = document.getElementById('institute-select').value;
             const group = document.getElementById('group-select').value;
@@ -2569,6 +2605,7 @@
                 document.getElementById('viewToggle').checked = isFullView;
 
                 viewToggle.addEventListener('change', function () {
+                    triggerHapticFeedback('medium');
                     const isChecked = this.checked;
                     localStorage.setItem('isFullView', isChecked);
                     scheduleContainer.classList.add('transition-opacity', 'duration-500');
@@ -3663,6 +3700,7 @@
             subgroupSelect.value = selectedSubgroup;
 
             subgroupSettingsBtn.addEventListener('click', () => {
+                triggerHapticFeedback('medium');
                 updateLabWorksList();
                 subgroupModal.classList.remove('hidden');
             });
@@ -3678,6 +3716,7 @@
             });
 
             saveSubgroupSettings.addEventListener('click', () => {
+                triggerHapticFeedback('medium');
                 selectedSubgroup = subgroupSelect.value;
                 localStorage.setItem('selectedSubgroup', selectedSubgroup);
 
@@ -3798,6 +3837,7 @@
             };
 
             saveSubgroupSettings.addEventListener('click', () => {
+                triggerHapticFeedback('medium');
                 const subgroupSettings = {};
                 const checkboxes = document.querySelectorAll('#labWorksList input[type="checkbox"]');
                 checkboxes.forEach(checkbox => {
