@@ -1326,13 +1326,38 @@
     </div>
 
     <script>
+        function waitForTelegramWebApp() {
+            return new Promise((resolve) => {
+                if (window.Telegram?.WebApp) {
+                    resolve(window.Telegram.WebApp);
+                } else {
+                    const script = document.createElement('script');
+                    script.src = 'https://telegram.org/js/telegram-web-app.js';
+                    script.onload = () => {
+                        if (window.Telegram?.WebApp) {
+                            resolve(window.Telegram.WebApp);
+                        }
+                    };
+                    document.head.appendChild(script);
+                }
+            });
+        }
+
         function triggerHapticFeedback(style = 'medium') {
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+            try {
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+                }
+            } catch (error) {
+                console.log('Haptic feedback not available:', error);
             }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (window.location.hash.includes('tgWebAppData')) {
+                await waitForTelegramWebApp();
+            }
+
             const instituteSelect = document.getElementById('institute-select');
             const groupSelect = document.getElementById('group-select');
             const weekSelect = document.getElementById('week-select');
