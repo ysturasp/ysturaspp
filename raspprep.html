@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0F172A">
     <meta name="apple-mobile-web-app-title" content="ystuRASP">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Расписание преподавателей ЯГТУ | Поиск по преподавателям</title>
     <meta name="description" content="Актуальное расписание занятий преподавателей ЯГТУ. Удобный поиск расписания по преподавателям, просмотр лекций, практик и лабораторных работ.">
@@ -1683,89 +1683,90 @@
         window.addEventListener('resize', () => {
             updateTabBarColor();
         });
-    </script>
 
-    <!-- Snow with weather -->
-    <!-- <link href="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/snow.min.css" rel="stylesheet">
-
-    <script src="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/Snow.min.js"></script>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", async function() {
-        const apiKey = 'e17efb4b5b9f4dc59fd101738242910'; 
-        const city = 'Yaroslavl';
-        const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            console.log(data);
-            const snowCondition = data.current.condition.text.toLowerCase().includes('snow');
-
-            if (snowCondition) {
-                new Snow();
-                console.log("Снег запущен");
-            } else {
-                console.log("Снег не запущен");
-            }
-        } catch (error) {
-            console.error('Ошибка получения данных о погоде:', error);
-        }
-    });
-    </script> -->
-    <!-- Snow with weather -->
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker зарегистрирован с областью охвата:', registration.scope);
-                    }).catch(error => {
-                        console.log('Ошибка регистрации Service Worker:', error);
-                    });
+        function waitForTelegramWebApp() {
+            return new Promise((resolve) => {
+                if (window.Telegram?.WebApp) {
+                    resolve(window.Telegram.WebApp);
+                } else {
+                    const script = document.createElement('script');
+                    script.src = 'https://telegram.org/js/telegram-web-app.js';
+                    script.onload = () => {
+                        if (window.Telegram?.WebApp) {
+                            resolve(window.Telegram.WebApp);
+                        }
+                    };
+                    document.head.appendChild(script);
+                }
             });
         }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await waitForTelegramWebApp();
+        });
+
+        function triggerHapticFeedback(style) {
+            try {
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+                }
+            } catch (error) {
+                console.log('Haptic feedback not available:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.fixed.bottom-0 a').forEach(link => {
+                link.addEventListener('click', () => {
+                    triggerHapticFeedback('light');
+                });
+            });
+        });
+
+        window.addEventListener('pageshow', async (event) => {
+            if (event.persisted || document.referrer.includes('t.me')) {
+                await waitForTelegramWebApp();
+                triggerHapticFeedback('medium');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            mobileMenuButton.addEventListener('click', function() {
+                triggerHapticFeedback('light');
+            });
+
+            copyLinkButton?.addEventListener('click', (event) => {
+                triggerHapticFeedback('light');
+            });
+
+            scheduleForm?.addEventListener('submit', async (event) => {
+                triggerHapticFeedback('medium');
+            });
+
+            const leftButton = document.querySelector('.p-2.mr-2.text-3xl.bg-blue-700');
+            const rightButton = document.querySelector('.p-2.ml-2.text-3xl.bg-blue-700');
+
+            leftButton?.addEventListener('click', () => {
+                triggerHapticFeedback('light');
+            });
+
+            rightButton?.addEventListener('click', () => {
+                triggerHapticFeedback('light');
+            });
+
+            const optionsElement = document.getElementById('combobox-options');
+            optionsElement?.addEventListener('mousedown', () => {
+                triggerHapticFeedback('light');
+            });
+
+            const clearButton = document.getElementById('clear-button');
+            clearButton?.addEventListener('click', () => {
+                triggerHapticFeedback('light');
+            });
+        });
+
     </script>
 
-    <!-- Hotjar Tracking Code for Site -->
-    <script>
-        (function(h,o,t,j,a,r){
-            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-            h._hjSettings={hjid:5151783,hjsv:6};
-            a=o.getElementsByTagName('head')[0];
-            r=o.createElement('script');r.async=1;
-            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-            a.appendChild(r);
-        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    </script>
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript" >
-    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-    m[i].l=1*new Date();
-    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-    ym(97705826, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-    });
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/97705826" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0K2G90RDS0"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    
-      gtag('config', 'G-0K2G90RDS0');
-    </script>
-    <!-- Google tag (gtag.js) -->
+    <!-- Snow with weather -->
 </body>
 </html>
