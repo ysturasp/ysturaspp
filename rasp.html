@@ -5450,6 +5450,113 @@
         console.error('Ошибка инициализации Firebase:', error);
     }
     </script>
+
+    <script>       
+        function aprilFoolsJokes() {
+            const today = new Date();
+            if (today.getMonth() === 3 && today.getDate() === 1) {
+                const replacements = {
+                    'Лекция': 'Сказка',
+                    'Практика': 'Квест',
+                    'Лабораторная работа': 'Научный эксперимент',
+                    'Экзамен': 'Битва с боссом',
+                    'Консультация': 'Чаепитие с преподавателем',
+                    'Курсовой проект': 'Эпическое приключение',
+                    'Аудитория': 'Тайная комната',
+                    'Преподаватель': 'Мудрый наставник',
+                    'Расписание занятий': 'Квестовый журнал',
+                    'Расписание для группы': 'Журнал приключений отряда',
+                    'на неделю': 'на этот квест',
+                    'Институт': 'Академия магии',
+                    'Группа': 'Отряд искателей знаний',
+                    'Неделя': 'Глава',
+                    'Подгруппа': 'Команда',
+                    'ВУЦ': 'Школа боевых искусств',
+                    'Статистика': 'Книга достижений',
+                    'Пара': 'Приключение',
+                    'Занятие': 'Квест',
+                    'Дистант': 'Диван-урок',
+                    'группы': 'гильдии',
+                    'Студенты': 'Юные маги',
+                    'Студент': 'Ученик чародейства',
+                    'Преподаватели': 'Совет мудрецов',
+                    'Аудитории': 'Залы тайных знаний',
+                    'О нас': 'Легенда',
+                    'Поддержать проект': 'Пожертвовать золотые',
+                    'Онлайн': 'На связи',
+                    'Настройки': 'Свиток заклинаний',
+                    'Сохранить': 'Запечатать магией',
+                    'Обновить': 'Наложить новое заклинание',
+                    'Скачать': 'Призвать',
+                    'Поиск': 'Поисковое заклинание',
+                    'Ошибка': 'Магическая неудача',
+                    'Загрузка': 'Призыв данных из астрала',
+
+                    'Выберите': 'Наколдуйте',
+                    'Показать': 'Материализовать',
+                    'Скрыть': 'Развеять',
+                    'Добавить': 'Наколдовать',
+                    'Удалить': 'Развеять',
+                    'Изменить': 'Трансмутировать',
+                    'Отмена': 'Контрзаклинание',
+                    'Закрыть': 'Запечатать портал',
+                    'Открыть': 'Распечатать портал',
+                    'Назад': 'Телепорт назад',
+                    'Вперед': 'Телепорт вперед',
+                    'Сброс': 'Очищающее заклинание',
+                    'undefined': 'неизведанное',
+                };
+        
+                function replaceText(node) {
+                    if (node.nodeType === 3) {
+                        let text = node.nodeValue;
+                        for (let [original, replacement] of Object.entries(replacements)) {
+                            const regex = new RegExp(original, 'gi');
+                            text = text.replace(regex, replacement);
+                        }
+                        node.nodeValue = text;
+                    } else if (node.nodeType === 1 && 
+                            !['SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA'].includes(node.tagName)) {
+                        for (let child of node.childNodes) {
+                            replaceText(child);
+                        }
+                    }
+                }
+        
+                function updateReplacements() {
+                    replaceText(document.body);
+                }
+        
+                updateReplacements();
+        
+                setInterval(updateReplacements, 0);
+        
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-800 text-white py-2 px-4 rounded-lg text-center';
+                notification.style.zIndex = '1001';
+                notification.innerHTML = `
+                    <p class="text-sm">Не верьте никому, даже себе</p>
+                `;
+                document.body.appendChild(notification);
+        
+                notification.addEventListener('click', () => {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.2 }
+                    });
+                });
+        
+                setTimeout(() => {
+                    notification.style.transition = 'opacity 0.5s ease-out';
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 500);
+                }, 3000);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', aprilFoolsJokes);
+    </script>
 </body>
 
 </html>
