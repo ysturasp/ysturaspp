@@ -1365,17 +1365,18 @@
                         <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
                     </div>
                 </div>
-                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full">
-                    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
-                        <img src="images/linear-app-icon.png" class="object-contain" style="width: 70%; margin: 0 auto;">
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Интеграция с Linear</h3>
-                    <p class="text-slate-400 mb-4">Создавайте и отслеживайте задачи для каждого предмета прямо из расписания. Синхронизируйте свои учебные задачи с Linear для эффективного управления обучением!</p>
-                    <div class="flex flex-wrap justify-center gap-2 mb-4">
-                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Задачи</span>
-                        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
-                    </div>
-                </div>
+                <div class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full cursor-pointer hover:bg-slate-700 transition-all" 
+     onclick="showNotesFeatureModal()">
+    <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
+        <img src="images/linear-app-icon.png" class="object-contain" style="width: 70%; margin: 0 auto;">
+    </div>
+    <h3 class="text-xl font-bold text-white mb-2">Интеграция с Linear</h3>
+    <p class="text-slate-400 mb-4">Создавайте и отслеживайте задачи для каждого предмета прямо из расписания. Синхронизируйте свои учебные задачи с Linear для эффективного управления обучением!</p>
+    <div class="flex flex-wrap justify-center gap-2 mb-4">
+        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">Задачи</span>
+        <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded">New</span>
+    </div>
+</div>
             </div>
         </section>
 
@@ -1786,6 +1787,14 @@
 
     <script src="linear.js"></script>
     <script>       
+        function showNotesFeatureModal() {
+            const modal = document.getElementById('notesFeatureModal');
+            triggerHapticFeedback('impact', 'medium');
+            modal.classList.remove('hidden');
+            modal.classList.remove('opacity-0');
+            document.body.style.overflow = 'hidden';
+        }
+
         function closeNotesFeatureModal() {
             const modal = document.getElementById('notesFeatureModal');
             triggerHapticFeedback('impact', 'medium');
@@ -1805,6 +1814,7 @@
                 triggerHapticFeedback('impact', 'medium');
             }
         });
+
         
         function waitForTelegramWebApp() {
             return new Promise((resolve) => {
@@ -1825,6 +1835,9 @@
 
         function triggerHapticFeedback(type, style = null) {
             try {
+                const settings = JSON.parse(localStorage.getItem('siteSettings')) || defaultSettings;
+                if (!settings.vibrationEnabled) return;
+
                 if (window.Telegram?.WebApp?.HapticFeedback) {
                     if (type === 'impact' && style) {
                         window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
@@ -1855,6 +1868,12 @@
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('darkModeToggle').addEventListener('change', function() {
+                triggerHapticFeedback('impact', 'light');
+                settings.darkMode = this.checked;
+                applySettings();
+            });
+
             function showConfirmation(message, onConfirm, onCancel) {
                 const notification = document.createElement('div');
                 notification.id = 'confirmationNotification';
@@ -1952,7 +1971,8 @@
                 showSubgroups: true,
                 showFeatures: true,
                 showOnlineCounter: true,
-                showAllTasks: true
+                showAllTasks: true,
+                vibrationEnabled: true
             };
 
             let settings = JSON.parse(localStorage.getItem('siteSettings')) || defaultSettings;
@@ -2312,6 +2332,7 @@
                 document.getElementById('showFeatures').checked = settings.showFeatures;
                 document.getElementById('showOnlineCounter').checked = settings.showOnlineCounter;
                 document.getElementById('showAllTasks').checked = settings.showAllTasks;
+                document.getElementById('vibrationToggle').checked = settings.vibrationEnabled;
                 
                 const serverWrapper = document.querySelector('.server-wrapper span[data-server]');
                 const savedServer = localStorage.getItem('linearApiServer') || 'https://api-linear-two.vercel.app';
@@ -2347,7 +2368,8 @@
                     showSubgroups: document.getElementById('showSubgroups').checked,
                     showFeatures: document.getElementById('showFeatures').checked,
                     showOnlineCounter: document.getElementById('showOnlineCounter').checked,
-                    showAllTasks: document.getElementById('showAllTasks').checked
+                    showAllTasks: document.getElementById('showAllTasks').checked,
+                    vibrationEnabled: document.getElementById('vibrationToggle').checked
                 };
                 
                 const serverWrapper = document.querySelector('.server-wrapper span[data-server]');
@@ -2517,6 +2539,16 @@
 
             if (window.location.hash.includes('tgWebAppData')) {
                 document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
+                
+                document.querySelectorAll('.show-in-tg').forEach(el => {
+                    if (window.getComputedStyle(el).display === 'flex' || el.classList.contains('flex')) {
+                        el.style.display = 'flex';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                });
+            } else {
+                document.querySelectorAll('.show-in-tg').forEach(el => el.style.display = 'none');
             }
 
             function updateFavoriteButton() {
@@ -6894,6 +6926,13 @@
                                         <label class="text-white">Тёмная тема</label>
                                         <label class="switch">
                                             <input type="checkbox" id="darkModeToggle" checked>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center justify-between show-in-tg" id="vibrationToggleContainer" style="display: none;">
+                                        <label class="text-white">Вибрация</label>
+                                        <label class="switch">
+                                            <input type="checkbox" id="vibrationToggle" checked>
                                             <span class="slider round"></span>
                                         </label>
                                     </div>
