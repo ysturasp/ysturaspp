@@ -372,9 +372,20 @@
             }
         }
     </style>
+    <script type="module">
+        import { applyLightTheme, showLightThemeWarning } from './light-theme.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = JSON.parse(localStorage.getItem('siteSettings')) || { darkMode: true };
+            if (!settings.darkMode) {
+                applyLightTheme();
+                showLightThemeWarning();
+            }
+        });
+    </script>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
-    <header class="container mx-auto sticky top-4 px-3 z-50">
+    <header class="container mx-auto sticky top-4 px-3 md:px-0 z-50">
         <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden lg:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
@@ -395,7 +406,7 @@
                 </a>
                 <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
                     <span class="text-sm md:text-base"> </span>
-                    Экспорт/Импорт
+                    Данные
                 </a>
                 <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
                     <span class="text-sm md:text-base"> </span>
@@ -423,7 +434,7 @@
             <a href="/stat" class="block py-2 hover:text-blue-400 text-sm md:text-base">Статистика</a>
             <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
             <a href="/campus" class="block py-2 hover:text-blue-400 text-sm md:text-base">Кампус</a>
-            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Экспорт/Импорт</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Данные</a>
             <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
         </div>
     </header>
