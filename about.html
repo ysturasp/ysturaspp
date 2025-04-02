@@ -253,6 +253,17 @@
             font-size: 24px;
         }
     </style>
+    <script type="module">
+        import { applyLightTheme, showLightThemeWarning } from './light-theme.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = JSON.parse(localStorage.getItem('siteSettings')) || { darkMode: true };
+            if (!settings.darkMode) {
+                applyLightTheme();
+                showLightThemeWarning();
+            }
+        });
+    </script>
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
     <header class="container mx-auto sticky top-4 px-3 md:px-0 z-50">
