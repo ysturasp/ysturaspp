@@ -2270,6 +2270,10 @@
                         .bg-green-300:hover {
                             background-color: #34d399 !important;
                         }
+
+                        .text-yellow-500 {
+                            color: rgb(236 148 0) !important;
+                        }
                     `;
                     document.head.appendChild(lightStyles);
                 }
@@ -6784,28 +6788,24 @@
             });
     
             function updateUserStatus(online, group = '') {
-                if (group && group.trim()) {
-                    const userStatusRef = database.ref('/online/' + userId);
+                const userStatusRef = database.ref('/online/' + userId);
+                
+                if (online) {
+                    userStatusRef.set({
+                        online: true,
+                        group: group && group.trim() ? group : 'Гость',
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    })
+                    .then(() => console.log('Статус онлайн установлен'))
+                    .catch(error => console.error('Ошибка установки статуса:', error));
                     
-                    if (online) {
-                        userStatusRef.set({
-                            online: true,
-                            group: group,
-                            timestamp: firebase.database.ServerValue.TIMESTAMP
-                        })
-                        .then(() => console.log('Статус онлайн установлен'))
-                        .catch(error => console.error('Ошибка установки статуса:', error));
-                        
-                        userStatusRef.onDisconnect().remove()
-                            .then(() => console.log('Установлен обработчик отключения'))
-                            .catch(error => console.error('Ошибка установки обработчика отключения:', error));
-                    } else {
-                        userStatusRef.remove()
-                            .then(() => console.log('Статус офлайн установлен'))
-                            .catch(error => console.error('Ошибка удаления статуса:', error));
-                    }
+                    userStatusRef.onDisconnect().remove()
+                        .then(() => console.log('Установлен обработчик отключения'))
+                        .catch(error => console.error('Ошибка установки обработчика отключения:', error));
                 } else {
-                    console.log('Группа не выбрана, статус не обновлен');
+                    userStatusRef.remove()
+                        .then(() => console.log('Статус офлайн установлен'))
+                        .catch(error => console.error('Ошибка удаления статуса:', error));
                 }
             }
     
