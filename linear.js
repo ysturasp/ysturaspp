@@ -2631,6 +2631,7 @@ async function getAllTasks(apiKey) {
 async function displayAllTasks(apiKey) {
     const container = document.getElementById('all-tasks-container');
     const section = document.getElementById('all-tasks-section');
+    const hideCompletedTasks = document.getElementById('hideCompletedTasks').checked;
     
     if (!container || !section) return;
     
@@ -2659,6 +2660,10 @@ async function displayAllTasks(apiKey) {
         )?.name.replace('subject:', '');
         
         if (!subjectLabel) return acc;
+        
+        if (hideCompletedTasks && task.state.name.toLowerCase() === 'done') {
+            return acc;
+        }
         
         if (!acc[subjectLabel]) {
             acc[subjectLabel] = [];
@@ -2747,6 +2752,24 @@ async function displayAllTasks(apiKey) {
 
 document.addEventListener('DOMContentLoaded', () => {    
     const showAllTasksBtn = document.getElementById('showAllTasksBtn');
+    const hideCompletedTasksCheckbox = document.getElementById('hideCompletedTasks');
+    
+    const settings = JSON.parse(localStorage.getItem('siteSettings')) || {};
+    if (hideCompletedTasksCheckbox) {
+        hideCompletedTasksCheckbox.checked = settings.hideCompletedTasks || false;
+        
+        hideCompletedTasksCheckbox.addEventListener('change', () => {
+            const settings = JSON.parse(localStorage.getItem('siteSettings')) || {};
+            settings.hideCompletedTasks = hideCompletedTasksCheckbox.checked;
+            localStorage.setItem('siteSettings', JSON.stringify(settings));
+            
+            const apiKey = localStorage.getItem('linearApiKey');
+            if (apiKey) {
+                displayAllTasks(apiKey);
+            }
+        });
+    }
+
     if (showAllTasksBtn) {
         showAllTasksBtn.addEventListener('click', () => {
             const apiKey = localStorage.getItem('linearApiKey');
