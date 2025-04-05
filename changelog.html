@@ -11,7 +11,7 @@
     <meta name="description" content="История изменений ystuRASP - отслеживайте все обновления и улучшения нашего сервиса">
     <link rel="icon" href="images/cat.png" type="image/png">
     <title>История изменений - ystuRASP</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         ::selection {
@@ -139,7 +139,7 @@
 </head>
 <body class="bg-slate-900 text-gray-300 antialiased">
     <header class="container mx-auto sticky top-4 px-3 md:px-0 z-50">
-        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-6 md:py-4 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-6 md:py-4 border border-blue-500/60 shadow-xl flex justify-between items-center transition-all">
             <nav class="hidden lg:flex gap-x-4">
                 <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
                     <img src="images/cat.png" class="w-10 h-10 mr-2" />
@@ -404,9 +404,9 @@
                 const lines = text.split('\n').filter(line => line.trim());
                 
                 for (const line of lines) {
-                    const match = line.match(/^- (.*?) \((.*?), (.*?)\)$/);
+                    const match = line.match(/^- (.*?) \((.*?), (.*?)\)(?: \[(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(\-\)\])?$/);
                     if (match) {
-                        const [, description, author, date] = match;
+                        const [, description, author, date, filesChanged, insertions, deletions] = match;
                         
                         const changelogItem = document.createElement('div');
                         changelogItem.className = 'changelog-item';
@@ -416,14 +416,45 @@
                             month: 'long',
                             day: 'numeric'
                         });
+
+                        const emoji = getEmojiForChange(description);
+                        
+                        let changesInfo = '';
+                        if (filesChanged && insertions && deletions) {
+                            changesInfo = `
+                                <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+                                    <div class="flex items-center gap-2 bg-slate-700/50 backdrop-blur px-3 py-1.5 rounded-full">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span class="text-slate-300">${filesChanged} ${getFilesWord(filesChanged)}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            ${insertions}
+                                        </span>
+                                        <span class="flex items-center gap-1.5 text-rose-400 bg-rose-500/10 px-3 py-1.5 rounded-full">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            ${deletions}
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                         
                         changelogItem.innerHTML = `
-                            <div class="bg-slate-800 rounded-lg p-4 shadow-lg">
+                            <div class="bg-slate-800 rounded-lg p-4 shadow-lg border border-slate-700/50">
                                 <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-2 md:gap-4 mb-2">
-                                    <h3 class="text-lg font-semibold text-white md:flex-1 md:min-w-0" data-original="${description}">${description}</h3>
+                                    <h3 class="text-lg font-semibold text-white md:flex-1 md:min-w-0" data-original="${description}">${emoji} ${description}</h3>
                                     <span class="text-sm text-slate-400 shrink-0">${formattedDate}</span>
                                 </div>
-                                <p class="text-slate-400">Автор: ${author}</p>
+                                <p class="text-slate-400">Автор: <a href="https://github.com/${author}" target="_blank" class="text-blue-400 hover:text-blue-300 transition-all">@${author}</a></p>
+                                ${changesInfo}
                             </div>
                         `;
                         
@@ -440,6 +471,92 @@
                         Ошибка при загрузке истории изменений. Пожалуйста, попробуйте позже.
                     </div>
                 `;
+            }
+        }
+
+        function getEmojiForChange(description) {
+            const lowerDesc = description.toLowerCase();
+            
+            const emojiMap = {
+                'add': '✨',
+                'new': '✨',
+                'create': '✨',
+                'implement': '✨',
+                
+                'fix': '🐛',
+                'bug': '🐛',
+                'error': '🐛',
+                'issue': '🐛',
+                
+                'improve': '⚡️',
+                'enhance': '⚡️',
+                'optimize': '⚡️',
+                'update': '⚡️',
+                
+                'refactor': '🔨',
+                'clean': '🔨',
+                'restructure': '🔨',
+                
+                'security': '🔒',
+                'secure': '🔒',
+                
+                'doc': '📝',
+                'document': '📝',
+                'readme': '📝',
+                
+                'test': '🧪',
+                'testing': '🧪',
+                
+                'ui': '🎨',
+                'ux': '🎨',
+                'design': '🎨',
+                'style': '🎨',
+                
+                'performance': '🚀',
+                'speed': '🚀',
+                
+                'dependency': '📦',
+                'package': '📦',
+                
+                'config': '⚙️',
+                'settings': '⚙️',
+                
+                'api': '🔌',
+                'endpoint': '🔌',
+                
+                'database': '🗄️',
+                'db': '🗄️',
+                
+                'mobile': '📱',
+                'app': '📱',
+                
+                'analytics': '📊',
+                'statistics': '📊',
+                'stat': '📊',
+                
+                'notification': '🔔',
+                'alert': '🔔',
+                
+                'default': '📌'
+            };
+            
+            for (const [keyword, emoji] of Object.entries(emojiMap)) {
+                if (lowerDesc.includes(keyword)) {
+                    return emoji;
+                }
+            }
+            
+            return emojiMap.default;
+        }
+
+        function getFilesWord(count) {
+            count = Math.abs(parseInt(count));
+            if (count % 10 === 1 && count % 100 !== 11) {
+                return 'файл';
+            } else if ([2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100)) {
+                return 'файла';
+            } else {
+                return 'файлов';
             }
         }
 
