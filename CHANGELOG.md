@@ -1,3 +1,4 @@
+- delete unusual text from settings button (ysturasp, 2025-04-05) [0 insertions(+), 0 deletions(-)]
 - improve structure changelog and display on page (ysturasp, 2025-04-05) [3 files changed, 336 insertions(+), 218 deletions(-)]
 - add changelog, changelog page for viewing updates and link on all pages (ysturasp, 2025-04-05) [10 files changed, 708 insertions(+)]
 - add function hide done task in all task section (ysturasp, 2025-04-05) [2 files changed, 49 insertions(+), 2 deletions(-)]

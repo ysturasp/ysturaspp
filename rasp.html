@@ -40,6 +40,7 @@
     <script src="easter-eggs.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="config.js"></script>
+    <script src="keyboard-shortcuts.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             const loadingOverlay = document.getElementById('loadingOverlay');
@@ -3159,7 +3160,8 @@
                 triggerHapticFeedback('impact', 'light');
                 changeWeek(week + 1);
             };
-
+            
+            
             titleContainer.appendChild(leftButton);
             titleContainer.appendChild(titleElement);
             titleContainer.appendChild(rightButton);
@@ -3866,6 +3868,46 @@
                 document.getElementById('week-select').value = newWeek;
                 localStorage.setItem('lastWeek', newWeek);
             }
+
+            let isChangingWeek = false;
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' && e.altKey) {
+                    e.preventDefault();
+                    if (!isChangingWeek) {
+                        isChangingWeek = true;
+                        changeWeek(week + 1).finally(() => {
+                            isChangingWeek = false;
+                        });
+                    }
+                }
+
+                if (e.key === 'ArrowLeft' && e.altKey) {
+                    e.preventDefault();
+                    if (!isChangingWeek) {
+                        isChangingWeek = true;
+                        changeWeek(week - 1).finally(() => {
+                            isChangingWeek = false;
+                        });
+                    }
+                }
+
+                if (e.key.toLowerCase() === 't') {
+                    e.preventDefault();
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
+
+                    const weekNumber = currentWeek.text.split(' ')[0];
+
+                    const diff = weekNumber - week;
+                    if (!isChangingWeek) {
+                        isChangingWeek = true;
+                        changeWeek(week + diff).finally(() => {
+                            isChangingWeek = false;
+                        });
+                    }
+                }
+            });
 
             function getDayName(day) {
                 const daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
