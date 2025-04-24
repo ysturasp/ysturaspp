@@ -371,6 +371,62 @@
                 background-position: right -40px top 0;
             }
         }
+        .notification {
+            animation: slideIn 0.5s ease-out forwards;
+            transform: translateY(100%);
+        }
+
+        .notification.show {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .notification.hide {
+            animation: slideOut 0.5s ease-in forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+
+        #referralModal {
+            z-index: 1001;
+        }
+        
+        #referralModal .w-full.h-full.md\:h-auto.md\:max-w-2xl {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        #referralModalContent {
+            height: 90vh;
+        }
+
+        @media (max-width: 768px) {
+            #referralModalContent {
+                height: 100%;
+            }
+        }
+
+        #notification {
+            z-index: 1001;
+        }
     </style>
     <script type="module">
         import { applyLightTheme, showLightThemeWarning } from './light-theme.js';
@@ -441,9 +497,20 @@
 
     <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
         <section class="bg-slate-800 rounded-lg md:p-6 p-4 mt-8">
-            <div class="flex items-center">
-                <h2 class="text-2xl md:text-4xl font-semibold text-white">👨‍💻 Статистика оценок</h2>
-                <span class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex items-center mb-0">
+                    <h2 class="text-2xl md:text-4xl font-semibold text-white">👨‍💻 Статистика оценок</h2>
+                    <span class="flex ml-2 mb-6 rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold">Beta</span>
+                </div>
+                <div class="bg-slate-700 rounded-lg flex items-center justify-center">
+                    <span class="text-slate-300 mr-2">Доступно запросов:</span>
+                    <span id="remainingViews" class="text-white font-bold text-xl">...</span>
+                    <button onclick="showReferralModal()" class="ml-2 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             
             <div class="form-group">
@@ -524,6 +591,126 @@
         <div class="loading-content">
             <div class="loading-indicator"></div>
             <div class="loading-text">Загрузка, ожидайте...</div>
+        </div>
+    </div>
+
+    <div id="referralModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden transition-opacity duration-300">
+        <div class="flex md:items-center md:justify-center h-full md:min-h-screen md:p-4" style="background-color: #0b0f15ad;">
+            <div id="referralModalContent" class="w-full h-full md:h-auto md:max-w-2xl bg-slate-800 md:rounded-lg shadow-xl flex flex-col ring-1">
+                <div class="flex justify-between items-center p-4">
+                    <h3 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+                        <img src="https://ysturasp.github.io/tg_emoji/Animals and Nature/Glowing Star.webp" alt="Star-Struck" class="w-8 h-8"/>
+                        <span>Получите больше возможностей!</span>
+                    </h3>
+                    <button onclick="closeReferralModal()" class="text-slate-400 hover:text-white p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex-1 p-4 -mt-4 space-y-2 overflow-y-auto">
+                    <div class="text-slate-300">
+                        <p class="text-lg mb-4">Разблокируйте дополнительные возможности, приглашая других студентов!</p>
+                        
+                        <div class="space-y-1 mb-4">
+                            <h4 class="text-white font-semibold">Что вы получаете:</h4>
+                            <ul class="list-disc list-inside space-y-3 ml-2">
+                                <li class="flex items-center">
+                                    <span class="text-2xl mr-2">📊</span>
+                                    <span>Больше просмотров статистики оценок</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="text-2xl mr-2">🎯</span>
+                                    <span>Расширенная аналитика успеваемости</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-slate-700 p-4 md:p-0 rounded-lg">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-full bg-slate-800 rounded-lg p-0 md:p-4 mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="text-white font-semibold mb-2">Ваша реферальная ссылка:</h4>
+                                        <button onclick="copyReferralLink()" class="text-blue-400 hover:text-blue-300 text-sm flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                                            </svg>
+                                            Копировать
+                                        </button>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="text" id="referralLink" readonly class="w-full bg-transparent text-white" style="font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;">
+                                        <div id="coloredReferralLink" class="w-full font-mono"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 mb-4">
+                            <h4 class="text-white font-semibold">Как это работает:</h4>
+                            <ol class="list-decimal list-inside space-y-1 ml-2">
+                                <li>Поделитесь своей уникальной ссылкой с другими студентами</li>
+                                <li>Когда они перейдут по ссылке и начнут пользоваться сервисом, вы получите бонусы</li>
+                                <li>За каждого приглашенного студента +10 просмотров статистики в день</li>
+                            </ol>
+                        </div>
+
+                        <div class="bg-slate-700 p-4 rounded-lg">
+                            <h4 class="text-white font-semibold mb-2">Ваша статистика:</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold" id="referralCount">0</div>
+                                    <div class="text-sm">Приглашено</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold" id="statsLimit">10</div>
+                                    <div class="text-sm">Лимит просмотров/день</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TODO: реализовать оплату запросов -->
+                        <!-- <div class="bg-slate-700 rounded-lg mt-4">
+                            <h4 class="text-white font-semibold mb-2">💫 Купить дополнительные запросы</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between bg-slate-800 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-medium">10 дополнительных запросов</div>
+                                        <div class="text-slate-400 text-sm">Доступно навсегда</div>
+                                    </div>
+                                    <button onclick="buyRequests(10)" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                                        5 Stars
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between bg-slate-800 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-medium">25 дополнительных запросов</div>
+                                        <div class="text-slate-400 text-sm">Доступно навсегда</div>
+                                    </div>
+                                    <button onclick="buyRequests(25)" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                                        10 Stars
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between bg-slate-800 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-medium">50 дополнительных запросов</div>
+                                        <div class="text-slate-400 text-sm">Доступно навсегда</div>
+                                    </div>
+                                    <button onclick="buyRequests(50)" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                                        20 Stars
+                                    </button>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-700 md:rounded-b-lg mt-auto">
+                    <button onclick="closeReferralModal()" 
+                            class="w-full bg-blue-600 text-white rounded-lg px-4 py-3 hover:bg-blue-700 transition-all">
+                        Понятно!
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1155,17 +1342,21 @@
         async function getStatistics() {
             const disciplineSelect = document.getElementById('combobox-input');
             const discipline = disciplineSelect.value;
-            const cachedData = localStorage.getItem(discipline);
-
             const loadingOverlay = document.getElementById('loadingOverlay');
+
+            if (!discipline) {
+                showNotification('Пожалуйста, выберите дисциплину', 'error');
+                return;
+            }
+
+            if (!window.referralSystem) {
+                showNotification('Ошибка: система рефералов не инициализирована', 'error');
+                return;
+            }
+
             loadingOverlay.classList.remove('hidden');
-
-            const instructorsDiv = document.getElementById('instructorsResult');
-            instructorsDiv.innerHTML = '';
-            instructorsDiv.style.display = 'none';
-
+            
             const selectedInstitute = document.querySelector('.institute-button.active').id;
-
             let url = '';
             if (selectedInstitute === 'btn-digital-systems') {
                 url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(discipline)}`;
@@ -1175,49 +1366,64 @@
                 url = `https://script.google.com/macros/s/AKfycbzbxLrOI2rA8ZzVfrT6RXIG5ADMl_5NdAQd8NEIYfg-qKkWVe_fGyB5pDolsCOtH14Mxw/exec?discipline=${encodeURIComponent(discipline)}`;
             }
 
-            if (cachedData) {
-                const data = JSON.parse(cachedData);
+            const cachedData = localStorage.getItem(discipline);
+            let data;
+
+            try {
+                const [statsResponse, canView] = await Promise.all([
+                    cachedData ? Promise.resolve(JSON.parse(cachedData)) : fetch(url).then(res => res.json()),
+                    window.referralSystem.checkViewLimit()
+                ]);
+
+                if (!canView) {
+                    showNotification('Достигнут дневной лимит просмотров. Пригласите друзей, чтобы увеличить лимит!', 'warning');
+                    showReferralModal();
+                    loadingOverlay.classList.add('hidden');
+                    return;
+                }
+
+                data = statsResponse;
+                
+                if (!cachedData) {
+                    localStorage.setItem(discipline, JSON.stringify(data));
+                }
+
                 displayStatistics(data);
                 addToRecentlyViewed(discipline, data);
+
+                const instructorCachedData = localStorage.getItem(`instructors_${discipline}`);
+                if (instructorCachedData) {
+                    displayInstructors(JSON.parse(instructorCachedData));
+                } else {
+                    let instructorUrl = '';
+                    if (selectedInstitute === 'btn-digital-systems') {
+                        instructorUrl = `https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${encodeURIComponent(discipline)}`;
+                    } else if (selectedInstitute === 'btn-architecture-design') {
+                        instructorUrl = `https://script.google.com/macros/s/AKfycbxKdSyy9JZAlFfj8KivDJbDsWyOWy1yRzUSI2TYeGBLitVsbpBxbIAaw0sz3STy9mpu/exec?subject=${encodeURIComponent(discipline)}`;
+                    } else if (selectedInstitute === 'btn-civil-transport') {
+                        instructorUrl = `https://script.google.com/macros/s/AKfycbzIby7Zm8Jk_LdtCQEPib4aYnvjqv1ucyH3a9aghfwNDu9QyMbCflmolCpd8uK-joPasw/exec?subject=${encodeURIComponent(discipline)}`;
+                    }
+
+                    try {
+                        const instructorResponse = await fetch(instructorUrl);
+                        const instructors = await instructorResponse.json();
+                        localStorage.setItem(`instructors_${discipline}`, JSON.stringify(instructors));
+                        displayInstructors(instructors);
+                    } catch (error) {
+                        console.error('Ошибка при получении данных преподавателей:', error);
+                    }
+                }
+
+                if (window.referralSystem) {
+                    window.referralSystem.updateRemainingViews().then(remaining => {
+                    });
+                }
+
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+                displayError('Ошибка при получении данных');
+            } finally {
                 loadingOverlay.classList.add('hidden');
-            } else {
-                try {
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    localStorage.setItem(discipline, JSON.stringify(data));
-                    displayStatistics(data);
-                    addToRecentlyViewed(discipline, data);
-                } catch (error) {
-                    console.error('Ошибка при получении данных:', error);
-                    displayError('Ошибка при получении данных');
-                } finally {
-                    loadingOverlay.classList.add('hidden');
-                }
-            }
-
-            const instructorCachedData = localStorage.getItem(`instructors_${discipline}`);
-
-            if (instructorCachedData) {
-                const instructors = JSON.parse(instructorCachedData);
-                displayInstructors(instructors);
-            } else {
-                let instructorUrl = '';
-                if (selectedInstitute === 'btn-digital-systems') {
-                    instructorUrl = `https://script.google.com/macros/s/AKfycby2mh-j-haUvit8bfirQ7fOGh-8S_VFJ3c-DvIc25XM0zgjJPcJYVgc_tEeLJ-h9aaj7w/exec?subject=${encodeURIComponent(discipline)}`;
-                } else if (selectedInstitute === 'btn-architecture-design') {
-                    instructorUrl = `https://script.google.com/macros/s/AKfycbxKdSyy9JZAlFfj8KivDJbDsWyOWy1yRzUSI2TYeGBLitVsbpBxbIAaw0sz3STy9mpu/exec?subject=${encodeURIComponent(discipline)}`;
-                } else if (selectedInstitute === 'btn-civil-transport') {
-                    instructorUrl = `https://script.google.com/macros/s/AKfycbzIby7Zm8Jk_LdtCQEPib4aYnvjqv1ucyH3a9aghfwNDu9QyMbCflmolCpd8uK-joPasw/exec?subject=${encodeURIComponent(discipline)}`;
-                }
-
-                try {
-                    const instructorResponse = await fetch(instructorUrl);
-                    const instructors = await instructorResponse.json();
-                    localStorage.setItem(`instructors_${discipline}`, JSON.stringify(instructors));
-                    displayInstructors(instructors);
-                } catch (error) {
-                    console.error('Ошибка при получении данных преподавателей:', error);
-                }
             }
         }
 
@@ -1412,6 +1618,11 @@
             });
 
             fetchDataAndDisplay(urls['btn-digital-systems']);
+            
+            if (window.referralSystem) {
+                window.referralSystem.updateRemainingViews().then(remaining => {
+                });
+            }
         });
 
         function activateLoadingState() {
@@ -1483,6 +1694,146 @@
             const digitalSystemsButton = document.getElementById('btn-digital-systems');
             digitalSystemsButton.classList.add('active');
         });
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = `fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto p-4 rounded-lg z-50 notification ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 
+                'bg-green-500'
+            } text-white shadow-lg flex items-center justify-between`;
+
+            const icon = type === 'error' ? '❌' : 
+                         type === 'warning' ? '⚠️' : 
+                         '✅';
+
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2">${icon}</span>
+                    <span>${message}</span>
+                </div>
+                ${type === 'warning' ? `
+                <button onclick="showReferralModal()" class="ml-4 px-3 py-1 bg-white text-yellow-500 rounded hover:bg-yellow-100 transition-colors">
+                    Увеличить лимит
+                </button>
+                ` : ''}
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 5000);
+        }
+
+        function showReferralModal() {
+            const modal = document.getElementById('referralModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.remove('opacity-0');
+                document.body.style.overflow = 'hidden';
+                
+                const modalContent = modal.querySelector('.w-full.h-full.md\\:h-auto.md\\:max-w-2xl');
+                if (modalContent) {
+                    modalContent.style.transform = 'translateY(-20px)';
+                    modalContent.style.opacity = '0';
+                    modalContent.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                    
+                    setTimeout(() => {
+                        modalContent.style.transform = 'translateY(0)';
+                        modalContent.style.opacity = '1';
+                    }, 10);
+                }
+                
+                if (window.referralSystem) {
+                    window.referralSystem.updateReferralStats();
+                    window.referralSystem._updateRemainingViewsDisplay(window.referralSystem._cachedRemainingViews);
+                }
+            }
+        }
+
+        function closeReferralModal() {
+            const modal = document.getElementById('referralModal');
+            if (modal) {
+                const modalContent = modal.querySelector('.w-full.h-full.md\\:h-auto.md\\:max-w-2xl');
+                if (modalContent) {
+                    modalContent.style.transform = 'translateY(-20px)';
+                    modalContent.style.opacity = '0';
+                    modalContent.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                }
+                
+                modal.classList.add('opacity-0');
+                document.body.style.overflow = 'auto';
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function copyReferralLink() {
+            const referralLink = document.getElementById('referralLink');
+            referralLink.select();
+            try {
+                navigator.clipboard.writeText(referralLink.value).then(() => {
+                    showNotification('Ссылка скопирована!', 'success');
+                }).catch(() => {
+                    document.execCommand('copy');
+                    showNotification('Ссылка скопирована!', 'success');
+                });
+            } catch (err) {
+                showNotification('Не удалось скопировать ссылку', 'error');
+            }
+        }
+
+        function buyRequests(amount) {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const prices = {
+                    10: 5,
+                    25: 10,
+                    50: 20
+                };
+                
+                const price = prices[amount];
+                if (!price) {
+                    showNotification('Неверное количество запросов', 'error');
+                    return;
+                }
+
+                window.Telegram.WebApp.showPopup({
+                    title: 'Покупка запросов',
+                    message: `Вы хотите купить ${amount} дополнительных запросов за ${price} Stars?`,
+                    buttons: [
+                        {id: 'cancel', type: 'cancel', text: 'Отмена'},
+                        {id: 'buy', type: 'default', text: 'Купить'}
+                    ]
+                }, (buttonId) => {
+                    if (buttonId === 'buy') {
+                        window.Telegram.WebApp.openTelegramLink(`https://t.me/ysturasp_bot?start=buy_${amount}`);
+                    }
+                });
+            } else {
+                showNotification('Функция доступна только в Telegram', 'error');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('referralModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (event.target === modal) {
+                    closeReferralModal();
+                }
+            }
+        });
     </script>
     <!-- Hotjar Tracking Code for Site -->
     <script>
@@ -1522,5 +1873,6 @@
       gtag('config', 'G-0K2G90RDS0');
     </script>
     <!-- Google tag (gtag.js) -->
+    <script src="referral.js"></script>
 </body>
 </html>
