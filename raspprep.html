@@ -2091,6 +2091,8 @@
 
                 const cleanImageUrl = imageUrl ? imageUrl
                     .replace('/dev2fun.imagecompress/webp/resize_cache/', '/')
+                    .replace('/dev2fun.imagecompress/webp/iblock/', '/iblock/')
+                    .replace('/resize_cache/', '/')
                     .replace(/\/\d+_\d+_\d+\//, '/')
                     .replace('.webp', '.jpg') : null;
                 console.log('Clean Image URL:', cleanImageUrl);
@@ -2224,7 +2226,7 @@
                     publicationsStats,
                     about,
                     contacts,
-                    imageUrl: cleanImageUrl ? `https://ystu.ru${cleanImageUrl}` : null
+                    imageUrl: cleanImageUrl ? `https://www.ystu.ru${cleanImageUrl}` : null
                 };
                 console.log('Final result:', result);
                 return result;
