@@ -2046,9 +2046,15 @@
 
                     const lessonContainer = document.createElement("div");
                     lessonContainer.className = "bg-slate-800 p-4 rounded-lg mb-2 flex";
+                    
+                    const lessonTypeColors = {
+                        lecture: 'border-blue-400',
+                        practice: 'border-yellow-500',
+                        other: 'border-white-500'
+                    };
 
                     const timeContainer = document.createElement("div");
-                    timeContainer.className = "flex flex-col items-end justify-between border-r-2 border-slate-300 pr-2 w-14 mr-2";
+                    timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
 
                     if (lesson.startAt && lesson.endAt) {
                         timeContainer.innerHTML = `
@@ -2060,8 +2066,20 @@
                     const lessonInfo = document.createElement("div");
                     lessonInfo.className = "flex-grow";
 
-                    const typeClass = lesson.isLecture ? "text-blue-400" : "text-green-400";
-                    const typeText = lesson.isLecture ? "Лекция" : "Практика";
+                    const typeClasses = {
+                        lecture: 'text-blue-400',
+                        practice: 'text-yellow-500',
+                        other: 'text-white-500'
+                    };
+
+                    const typeTexts = {
+                        lecture: 'Лекция',
+                        practice: 'Практика',
+                        other: 'Другое'
+                    };
+
+                    const typeClass = typeClasses[lesson.type] || 'text-slate-400';
+                    const typeText = typeTexts[lesson.type] || 'Занятие';
 
                     const periodInfo = lesson.startDate && lesson.endDate 
                         ? `с ${lesson.startDate} по ${lesson.endDate}`
@@ -2073,7 +2091,7 @@
                         <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                         <p class="text-sm ${typeClass}">${typeText}</p>
                         <p class="text-sm text-slate-400">${lesson.teacherName || "Преподаватель не указан"}</p>
-                        <p class="text-sm text-slate-400">${lesson.auditoryName || "Аудитория не указана"}</p>
+                        <p class="text-sm text-slate-400">${lesson.auditoryName ? "Аудитория: " + lesson.auditoryName : "Аудитория не указана"}</p>
                         ${periodInfo ? `<p class="text-sm text-slate-400">${periodInfo}</p>` : ''}
                         ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : ''}
                     `;
