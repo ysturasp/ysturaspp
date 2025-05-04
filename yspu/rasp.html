@@ -843,7 +843,7 @@
 
         try {
           const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbxLMJxL6LOQ6tZ1a1smjTafljjkWIIq3PfsKRzv44BPx-r5jO8dOa9g7kdiqRAKIobZ/exec?action=directions"
+            "https://script.google.com/macros/s/AKfycbwqh_rp5SPEhumwF-IbWiAzuobt4cNh7vDVxOxldC-3BfcDmLVjdiMwBsh06TnF09BR/exec?action=directions"
           );
           directionsData = await response.json();
 
@@ -901,7 +901,7 @@
 
             try {
               const response = await fetch(
-                `https://script.google.com/macros/s/AKfycbxLMJxL6LOQ6tZ1a1smjTafljjkWIIq3PfsKRzv44BPx-r5jO8dOa9g7kdiqRAKIobZ/exec?action=schedule&id=${directionId}`
+                `https://script.google.com/macros/s/AKfycbwqh_rp5SPEhumwF-IbWiAzuobt4cNh7vDVxOxldC-3BfcDmLVjdiMwBsh06TnF09BR/exec?action=schedule&id=${directionId}`
               );
               const data = await response.json();
 
@@ -931,13 +931,13 @@
 
         function getDayName(dayNumber) {
           const daysOfWeek = [
-            "Понедельник",
-            "Вторник",
-            "Среда",
-            "Четверг",
-            "Пятница",
-            "Суббота",
-            "Воскресенье",
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб",
+            "Вс",
           ];
           return daysOfWeek[dayNumber];
         }
@@ -1289,11 +1289,7 @@
               averageElement.title =
                 "узнать более подробную статистику по предмету";
             } else {
-              // averageElement.innerHTML = `Нет данных по среднему баллу ℹ️`;
-              // averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
-              // averageElement.title = 'узнать более подробную статистику по предмету';
-              // averageElement.className = 'text-sm text-red-500 average-score';
-            }
+                    }
             element.appendChild(averageElement);
             displayedLessons.add(formattedDiscipline);
           }
@@ -1676,14 +1672,14 @@
 
       function getDayName(dayNumber) {
         const daysOfWeek = [
-          "Понедельник",
-          "Вторник",
-          "Среда",
-          "Четверг",
-          "Пятница",
-          "Суббота",
-          "Воскресенье",
-        ];
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб",
+            "Вс",
+          ];
         return daysOfWeek[dayNumber];
       }
 
@@ -2049,11 +2045,7 @@
             averageElement.title =
               "узнать более подробную статистику по предмету";
           } else {
-            // averageElement.innerHTML = `Нет данных по среднему баллу ℹ️`;
-            // averageElement.href = `/stat?subject=${encodeURIComponent(formattedDiscipline)}`;
-            // averageElement.title = 'узнать более подробную статистику по предмету';
-            // averageElement.className = 'text-sm text-red-500 average-score';
-          }
+            }
           element.appendChild(averageElement);
           displayedLessons.add(formattedDiscipline);
         }
@@ -2181,211 +2173,295 @@
         const scheduleContainer = document.getElementById("schedule");
         scheduleContainer.innerHTML = "";
 
+        const days = [
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб",
+            "Вс"
+        ];
+
+        const groupSelect = document.getElementById("group-select");
+        const selectedOption = groupSelect.options[groupSelect.selectedIndex];
+        if (!selectedOption || !selectedOption.value) {
+            const noDataElement = document.createElement("div");
+            noDataElement.className = "text-center text-white text-xl p-4";
+            noDataElement.innerText = "Выберите группу";
+            scheduleContainer.appendChild(noDataElement);
+            return;
+        }
+
+        const groupText = selectedOption.text;
+        const groupNumber = groupText.split(" ")[0];
+        const courseNumber = parseInt(groupText.match(/\((\d+) курс\)/)[1]);
+        
+        const courseData = data.items.filter(item => {
+            const itemCourseNumber = item.courseInfo?.course;
+            const itemGroupNumber = item.courseInfo?.number;
+            return itemCourseNumber === courseNumber && itemGroupNumber === groupNumber;
+        });
+
+        if (courseData.length === 0) {
+            const noDataElement = document.createElement("div");
+            noDataElement.className = "text-center text-white text-xl p-4";
+            noDataElement.innerText = "Расписание для выбранной группы не найдено";
+            scheduleContainer.appendChild(noDataElement);
+            return;
+        }
+
         const titleElement = document.createElement("h2");
-        titleElement.className =
-          "p-4 md:pr-20 md:pl-20 md:ml-20 md:mr-20 sm:ml-0 sm:mr-0 rounded-lg text-center text-xl lg:text-3xl md:text-xl font-bold text-white shadow-lg transition";
-        titleElement.style.background = 
-            "radial-gradient(circle, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)";
-        titleElement.innerText = `Расписание для ${data.header.groups[course]}`;
+        titleElement.className = "p-4 md:pr-20 md:pl-20 md:ml-20 md:mr-20 sm:ml-0 sm:mr-0 rounded-lg text-center text-xl lg:text-3xl md:text-xl font-bold text-white shadow-lg transition";
+        titleElement.style.background = "radial-gradient(circle, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)";
+        titleElement.innerText = `Расписание группы ${courseData[0].courseInfo.number} (${courseData[0].courseInfo.course} курс)`;
 
         const titleContainer = document.createElement("div");
         titleContainer.className = "flex justify-center md:items-center";
         titleContainer.appendChild(titleElement);
         scheduleContainer.appendChild(titleContainer);
 
-        const isMobileView = window.innerWidth <= 768;
-        if (isMobileView) {
-          const toggleContainer = document.createElement("div");
-          toggleContainer.className = "flex justify-end items-center";
-
-          const toggleLabel = document.createElement("label");
-          toggleLabel.className = "switch flex items-center";
-          toggleLabel.innerHTML = `<input type="checkbox" id="viewToggle">
-                    <span class="slider round"></span>`;
-
-          const leftText = document.createElement("span");
-          leftText.className = "mr-2 text-white";
-          leftText.textContent = "По дням";
-
-          const rightText = document.createElement("span");
-          rightText.className = "ml-2 text-white";
-          rightText.textContent = "На неделю";
-
-          toggleContainer.appendChild(leftText);
-          toggleContainer.appendChild(toggleLabel);
-          toggleContainer.appendChild(rightText);
-          scheduleContainer.appendChild(toggleContainer);
-
-          const isFullView = localStorage.getItem("isFullView") === "true";
-          document.getElementById("viewToggle").checked = isFullView;
-
-          viewToggle.addEventListener("change", function () {
-            const isChecked = this.checked;
-            localStorage.setItem("isFullView", isChecked);
-                scheduleContainer.classList.add("transition-opacity", "duration-500");
-            scheduleContainer.classList.add("opacity-0");
-            setTimeout(() => {
-                    displaySchedule(data, course);
-              scheduleContainer.classList.remove("opacity-0");
-              scheduleContainer.classList.add("opacity-100");
-              setTimeout(() => {
-                        scheduleContainer.classList.remove("transition-opacity", "duration-500", "opacity-100");
-              }, 500);
-            }, 500);
-          });
-        }
-
-        const days = [
-            "Понедельник",
-            "Вторник",
-            "Среда",
-            "Четверг",
-            "Пятница",
-            "Суббота",
-        ];
-
-        const courseSchedule = data.courses[course];
         const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${course}`)) || {};
 
-        function displayDaySchedule(dayName) {
-          const dayElement = document.createElement("div");
+        function displayDaySchedule(dayIndex) {
+            const dayElement = document.createElement("div");
             dayElement.className = "p-4 bg-slate-900 rounded-lg mb-4 day-schedule";
 
-            const dayInfo = document.createElement("h3");
-            dayInfo.className = "text-2xl font-semibold text-white mb-2";
-            dayInfo.innerText = dayName;
-            dayElement.appendChild(dayInfo);
+            const currentDate = new Date();
+            const isSpring = currentDate.getMonth() >= 0 && currentDate.getMonth() <= 5;
+            const isAutumn = currentDate.getMonth() >= 8 && currentDate.getMonth() <= 11;
 
-          const today = new Date();
-            const currentDay = today.getDay();
-            const dayIndex = days.indexOf(dayName);
+            const springYear = isSpring ? currentDate.getFullYear() : currentDate.getFullYear() + 1;
+            const autumnYear = isAutumn ? currentDate.getFullYear() : currentDate.getFullYear() - 1;
 
-            if (dayIndex === currentDay - 1) {
-            dayElement.classList.add("border-2", "border-blue-500");
-          }
+            const dayLessons = courseData.filter(item => {
+                const lessonDate = new Date(item.days[0].info.date);
+                
+                if (isSpring) {
+                    if (lessonDate.getFullYear() !== springYear || 
+                        lessonDate.getMonth() > 5 || 
+                        lessonDate.getMonth() < 0) {
+                        return false;
+                    }
+                } else if (isAutumn) {
+                    if (lessonDate.getFullYear() !== autumnYear || 
+                        lessonDate.getMonth() < 8 || 
+                        lessonDate.getMonth() > 11) {
+                        return false;
+                    }
+                } else {
+                    if (currentDate.getMonth() >= 6 && currentDate.getMonth() <= 7) {
+                        if (lessonDate.getFullYear() !== currentDate.getFullYear() || 
+                            lessonDate.getMonth() < 8 || 
+                            lessonDate.getMonth() > 11) {
+                            return false;
+                        }
+                    }
+                }
 
-            const lessons = courseSchedule[dayName] || [];
-            lessons.forEach((lesson) => {
-                const isHidden = hiddenSubjects[lesson.subject] && 
-                    hiddenSubjects[lesson.subject].some(h => h.teacher === (lesson.teacher || ""));
-            if (isHidden) return;
+                return item.days[0].info.type === dayIndex;
+            });
 
-                const timePairs = lesson.time.split(", ");
-                timePairs.forEach((timePair) => {
-            const lessonContainer = document.createElement("div");
-            lessonContainer.className = "bg-slate-800 p-4 rounded-lg mb-2 flex";
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (dayLessons.length === 0) {
+                return null; }
+
+            dayLessons.forEach(item => {
+                const lessonDate = new Date(item.days[0].info.date);
+                const isToday = lessonDate.getTime() === today.getTime();
+
+                if (isToday) {
+                    dayElement.classList.add('border-2', 'border-blue-500');
+                }
+
+                const formattedDate = formatDate(item.days[0].info.date);
+                const dayInfo = document.createElement("h3");
+                dayInfo.className = "text-2xl font-semibold text-white mb-2";
+                dayInfo.innerText = `${days[dayIndex]} (${formattedDate})`;
+                dayElement.appendChild(dayInfo);
+
+                item.days[0].lessons.forEach(lesson => {
+                    const isHidden = hiddenSubjects[lesson.lessonName] && 
+                        hiddenSubjects[lesson.lessonName].some(h => h.teacher === (lesson.teacherName || ""));
+                    if (isHidden) return;
+
+                    const lessonContainer = document.createElement("div");
+                    lessonContainer.className = "bg-slate-800 p-4 rounded-lg mb-2 flex";
 
                     const timeContainer = document.createElement("div");
-                    timeContainer.className = 
-                        "flex flex-col items-end justify-between border-r-2 border-slate-300 pr-2 w-14 mr-2";
+                    timeContainer.className = "flex flex-col items-end justify-between border-r-2 border-slate-300 pr-2 w-14 mr-2";
 
-                    const timeMatch = timePair.match(/(\d+)\.\s*(\d+\.\d+)-(\d+\.\d+)/);
-                    if (timeMatch) {
-                        const startTime = timeMatch[2];
-                        const endTime = timeMatch[3];
+                    if (lesson.startAt && lesson.endAt) {
                         timeContainer.innerHTML = `
-                            <span class="text-sm font-bold">${startTime}</span>
-                            <span class="text-sm font-bold">${endTime}</span>
+                            <span class="text-sm font-bold">${lesson.startAt}</span>
+                            <span class="text-sm font-bold">${lesson.endAt}</span>
                         `;
                     }
 
                     const lessonInfo = document.createElement("div");
                     lessonInfo.className = "flex-grow";
 
-                    const subjectParts = lesson.subject.split(", ");
-                    const subjectName = subjectParts[0];
-                    const subjectDetails = subjectParts.slice(1).join(", ");
+                    const typeClass = lesson.isLecture ? "text-blue-400" : "text-green-400";
+                    const typeText = lesson.isLecture ? "Лекция" : "Практика";
+
+                    const periodInfo = lesson.startDate && lesson.endDate 
+                        ? `с ${lesson.startDate} по ${lesson.endDate}`
+                        : lesson.startDate 
+                        ? `с ${lesson.startDate}`
+                        : '';
 
                     lessonInfo.innerHTML = `
-                        <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${subjectName}</p>
-                        <p class="text-sm text-slate-400">${subjectDetails}</p>
-                        ${lesson.auditory ? `<p class="text-sm text-slate-400">
-                            <a href="/raspaudience?audience=${lesson.auditory}" class="text-blue-400 hover-bold">${lesson.auditory}</a>
-                        </p>` : ''}
-                        ${lesson.teacher ? `<p class="text-sm text-slate-400">
-                            <a href="/raspprep?teacher=${lesson.teacher}" class="text-blue-400 hover-bold">${lesson.teacher}</a>
-                        </p>` : ''}
+                        <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
+                        <p class="text-sm ${typeClass}">${typeText}</p>
+                        <p class="text-sm text-slate-400">${lesson.teacherName || "Преподаватель не указан"}</p>
+                        <p class="text-sm text-slate-400">${lesson.auditoryName || "Аудитория не указана"}</p>
+                        ${periodInfo ? `<p class="text-sm text-slate-400">${periodInfo}</p>` : ''}
+                        ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : ''}
                     `;
 
                     lessonContainer.appendChild(timeContainer);
                     lessonContainer.appendChild(lessonInfo);
-
-                    const toggleLabel = document.createElement("label");
-                    toggleLabel.className = "switch ml-auto self-center";
-                    toggleLabel.innerHTML = `
-                        <input type="checkbox" ${!isHidden ? "checked" : ""} 
-                            onchange="toggleSubjectVisibility('${course}', '${lesson.subject}', '${lesson.teacher || ""}', this.checked)">
-                            <span class="slider round"></span>
-                    `;
-
-                    lessonContainer.appendChild(toggleLabel);
-            dayElement.appendChild(lessonContainer);
+                    dayElement.appendChild(lessonContainer);
                 });
-          });
-
-          scheduleContainer.appendChild(dayElement);
-        }
-
-        if (isMobileView && !localStorage.getItem("isFullView")) {
-            const daysContainer = document.createElement("div");
-            daysContainer.className = "flex justify-center gap-4 mb-2";
-
-            const lastSelectedDay = localStorage.getItem("lastSelectedDay");
-
-            days.forEach((day, index) => {
-                if (courseSchedule[day] && courseSchedule[day].length > 0) {
-              const dayButton = document.createElement("button");
-                    dayButton.className = "flex flex-col items-center p-2 sm:p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]";
-              dayButton.style.width = "70px";
-
-              const today = new Date();
-                    const currentDay = today.getDay();
-                    if (index === currentDay - 1) {
-                dayButton.classList.add("border-2", "border-blue-300");
-              }
-
-                    if ((lastSelectedDay && lastSelectedDay === day) || (!lastSelectedDay && index === 0)) {
-                dayButton.classList.add("bg-blue-600");
-              }
-
-                    dayButton.innerHTML = `
-                        <span class="text-sm">${day.slice(0, 2)}</span>
-                        <span class="text-xl font-bold">${index + 1}</span>
-                    `;
-
-              dayButton.onclick = () => {
-                        [...daysContainer.children].forEach(btn => btn.classList.remove("bg-blue-600"));
-                dayButton.classList.add("bg-blue-600");
-
-                        const existingSchedule = scheduleContainer.querySelector(".day-schedule");
-                if (existingSchedule) {
-                  existingSchedule.remove();
-                }
-
-                displayDaySchedule(day);
-                        localStorage.setItem("lastSelectedDay", day);
-              };
-
-              daysContainer.appendChild(dayButton);
-                }
             });
 
-            scheduleContainer.appendChild(daysContainer);
+            return dayElement;
+        }
 
-            const initialDay = lastSelectedDay || days[0];
-            if (courseSchedule[initialDay] && courseSchedule[initialDay].length > 0) {
-                displayDaySchedule(initialDay);
+        const isMobileView = window.innerWidth <= 768;
+        if (isMobileView) {
+            const toggleContainer = document.createElement("div");
+            toggleContainer.className = "flex justify-end items-center";
+
+            const toggleLabel = document.createElement("label");
+            toggleLabel.className = "switch flex items-center";
+            toggleLabel.innerHTML = `<input type="checkbox" id="viewToggle">
+            <span class="slider round"></span>`;
+
+            const leftText = document.createElement("span");
+            leftText.className = "mr-2 text-white";
+            leftText.textContent = "По дням";
+
+            const rightText = document.createElement("span");
+            rightText.className = "ml-2 text-white";
+            rightText.textContent = "На неделю";
+
+            toggleContainer.appendChild(leftText);
+            toggleContainer.appendChild(toggleLabel);
+            toggleContainer.appendChild(rightText);
+            scheduleContainer.appendChild(toggleContainer);
+
+            const isFullView = localStorage.getItem("isFullView") === "true";
+            document.getElementById("viewToggle").checked = isFullView;
+
+            viewToggle.addEventListener("change", function () {
+                const isChecked = this.checked;
+                localStorage.setItem("isFullView", isChecked);
+                scheduleContainer.classList.add("transition-opacity", "duration-500");
+                scheduleContainer.classList.add("opacity-0");
+                setTimeout(() => {
+                    displaySchedule(data, course);
+                    scheduleContainer.classList.remove("opacity-0");
+                    scheduleContainer.classList.add("opacity-100");
+                    setTimeout(() => {
+                        scheduleContainer.classList.remove("transition-opacity", "duration-500", "opacity-100");
+                    }, 500);
+                }, 500);
+            });
+        }
+
+        if (isMobileView && document.getElementById("viewToggle").checked) {
+            const weekContainer = document.createElement("div");
+            weekContainer.className = "grid grid-cols-1 gap-4";
+            let hasAnyLessons = false;
+            days.forEach((_, index) => {
+                const dayElement = displayDaySchedule(index);
+                if (dayElement) {
+                    hasAnyLessons = true;
+                    weekContainer.appendChild(dayElement);
+                }
+            });
+            if (!hasAnyLessons) {
+                const noLessonsMessage = document.createElement("div");
+                noLessonsMessage.className = "text-center text-white text-xl p-4";
+                noLessonsMessage.innerText = "На этой неделе нет занятий";
+                weekContainer.appendChild(noLessonsMessage);
             }
-          } else {
-            days.forEach(day => {
-                if (courseSchedule[day] && courseSchedule[day].length > 0) {
-              displayDaySchedule(day);
+            scheduleContainer.appendChild(weekContainer);
+        } else if (isMobileView) {
+            const daysContainer = document.createElement('div');
+            daysContainer.className = 'flex justify-center gap-2 mb-4 overflow-x-auto p-2';
+            
+            const scheduleView = document.createElement('div');
+            scheduleView.className = 'day-schedule-container';
+            
+            const today = new Date();
+            const currentDayIndex = today.getDay() - 1;
+            const lastSelectedDayIndex = parseInt(localStorage.getItem('lastSelectedDayIndex')) || currentDayIndex;
+            
+            const daysWithLessons = days.map((_, index) => displayDaySchedule(index) !== null);
+            
+            days.forEach((dayName, index) => {
+                if (!daysWithLessons[index]) return; const dayButton = document.createElement('button');
+                dayButton.className = 'flex items-center justify-center p-2 sm:p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]';
+                dayButton.style.width = '70px';
+                
+                if (index === currentDayIndex) {
+                    dayButton.classList.add('border-2', 'border-blue-300');
+                }
+                
+                if (index === lastSelectedDayIndex) {
+                    dayButton.classList.add('bg-blue-600');
+                }
+                
+                dayButton.innerHTML = `<span class="text-sm">${dayName}</span>`;
+                
+                dayButton.onclick = () => {
+                    [...daysContainer.children].forEach(btn => btn.classList.remove('bg-blue-600'));
+                    dayButton.classList.add('bg-blue-600');
+                    
+                    const existingSchedule = scheduleView.querySelector('.day-schedule');
+                    if (existingSchedule) {
+                        existingSchedule.remove();
+                    }
+                    
+                    const dayElement = displayDaySchedule(index);
+                    scheduleView.appendChild(dayElement);
+                    
+                    localStorage.setItem('lastSelectedDayIndex', index.toString());
+                };
+                
+                daysContainer.appendChild(dayButton);
+            });
+            
+            scheduleContainer.appendChild(daysContainer);
+            scheduleContainer.appendChild(scheduleView);
+            
+            const initialDayIndex = lastSelectedDayIndex >= 0 ? lastSelectedDayIndex : 0;
+            const dayElement = displayDaySchedule(initialDayIndex);
+            scheduleView.appendChild(dayElement);
+        } else {
+            const weekContainer = document.createElement("div");
+            weekContainer.className = "grid grid-cols-1 gap-4";
+            let hasAnyLessons = false;
+            days.forEach((_, index) => {
+                const dayElement = displayDaySchedule(index);
+                if (dayElement) {
+                    hasAnyLessons = true;
+                    weekContainer.appendChild(dayElement);
                 }
             });
+            if (!hasAnyLessons) {
+                const noLessonsMessage = document.createElement("div");
+                noLessonsMessage.className = "text-center text-white text-xl p-4";
+                noLessonsMessage.innerText = "На этой неделе нет занятий";
+                weekContainer.appendChild(noLessonsMessage);
+            }
+            scheduleContainer.appendChild(weekContainer);
         }
-
-        updateHiddenSubjectsSection(course);
-      }
+    }
 
       async function initializeSchedulePage() {
         const urlParams = new URLSearchParams(window.location.search);
