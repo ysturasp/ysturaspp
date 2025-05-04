@@ -1,3 +1,4 @@
+- hot fix not correct viewed images on mobile and another rules for image (ysturasp, 2025-04-27) [2 files changed, 4 insertions(+), 1 deletion(-)]
 - add function for fetch info for prepods from official site ystu (ysturasp, 2025-04-27) [2 files changed, 454 insertions(+), 9 deletions(-)]
 - add keyboard shortcuts and referal system for request stats (ysturasp, 2025-04-24) [6 files changed, 1172 insertions(+), 47 deletions(-)]
 - delete unusual text from settings button (ysturasp, 2025-04-05) [0 insertions(+), 0 deletions(-)]
