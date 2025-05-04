@@ -1,3 +1,4 @@
+- add preloader for loading schedule page YSPU (ysturasp, 2025-05-04) [2 files changed, 5 insertions(+), 6 deletions(-)]
 - update logic for week ranges instead hardcoded range (ysturasp, 2025-05-04) [1 file changed, 53 insertions(+), 21 deletions(-)]
 - small fix text for start date styding (ysturasp, 2025-05-04) [2 files changed, 3 insertions(+), 1 deletion(-)]
 - ada dateInfo startDate for schedule container (ysturasp, 2025-05-04) [1 file changed, 46 insertions(+), 10 deletions(-)]

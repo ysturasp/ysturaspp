@@ -418,7 +418,8 @@
 
     <main class="container mx-auto mt-5 md:mt-7 px-3 md:px-0">
       <section class="bg-slate-800 rounded-lg sm:p-6 p-4 mt-8">
-        <div class="bg-yellow-500 text-black text-center p-4 rounded-lg mb-4">
+        <div class="bg-yellow-500 text-black text-center p-4 rounded-lg mb-4 relative">
+          <span id="betaBadge" class="absolute -top-2 -right-2 transform rotate-12 flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold text-white shadow-lg cursor-pointer hover:bg-indigo-600 transition-colors" onclick="console.log('Direct click handler'); document.getElementById('betaExplanationModal').classList.remove('translate-y-full');">Beta</span>
           <div class="flex items-center justify-center gap-2">
             <div
               class="h-3 w-3 mr-1 rounded-full ring-8 animate-pulse"
@@ -775,6 +776,24 @@
       </div>
   </footer>
 
+    <div id="betaExplanationModal" class="fixed inset-x-0 bottom-0 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
+      <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-white">Что такое Beta?</h3>
+          <button id="closeBetaExplanation" class="text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="text-gray-300">
+          <p class="mb-4">Это бета-версия расписания ЯГПУ. Мы разработали экосистему для ЯГТУ, настало время расширяться, на одном из факультетов ЯГПУ <a href="https://vk.com/ssovetfsuipp" class="text-blue-500 hover:text-blue-600">(Факультет Социального Управления)</a> теперь можно смотреть расписание у нас в удобном виде</p>
+          <p class="mb-4">Больше никакой путаницы с таблицами — только чёткое и понятное расписание</p>
+          <p>На начальном этапе могут быть некоторые косяки. Если у вас есть предложения по улучшению или вы нашли ошибку, пожалуйста, сообщите об этом <a href="https://t.me/ysturasp_bot" class="text-blue-500 hover:text-blue-600">нам</a></p>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         const instituteSelect = document.getElementById("institute-select");
@@ -783,6 +802,49 @@
         const lastGroup = localStorage.getItem("lastGroup");
         const mobileMenuButton = document.getElementById("mobile-menu-btn");
         const mobileMenu = document.getElementById("mobile-menu");
+
+        const betaBadge = document.getElementById("betaBadge");
+        const betaExplanationModal = document.getElementById("betaExplanationModal");
+        const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
+        let isBetaModalOpen = false;
+
+        console.log('Beta elements:', { betaBadge, betaExplanationModal, closeBetaExplanationBtn });
+
+        function openBetaExplanation() {
+          console.log('Opening beta explanation');
+          betaExplanationModal.classList.remove("translate-y-full");
+          isBetaModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeBetaExplanation() {
+          console.log('Closing beta explanation');
+          betaExplanationModal.classList.add("translate-y-full");
+          isBetaModalOpen = false;
+          document.body.style.overflow = "";
+        }
+
+        if (betaBadge) {
+          betaBadge.addEventListener("click", (e) => {
+            console.log('Beta badge clicked');
+            e.stopPropagation();
+            openBetaExplanation();
+          });
+        }
+
+        if (closeBetaExplanationBtn) {
+          closeBetaExplanationBtn.addEventListener("click", (e) => {
+            console.log('Close button clicked');
+            e.stopPropagation();
+            closeBetaExplanation();
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
+            closeBetaExplanation();
+          }
+        });
 
         Date.prototype.getWeek = function() {
           var onejan = new Date(this.getFullYear(), 0, 1);
@@ -2318,6 +2380,34 @@
             });
         }
       };
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const betaBadge = document.getElementById("betaBadge");
+        const betaExplanationModal = document.getElementById("betaExplanationModal");
+        const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
+        let isBetaModalOpen = false;
+
+        function openBetaExplanation() {
+          betaExplanationModal.classList.remove("translate-y-full");
+          isBetaModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeBetaExplanation() {
+          betaExplanationModal.classList.add("translate-y-full");
+          isBetaModalOpen = false;
+          document.body.style.overflow = "";
+        }
+
+        betaBadge.addEventListener("click", openBetaExplanation);
+        closeBetaExplanationBtn.addEventListener("click", closeBetaExplanation);
+
+        document.addEventListener("click", (e) => {
+          if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
+            closeBetaExplanation();
+          }
+        });
+      });
     </script>
     <!-- Snow with weather -->
 
