@@ -9,20 +9,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Актуальное расписание занятий ЯГТУ. Найдите свои лекции и семинары по группам"
+      content="Актуальное расписание занятий ЯГПУ. Найдите свои занятия по группе"
     />
     <meta
       name="keywords"
-      content="ystuRASP, расписание ЯГТУ, ЯГТУ, просмотр расписания, расписание, ягту расписание по группам, расписание занятий, расписание студентов"
+      content="ystuRASP, ягпу им ушинского, расписание ЯГПУ, ЯГПУ, ягпу расписание занятий, ФСУ, факультет социального управления, расписание, ягпу расписание по группам, расписание занятий, расписание студентов"
     />
     <meta name="geo.region" content="RU-YAR" />
     <meta
       property="og:description"
-      content="Актуальное расписание занятий студентов ЯГТУ. Узнайте расписание лекций и семинаров по всем институтам и группам."
+      content="Актуальное расписание занятий студентов ЯГПУ. Узнайте расписание лекций и семинаров по всем институтам и группам."
     />
     <link rel="icon" href="../images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="../images/favicon.png" />
-    <title>ystuRASP. Расписание занятий ЯГТУ</title>
+    <title>ystuRASP. Расписание занятий ЯГПУ</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
@@ -480,7 +480,7 @@
           </div>
           <div>
             <label for="group-select" class="block text-white mb-2"
-              >Выберите курс:</label
+              >Выберите группу:</label
             >
             <select
               id="group-select"
@@ -506,14 +506,6 @@
               >Скопировать ссылку на расписание</span
             >
           </button>
-
-          <div class="flex items-center">
-            <label class="switch">
-              <input id="average-toggle" type="checkbox" />
-              <span class="slider round"></span>
-            </label>
-            <span class="ml-2 text-white">Показать средние баллы</span>
-          </div>
         </div>
         <div id="schedule" class="grid grid-cols-1 gap-4 mt-4"></div>
         <div
@@ -633,28 +625,6 @@
             class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full"
           >
             <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
-              <img src="../images/rasp3.png" alt="" />
-            </div>
-            <h3 class="text-xl font-bold text-white mb-2">
-              Средний балл предметов
-            </h3>
-            <p class="text-slate-400 mb-4">
-              Сразу узнавайте средний балл по предмету прямо в расписании и
-              распределяйте нагрузку правильно!
-            </p>
-            <div class="flex flex-wrap justify-center gap-2 mb-4">
-              <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded"
-                >Расписание</span
-              >
-              <span class="bg-gray-700 text-xs text-white py-1 px-2 rounded"
-                >New</span
-              >
-            </div>
-          </div>
-          <div
-            class="card bg-slate-800 p-6 rounded-lg text-center max-w-md w-full"
-          >
-            <div class="bg-amber-500 h-27 w-54 mx-auto mb-4 rounded-full">
               <img
                 style="margin: 0 auto; padding-left: 20px"
                 src="../images/rasp4.png"
@@ -684,18 +654,17 @@
 
       <section class="bg-slate-800 rounded-lg p-6 mt-8">
         <h2 class="text-xl text-center font-semibold text-white mb-2">
-          <a href="https://github.com/YSTUty">
-            YSTUtu
-            <img class="h-6 inline" src="../images/github.png" alt="GitHub" />
+          <a href="https://github.com/ysturasp/parser-schedule-yspu">
+            parser-schedule-yspu
+            <img class="h-6 ml-1 inline" src="../images/github.png" alt="GitHub" />
           </a>
         </h2>
         <p class="text-sm text-center text-slate-400">
-          Благодарим
-          <a class="font-bold text-white" href="https://github.com/YSTUty"
-            >автора</a
+          Вот исходный код
+          <a class="font-bold text-white" href="https://github.com/ysturasp/parser-schedule-yspu"
+            >парсера</a
           >
-          парсера и прекрасной апишки, благодаря которым наш сервис получает
-          расписание!
+          для получения расписания факультета
         </p>
       </section>
     </main>
@@ -769,49 +738,45 @@
       </div>
     </div>
 
-    <footer class="bg-slate-800 py-6 mt-12">
+    <footer class="bg-slate-800 py-6 mt-12 mb-12">
       <div class="container mx-auto px-4">
-        <div class="flex flex-wrap justify-between items-center">
-          <div class="w-full md:w-1/3 text-center md:text-left">
-            <h2 class="text-white text-lg font-bold">ystuRASP</h2>
-            <p class="text-slate-400 mt-2">
-              Анализ и статистика оценок предметов ЯГТУ
-            </p>
+          <div class="flex flex-wrap justify-between items-center">
+              <div class="w-full md:w-1/3 text-center md:text-left">
+                  <h2 class="text-white text-lg font-bold">ystuRASP</h2>
+                  <p class="text-slate-400 mt-2">Экосистема для ВУЗов</p>
+              </div>
+              <div class="w-full md:w-1/3 text-center mt-4 md:mt-0">
+                  <nav class="flex justify-center gap-4">
+                      <a href="https://t.me/ysturasp" class="text-slate-400 hover:text-white transition-all">
+                          <div class="w-14 h-14 bg-white rounded p-1">
+                              <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"
+                                  class="mx-auto my-1 w-10 h-10">
+                          </div>
+                      </a>
+                      <a href="https://boosty.to/ysturasp.me" class="text-slate-400 hover:text-white transition-all">
+                          <div class="w-14 h-14 bg-white rounded p-1">
+                              <img src="https://boosty.to/favicon.ico" alt="Boosty" class="mx-auto my-1 w-10 h-10">
+                          </div>
+                      </a>
+                      <a href="https://github.com/ysturasp" class="text-slate-400 hover:text-white transition-all">
+                          <div class="w-14 h-14 bg-white rounded p-1">
+                              <img src="../images/github-mark.png" alt="GitHub" class="mx-auto my-1 w-10 h-10">
+                          </div>
+                      </a>
+                  </nav>
+              </div>
+              <div class="w-full md:w-1/3 text-center md:text-right mt-4 md:mt-0">
+                  <p class="text-slate-400">© 2024 Made with ❤️ by ystuRASP</p>
+                  <a href="/changelog" class="inline-flex items-center mt-2 text-blue-400 hover:text-blue-300 transition-all group">
+                      <span class="mr-2">История изменений</span>
+                      <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                      </svg>
+                  </a>
+              </div>
           </div>
-          <div class="w-full md:w-1/3 text-center mt-4 md:mt-0">
-            <nav class="flex justify-center gap-4">
-              <a
-                href="https://t.me/ysturasp"
-                class="text-slate-400 hover:text-white transition-all"
-              >
-                <div class="w-14 h-14 bg-white rounded p-1">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png"
-                    alt="Telegram"
-                    class="mx-auto my-1 w-10 h-10"
-                  />
-                </div>
-              </a>
-              <a
-                href="https://boosty.to/ysturasp.me"
-                class="text-slate-400 hover:text-white transition-all"
-              >
-                <div class="w-14 h-14 bg-white rounded p-1">
-                  <img
-                    src="https://boosty.to/favicon.ico"
-                    alt="Boosty"
-                    class="mx-auto my-1 w-10 h-10"
-                  />
-                </div>
-              </a>
-            </nav>
-          </div>
-          <div class="w-full md:w-1/3 text-center md:text-right mt-4 md:mt-0">
-            <p class="text-slate-400">© 2024 Made with ❤️ by ystuRASP</p>
-          </div>
-        </div>
       </div>
-    </footer>
+  </footer>
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
@@ -819,31 +784,23 @@
         const groupSelect = document.getElementById("group-select");
         const lastInstitut = localStorage.getItem("lastInstitut");
         const lastGroup = localStorage.getItem("lastGroup");
-        const averageToggle = document.getElementById("average-toggle");
         const mobileMenuButton = document.getElementById("mobile-menu-btn");
         const mobileMenu = document.getElementById("mobile-menu");
 
-        const lessonTypes = {
-          0: "none",
-          2: "Лекция",
-          4: "Практика",
-          8: "Лабораторная работа",
-          1: "Курсовой проект",
-          5: "Консультация",
-          6: "Лекция + Практика",
-          7: "Дифференцированный зачет",
-          3: "Экзамен",
-          9: "Библиотека",
-          10: "Лекция + Лабораторная работа",
-          11: "Организационное собрание",
-          12: "Не поддерживается",
+        Date.prototype.getWeek = function() {
+          var onejan = new Date(this.getFullYear(), 0, 1);
+          var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+          var dayOfYear = ((today - onejan + 86400000)/86400000);
+          return Math.ceil(dayOfYear/7);
         };
+
+        const lastWeek = localStorage.getItem('lastWeek') || new Date().getWeek();
 
         let directionsData = [];
 
         try {
           const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbwqh_rp5SPEhumwF-IbWiAzuobt4cNh7vDVxOxldC-3BfcDmLVjdiMwBsh06TnF09BR/exec?action=directions"
+            "https://script.google.com/macros/s/AKfycbxTFam16iHQOtS3-Vxcip1Zr8DdSsDsQ2k66arf4oArTfzBigOizsh5tgHV-CIPGpt7/exec?action=directions"
           );
           directionsData = await response.json();
 
@@ -852,9 +809,36 @@
             instituteSelect.innerHTML += `<option value="${direction.id}">${direction.name}</option>`;
           });
 
-          if (lastInstitut) {
-            instituteSelect.value = lastInstitut;
-            updateGroups(lastInstitut);
+          const urlParams = new URLSearchParams(window.location.search);
+          const instituteParam = urlParams.get("institute");
+          const groupParam = urlParams.get("group");
+
+          if (instituteParam) {
+            const selectedDirection = directionsData.find(dir => dir.id === instituteParam);
+            if (selectedDirection) {
+              instituteSelect.value = instituteParam;
+              updateGroups(instituteParam);
+              
+              if (groupParam) {
+                groupSelect.value = groupParam;
+                setTimeout(() => {
+                  document.querySelector('button[type="submit"]').click();
+                }, 100);
+              }
+            }
+          } else if (lastInstitut) {
+            const selectedDirection = directionsData.find(dir => dir.id === lastInstitut);
+            if (selectedDirection) {
+              instituteSelect.value = lastInstitut;
+              updateGroups(lastInstitut);
+              
+              if (lastGroup) {
+                groupSelect.value = lastGroup;
+                setTimeout(() => {
+                  document.querySelector('button[type="submit"]').click();
+                }, 100);
+              }
+            }
           }
 
           instituteSelect.addEventListener("change", () => {
@@ -901,7 +885,7 @@
 
             try {
               const response = await fetch(
-                `https://script.google.com/macros/s/AKfycbwqh_rp5SPEhumwF-IbWiAzuobt4cNh7vDVxOxldC-3BfcDmLVjdiMwBsh06TnF09BR/exec?action=schedule&id=${directionId}`
+                `https://script.google.com/macros/s/AKfycbxTFam16iHQOtS3-Vxcip1Zr8DdSsDsQ2k66arf4oArTfzBigOizsh5tgHV-CIPGpt7/exec?action=schedule&id=${directionId}`
               );
               const data = await response.json();
 
@@ -1199,16 +1183,6 @@
             .dispatchEvent(new Event("submit"));
         }
 
-        async function displayAverageScore(discipline, element) {
-          const stats = await getStatistics(discipline);
-          if (stats) {
-            const average = stats.average.toFixed(2);
-            element.innerHTML += `<a href="/stat" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
-          } else {
-            element.innerHTML += `<a href="/stat" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
-          }
-        }
-
         async function getStatistics(discipline, institute) {
           const cachedData = localStorage.getItem(discipline);
 
@@ -1217,22 +1191,12 @@
             return JSON.parse(cachedData);
           } else {
             let url;
-            if (institute === "Институт цифровых систем") {
+            if (institute === "Факультет социального управления") {
               url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(
                 discipline
               )}`;
-            } else if (institute === "Институт архитектуры и дизайна") {
-              url = `https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec?discipline=${encodeURIComponent(
-                discipline
-              )}`;
-            } else if (
-              institute === "Институт инженеров строительства и транспорта"
-            ) {
-              url = `https://script.google.com/macros/s/AKfycbzbxLrOI2rA8ZzVfrT6RXIG5ADMl_5NdAQd8NEIYfg-qKkWVe_fGyB5pDolsCOtH14Mxw/exec?discipline=${encodeURIComponent(
-                discipline
-              )}`;
             } else {
-              console.error(`Неизвестный институт: ${institute}`);
+              console.error(`Неизвестный факультет: ${institute}`);
               return null;
             }
 
@@ -1262,37 +1226,6 @@
 
         function formatDisciplineName(discipline) {
           return discipline.replace(/\s*\(.*?\)\s*/g, "").trim();
-        }
-
-        async function displayAverageScore(
-          discipline,
-          element,
-          displayedLessons,
-          isStatic = false
-        ) {
-          const formattedDiscipline = formatDisciplineName(discipline);
-          const institute = document.getElementById("institute-select").value;
-          if (!displayedLessons.has(formattedDiscipline)) {
-            const stats = await getStatistics(formattedDiscipline, institute);
-            const averageElement = document.createElement("a");
-            averageElement.className = "text-sm text-yellow-400 average-score";
-            averageElement.style.display =
-              isStatic || document.getElementById("average-toggle").checked
-                ? "inline"
-                : "none";
-            if (stats) {
-              const average = stats.average.toFixed(2);
-              averageElement.innerHTML = `Средний балл: ${average} ℹ️`;
-              averageElement.href = `/stat?subject=${encodeURIComponent(
-                formattedDiscipline
-              )}`;
-              averageElement.title =
-                "узнать более подробную статистику по предмету";
-            } else {
-                    }
-            element.appendChild(averageElement);
-            displayedLessons.add(formattedDiscipline);
-          }
         }
 
         function countAndShowHiddenSubjects() {
@@ -1555,13 +1488,6 @@
 
         closeModalBtn.addEventListener("click", () => {
           modal.classList.add("hidden");
-        });
-
-        averageToggle.addEventListener("change", () => {
-          const averageElements = document.querySelectorAll(".average-score");
-          averageElements.forEach((element) => {
-            element.style.display = averageToggle.checked ? "inline" : "none";
-          });
         });
 
         const targetDiv = document.querySelector(
@@ -1955,16 +1881,6 @@
           .dispatchEvent(new Event("submit"));
       }
 
-      async function displayAverageScore(discipline, element) {
-        const stats = await getStatistics(discipline);
-        if (stats) {
-          const average = stats.average.toFixed(2);
-          element.innerHTML += `<a href="/stat" class="text-sm text-yellow-400" title="узнать более подробную статистику по предмету"> Средний балл: ${average} ℹ️</a>`;
-        } else {
-          element.innerHTML += `<a href="/stat" class="text-sm text-red-500" title="узнать более подробную статистику по предмету"> Нет данных по среднему баллу ℹ️</a>`;
-        }
-      }
-
       async function getStatistics(discipline, institute) {
         const cachedData = localStorage.getItem(discipline);
 
@@ -1973,22 +1889,12 @@
           return JSON.parse(cachedData);
         } else {
           let url;
-          if (institute === "Институт цифровых систем") {
+          if (institute === "Факультет социального управления") {
             url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(
               discipline
             )}`;
-          } else if (institute === "Институт архитектуры и дизайна") {
-            url = `https://script.google.com/macros/s/AKfycbyN0A6BDc-w1yUVLkn25J_fW7s3wpdaR6SgL6s3uBeUAfrBsxJb0pYKuWr3M03mkzGWrA/exec?discipline=${encodeURIComponent(
-              discipline
-            )}`;
-          } else if (
-            institute === "Институт инженеров строительства и транспорта"
-          ) {
-            url = `https://script.google.com/macros/s/AKfycbzbxLrOI2rA8ZzVfrT6RXIG5ADMl_5NdAQd8NEIYfg-qKkWVe_fGyB5pDolsCOtH14Mxw/exec?discipline=${encodeURIComponent(
-              discipline
-            )}`;
           } else {
-            console.error(`Неизвестный институт: ${institute}`);
+            console.error(`Неизвестный факультет: ${institute}`);
             return null;
           }
 
@@ -2019,155 +1925,6 @@
       function formatDisciplineName(discipline) {
         return discipline.replace(/\s*\(.*?\)\s*/g, "").trim();
       }
-
-      async function displayAverageScore(
-        discipline,
-        element,
-        displayedLessons,
-        isStatic = false
-      ) {
-        const formattedDiscipline = formatDisciplineName(discipline);
-        const institute = document.getElementById("institute-select").value;
-        if (!displayedLessons.has(formattedDiscipline)) {
-          const stats = await getStatistics(formattedDiscipline, institute);
-          const averageElement = document.createElement("a");
-          averageElement.className = "text-sm text-yellow-400 average-score";
-          averageElement.style.display =
-            isStatic || document.getElementById("average-toggle").checked
-              ? "inline"
-              : "none";
-          if (stats) {
-            const average = stats.average.toFixed(2);
-            averageElement.innerHTML = `Средний балл: ${average} ℹ️`;
-            averageElement.href = `/stat?subject=${encodeURIComponent(
-              formattedDiscipline
-            )}`;
-            averageElement.title =
-              "узнать более подробную статистику по предмету";
-          } else {
-            }
-          element.appendChild(averageElement);
-          displayedLessons.add(formattedDiscipline);
-        }
-      }
-
-      document
-        .getElementById("schedule-form")
-        .addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const institute = document.getElementById("institute-select").value;
-          const group = document.getElementById("group-select").value;
-          const week = parseInt(
-            document.getElementById("week-select").value,
-            10
-          );
-
-          if (!group || !week) {
-            alert("Пожалуйста, выберите институт, группу и неделю.");
-            return;
-          }
-
-          localStorage.setItem("lastInstitut", institute);
-          localStorage.setItem("lastGroup", group);
-          localStorage.setItem("lastWeek", week);
-
-          const scheduleContainer = document.getElementById("schedule");
-          scheduleContainer.innerHTML = "";
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
-
-          const cacheKey = `${group}_${week}`;
-          const cachedData = localStorage.getItem(cacheKey);
-          const cacheDuration = 1000 * 60 * 60 * 24; // 24 часа
-
-          let scheduleData;
-          let fetchData = true;
-
-          if (cachedData) {
-            const parsedData = JSON.parse(cachedData);
-            if (Date.now() - parsedData.timestamp < cacheDuration) {
-              displaySchedule(parsedData.data, group, week);
-              displaySubjectStatistics(parsedData.data);
-              fetchData = false;
-            }
-          }
-
-          if (fetchData) {
-            try {
-              const response = await fetch(
-                `https://gg-api.ystuty.ru/s/schedule/v1/schedule/group/${group}`
-              );
-
-              if (response.status === 429) {
-                let retryAfter = 20;
-                scheduleContainer.innerHTML = `<p class="text-red-500">Превышено количество запросов. Попробуйте снова через <span id="retry-timer">${retryAfter}</span> секунд.</p>`;
-                loadingOverlay.style.display = "none";
-
-                const countdownInterval = setInterval(() => {
-                  retryAfter -= 1;
-                  document.getElementById("retry-timer").textContent =
-                    retryAfter;
-                  if (retryAfter <= 0) {
-                    clearInterval(countdownInterval);
-                    scheduleContainer.innerHTML = "";
-                  }
-                }, 1000);
-
-                return;
-              }
-
-              if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(
-                  errorData.message || "Ошибка при получении расписания."
-                );
-              }
-
-              const newScheduleData = await response.json();
-
-              if (
-                !cachedData ||
-                JSON.stringify(newScheduleData) !==
-                  JSON.stringify(JSON.parse(cachedData).data)
-              ) {
-                scheduleData = newScheduleData;
-                try {
-                  localStorage.setItem(
-                    cacheKey,
-                    JSON.stringify({
-                      timestamp: Date.now(),
-                      data: scheduleData,
-                    })
-                  );
-                } catch (storageError) {
-                  console.error(
-                    "Ошибка сохранения в Local Storage:",
-                    storageError.message
-                  );
-                  if (
-                    storageError.message.includes("The quota has been exceeded")
-                  ) {
-                    localStorage.clear();
-                  }
-                }
-              } else {
-                scheduleData = JSON.parse(cachedData).data;
-              }
-            } catch (error) {
-              console.error("Ошибка при получении расписания:", error.message);
-              scheduleContainer.innerHTML = `<p class="text-red-500">${error.message}</p>`;
-              loadingOverlay.style.display = "none";
-              return;
-            }
-          }
-
-          if (scheduleData) {
-            displaySchedule(scheduleData, group, week);
-            displaySubjectStatistics(scheduleData);
-          }
-
-          loadingOverlay.style.display = "none";
-        });
 
       function displaySchedule(data, course) {
         const scheduleContainer = document.getElementById("schedule");
@@ -2392,7 +2149,7 @@
             scheduleContainer.appendChild(weekContainer);
         } else if (isMobileView) {
             const daysContainer = document.createElement('div');
-            daysContainer.className = 'flex justify-center gap-2 mb-4 overflow-x-auto p-2';
+            daysContainer.className = 'flex justify-center gap-2 overflow-x-auto p-2';
             
             const scheduleView = document.createElement('div');
             scheduleView.className = 'day-schedule-container';
@@ -2463,394 +2220,8 @@
         }
     }
 
-      async function initializeSchedulePage() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const instituteParam = urlParams.get("institute");
-        const groupParam = urlParams.get("group");
-
-        if (instituteParam) {
-          const instituteName = instituteParam.replace(/_/g, " ");
-
-          const response = await fetch(
-            "https://gg-api.ystuty.ru/s/schedule/v1/schedule/actual_groups"
-          );
-          const data = await response.json();
-          const institutes = data.items;
-
-          const selectedInstitute = institutes.find(
-            (inst) => inst.name === instituteName
-          );
-          if (selectedInstitute) {
-            document.getElementById("institute-select").value = instituteName;
-            const groupSelect = document.getElementById("group-select");
-
-            const uniqueGroups = [...new Set(selectedInstitute.groups)];
-            groupSelect.innerHTML = uniqueGroups
-              .map((group) => `<option value="${group}">${group}</option>`)
-              .join("");
-
-            if (groupParam) {
-              const groupName = groupParam.replace(/_/g, " ");
-              if (uniqueGroups.includes(groupName)) {
-                groupSelect.value = groupName;
-              }
-            }
-          }
-        }
-
-        if (instituteParam && groupParam) {
-          document
-            .getElementById("schedule-form")
-            .dispatchEvent(new Event("submit"));
-        }
-      }
-
-      window.onload = initializeSchedulePage;
-
-      function toPlural(type) {
-        switch (type) {
-          case "Лекция":
-            return "Лекций";
-          case "Лабораторная работа":
-            return "Лабораторных работ";
-          case "Практика":
-            return "Практик";
-          case "Курсовой проект":
-            return "Курсовых проектов";
-          case "Консультация":
-            return "Консультаций";
-          case "Экзамен":
-            return "Экзаменов";
-          default:
-            return type + "ов";
-        }
-      }
-
-      function getGradient(mouseX, mouseY) {
-        return `radial-gradient(circle at ${mouseX}% ${mouseY}%, rgba(17, 51, 107, 1) 10%, rgba(7, 24, 39, 1) 100%)`;
-      }
-
-      function displaySubjectStatistics(data) {
-        const statistics = {};
-        const globalCounts = {
-          Лекция: { completed: 0, total: 0 },
-          Практика: { completed: 0, total: 0 },
-          "Лабораторная работа": { completed: 0, total: 0 },
-          "Курсовой проект": { completed: 0, total: 0 },
-          Консультация: { completed: 0, total: 0 },
-          Экзамен: { completed: 0, total: 0 },
-        };
-
-        const currentDate = new Date();
-
-        data.items.forEach((week) => {
-          week.days.forEach((day) => {
-            const lessonDate = new Date(day.info.date);
-
-            day.lessons.forEach((lesson) => {
-              const subject = lesson.lessonName;
-              const type = lesson.type;
-              const typeName = lessonTypes[type] || "Другое";
-
-              if (!statistics[subject]) {
-                statistics[subject] = {
-                  Лекция: { completed: 0, total: 0 },
-                  Практика: { completed: 0, total: 0 },
-                  "Лабораторная работа": { completed: 0, total: 0 },
-                  "Курсовой проект": { completed: 0, total: 0 },
-                  Консультация: { completed: 0, total: 0 },
-                  Экзамен: { completed: 0, total: 0 },
-                };
-              }
-
-              if (statistics[subject][typeName]) {
-                statistics[subject][typeName].total++;
-              }
-
-              if (globalCounts[typeName]) {
-                globalCounts[typeName].total++;
-              }
-
-              if (lessonDate < currentDate) {
-                if (statistics[subject][typeName] !== undefined) {
-                  statistics[subject][typeName].completed++;
-                  globalCounts[typeName].completed++;
-                }
-              }
-            });
-          });
-        });
-
-        const container = document.getElementById("statistics-container");
-        container.innerHTML = "";
-
-        const chartContainer = document.createElement("div");
-        chartContainer.style.display = "flex";
-        chartContainer.style.justifyContent = "center";
-        chartContainer.style.marginBottom = "20px";
-
-        const globalChartCanvas = document.createElement("canvas");
-        globalChartCanvas.width = 300;
-        globalChartCanvas.height = 300;
-
-        chartContainer.appendChild(globalChartCanvas);
-        container.appendChild(chartContainer);
-
-        const globalDataForChart = {
-          labels: Object.keys(globalCounts),
-          datasets: [
-            {
-              label: "Всего занятий",
-              data: Object.values(globalCounts).map((count) => count.total),
-              backgroundColor: [
-                "rgba(34, 197, 94, 0.8)",
-                "rgba(249, 115, 22, 0.8)",
-                "rgba(59, 130, 246, 0.8)",
-                "rgba(139, 92, 246, 0.8)",
-                "rgba(252, 211, 77, 0.8)",
-                "rgba(239, 68, 68, 0.8)",
-              ],
-            },
-          ],
-        };
-
-        new Chart(globalChartCanvas, {
-          type: "pie",
-          data: globalDataForChart,
-          options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: false,
-                position: "top",
-              },
-              tooltip: {
-                callbacks: {
-                  label: function (tooltipItem) {
-                    const total = tooltipItem.raw;
-                    const completed = globalCounts[tooltipItem.label].completed;
-                    return `${tooltipItem.label}: Осталось ${
-                      total - completed
-                    } из ${total}`;
-                  },
-                },
-              },
-            },
-            animation: {
-              animateRotate: true,
-              animateScale: true,
-            },
-          },
-          plugins: [
-            {
-              beforeDraw: (chart) => {
-                const ctx = chart.ctx;
-                const dataset = chart.data.datasets[0];
-                const total = dataset.data.reduce((acc, val) => acc + val, 0);
-
-                let startAngle = 0;
-                dataset.data.forEach((value, index) => {
-                  const endAngle = startAngle + (value / total) * (Math.PI * 2);
-                  const midAngle = (startAngle + endAngle) / 2;
-
-                  const completedValue =
-                    globalCounts[chart.data.labels[index]].completed;
-                  const completedAngle =
-                    (completedValue / total) * (Math.PI * 2);
-
-                  ctx.fillStyle = dataset.backgroundColor[index].replace(
-                    /0.8\)/,
-                    "0.4)"
-                  );
-                  ctx.beginPath();
-                  ctx.moveTo(chart.width / 2, chart.height / 2);
-                  ctx.arc(
-                    chart.width / 2,
-                    chart.height / 2,
-                    chart.radius,
-                    startAngle,
-                    startAngle + completedAngle
-                  );
-                  ctx.closePath();
-                  ctx.fill();
-
-                  startAngle = endAngle;
-                });
-              },
-            },
-          ],
-        });
-
-        const completedCountText = document.createElement("h3");
-        completedCountText.className = "text-xl font-medium text-white mt-4";
-
-        const completedCount = Object.values(globalCounts).reduce(
-          (acc, count) => acc + count.completed,
-          0
-        );
-        const totalCount = Object.values(globalCounts).reduce(
-          (acc, count) => acc + count.total,
-          0
-        );
-
-        const percentage =
-          totalCount > 0 ? ((completedCount / totalCount) * 100).toFixed(2) : 0;
-
-        completedCountText.innerText = `Количество завершенных занятий ко всем: ${completedCount} из ${totalCount} (${percentage}%)`;
-
-        container.appendChild(completedCountText);
-
-        const gridContainer = document.createElement("div");
-        gridContainer.className =
-          "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
-
-        for (const [subject, counts] of Object.entries(statistics)) {
-          const hasTypes = Object.values(counts).some(
-            (count) => count.total > 0
-          );
-
-          if (hasTypes) {
-            const subjectDiv = document.createElement("div");
-            subjectDiv.className = "bg-slate-900 p-4 rounded-lg shadow-lg";
-            subjectDiv.style.transition = "background 0.5s";
-
-            subjectDiv.innerHTML = `<h3 class="text-xl font-bold text-white mb-2">${subject}</h3>`;
-
-            for (const [type, count] of Object.entries(counts)) {
-              if (count.total > 0) {
-                const completionPercentage = Math.round(
-                  (count.completed / count.total) * 100
-                );
-
-                subjectDiv.innerHTML += `
-                                <div class="flex items-center justify-between text-slate-300 mb-1">
-                                    <span>${toPlural(type)}: ${
-                  count.completed
-                } из ${count.total}</span>
-                                    <div class="flex items-center ml-2">
-                                        <div class="relative w-24 h-2 bg-gray-300 rounded-full mr-2">
-                                            <div class="absolute top-0 left-0 h-full rounded-full" style="width: ${completionPercentage}%; background-color: ${
-                  completionPercentage === 100 ? "#00ff00b5" : "#0000ffb5"
-                };"></div>
-                                        </div>
-                                        <span class="text-sm text-slate-400">${completionPercentage}%</span>
-                                    </div>
-                                </div>
-                            `;
-              }
-            }
-
-            subjectDiv.addEventListener("mousemove", (event) => {
-              const rect = subjectDiv.getBoundingClientRect();
-              const mouseX = ((event.clientX - rect.left) / rect.width) * 100;
-              const mouseY = ((event.clientY - rect.top) / rect.height) * 100;
-              subjectDiv.style.background = getGradient(mouseX, mouseY);
-            });
-
-            subjectDiv.addEventListener("mouseleave", () => {
-              subjectDiv.style.background = "";
-            });
-
-            const avgElement = document.createElement("div");
-            avgElement.id = `avg-${subject.replace(/ /g, "-")}`;
-            displayAverageScore(subject, avgElement, new Set(), true);
-            subjectDiv.appendChild(avgElement);
-
-            gridContainer.appendChild(subjectDiv);
-          }
-        }
-
-        container.appendChild(gridContainer);
-        document
-          .getElementById("subject-statistics")
-          .classList.remove("hidden");
-      }
-
-      function showTooltip(id) {
-        var tooltip = document.getElementById("tooltip2");
-        tooltip.classList.add("show");
-      }
-      function hideTooltip(id) {
-        var tooltip = document.getElementById("tooltip2");
-        tooltip.classList.remove("show");
-      }
-      function showTooltip(id) {
-        var tooltip = document.getElementById("tooltip2");
-        if (!document.querySelector(".tooltip-overlay")) {
-          var overlay = document.createElement("div");
-          overlay.className = "tooltip-overlay show";
-          document.body.appendChild(overlay);
-        }
-        tooltip.classList.add("show");
-      }
-      function hideTooltip(id) {
-        var tooltip = document.getElementById("tooltip2");
-        var overlay = document.querySelector(".tooltip-overlay");
-        if (overlay) {
-          overlay.remove();
-        }
-        tooltip.classList.remove("show");
-      }
-      function clearScheduleCache() {
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const key = localStorage.key(i);
-          const value = localStorage.getItem(key);
-
-          try {
-            const parsedValue = JSON.parse(value);
-            if (parsedValue && parsedValue.timestamp && parsedValue.data) {
-              localStorage.removeItem(key);
-            }
-          } catch (error) {
-            continue;
-          }
-        }
-      }
-
-      window.addEventListener("beforeunload", clearScheduleCache);
-      window.addEventListener("unload", clearScheduleCache);
-    </script>
-
-    <!-- Snow with weather -->
-    <link
-      href="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/snow.min.css"
-      rel="stylesheet"
-    />
-
-    <script src="https://cdn.jsdelivr.net/gh/Alaev-Co/snowflakes/dist/Snow.min.js"></script>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", async function () {
-        const apiKey = "e17efb4b5b9f4dc59fd101738242910";
-        const city = "Yaroslavl";
-        const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}`;
-
-        try {
-          const response = await fetch(url);
-          const data = await response.json();
-
-          console.log(data);
-          const snowCondition = data.current.condition.text
-            .toLowerCase()
-            .includes("snow");
-
-          if (snowCondition) {
-            new Snow();
-            console.log("Снег запущен");
-          } else {
-            console.log("Снег не запущен");
-          }
-        } catch (error) {
-          console.error("Ошибка получения данных о погоде:", error);
-        }
-      });
-    </script>
-    <!-- Snow with weather -->
-
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
+      window.onload = () => {
+        if ("serviceWorker" in navigator) {
           navigator.serviceWorker
             .register("/service-worker.js")
             .then((registration) => {
@@ -2862,9 +2233,10 @@
             .catch((error) => {
               console.log("Ошибка регистрации Service Worker:", error);
             });
-        });
-      }
+        }
+      };
     </script>
+    <!-- Snow with weather -->
 
     <!-- Hotjar Tracking Code for Site -->
     <script>
