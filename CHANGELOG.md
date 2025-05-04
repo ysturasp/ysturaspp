@@ -1,3 +1,5 @@
+- ada dateInfo startDate for schedule container (ysturasp, 2025-05-04) [1 file changed, 46 insertions(+), 10 deletions(-)]
+- update styles for mobile display and improve appearance of buttons in schedule (ysturasp, 2025-05-04) [2 files changed, 3 insertions(+), 2 deletions(-)]
 - improve userability with color border and other fix (ysturasp, 2025-05-04) [2 files changed, 23 insertions(+), 4 deletions(-)]
 - update metadata and more fix and improve design and logic get schedule (ysturasp, 2025-05-04) [2 files changed, 99 insertions(+), 725 deletions(-)]
 - update check response from apio and redesign interface schedule (ysturasp, 2025-05-04) [1 file changed, 257 insertions(+), 181 deletions(-)]
