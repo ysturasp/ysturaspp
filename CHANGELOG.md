@@ -1,3 +1,5 @@
+- replace url on fast api with cache (ysturasp, 2025-05-04) [1 file changed, 2 insertions(+), 2 deletions(-)]
+- add message beta schedule and section for introduce (ysturasp, 2025-05-04) [2 files changed, 92 insertions(+), 1 deletion(-)]
 - add preloader for loading schedule page YSPU (ysturasp, 2025-05-04) [2 files changed, 5 insertions(+), 6 deletions(-)]
 - update logic for week ranges instead hardcoded range (ysturasp, 2025-05-04) [1 file changed, 53 insertions(+), 21 deletions(-)]
 - small fix text for start date styding (ysturasp, 2025-05-04) [2 files changed, 3 insertions(+), 1 deletion(-)]
