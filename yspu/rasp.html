@@ -788,7 +788,7 @@
         </div>
         <div class="text-gray-300">
           <p class="mb-4">Это бета-версия расписания ЯГПУ. Мы разработали экосистему для ЯГТУ, настало время расширяться, на одном из факультетов ЯГПУ <a href="https://vk.com/ssovetfsuipp" class="text-blue-500 hover:text-blue-600">(Факультет Социального Управления)</a> теперь можно смотреть расписание у нас в удобном виде</p>
-          <p class="mb-4">Больше никакой путаницы с таблицами — только чёткое и понятное расписание</p>
+          <p class="mb-4">Больше никакой путаницы с таблицами — только чёткое и понятное расписание. А также широкий выбор где можно посмотреть: браузер, <a class="font-extrabold text-gray-200" href="/installapp">web-приложение на iPhone</a>, или <a class="font-extrabold text-gray-200" href="https://t.me/ysturasp_bot/ysturasp_webapp">мини-приложение в телеграме</a></p>
           <p>На начальном этапе могут быть некоторые косяки. Если у вас есть предложения по улучшению или вы нашли ошибку, пожалуйста, сообщите об этом <a href="https://t.me/ysturasp_bot" class="text-blue-500 hover:text-blue-600">нам</a></p>
         </div>
       </div>
@@ -822,6 +822,7 @@
           betaExplanationModal.classList.add("translate-y-full");
           isBetaModalOpen = false;
           document.body.style.overflow = "";
+          localStorage.setItem('betaModalShown', 'true');
         }
 
         if (betaBadge) {
@@ -843,6 +844,15 @@
         document.addEventListener("click", (e) => {
           if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
             closeBetaExplanation();
+          }
+        });
+
+        window.addEventListener('load', () => {
+          const betaModalShown = localStorage.getItem('betaModalShown');
+          if (!betaModalShown) {
+            setTimeout(() => {
+              openBetaExplanation();
+            }, 1500);
           }
         });
 
@@ -911,7 +921,7 @@
           function updateGroups(directionId) {
             const selectedDirection = directionsData.find(dir => dir.id === directionId);
             if (selectedDirection) {
-              groupSelect.innerHTML = '<option value="">Выберите курс</option>';
+              groupSelect.innerHTML = '<option value="">Выберите группу</option>';
               const courses = selectedDirection.courses;
               
               Object.entries(courses).forEach(([key, course]) => {
@@ -930,7 +940,7 @@
             const course = groupSelect.value;
 
             if (!directionId || !course) {
-              alert("Пожалуйста, выберите направление и курс.");
+              alert("Пожалуйста, выберите направление и группу.");
               return;
             }
 
@@ -973,16 +983,16 @@
         }
 
         function getDayName(dayNumber) {
-          const daysOfWeek = [
+          const shortDays = [
             "Пн",
             "Вт",
             "Ср",
             "Чт",
             "Пт",
             "Сб",
-            "Вс",
+            "Вс"
           ];
-          return daysOfWeek[dayNumber];
+          return shortDays[dayNumber];
         }
 
         mobileMenuButton.addEventListener("click", function () {
@@ -1688,16 +1698,16 @@
       }
 
       function getDayName(dayNumber) {
-        const daysOfWeek = [
-            "Пн",
-            "Вт",
-            "Ср",
-            "Чт",
-            "Пт",
-            "Сб",
-            "Вс",
-          ];
-        return daysOfWeek[dayNumber];
+        const shortDays = [
+          "Пн",
+          "Вт",
+          "Ср",
+          "Чт",
+          "Пт",
+          "Сб",
+          "Вс"
+        ];
+        return shortDays[dayNumber];
       }
 
       mobileMenuButton.addEventListener("click", function () {
@@ -2021,7 +2031,7 @@
         const scheduleContainer = document.getElementById("schedule");
         scheduleContainer.innerHTML = "";
 
-        const days = [
+        const shortDays = [
             "Пн",
             "Вт",
             "Ср",
@@ -2029,6 +2039,16 @@
             "Пт",
             "Сб",
             "Вс"
+        ];
+
+        const days = [
+            "Понедельник",
+            "Вторник",
+            "Среда",
+            "Четверг",
+            "Пятница",
+            "Суббота",
+            "Воскресенье"
         ];
 
         const groupSelect = document.getElementById("group-select");
@@ -2163,7 +2183,7 @@
                 const formattedDate = formatDate(item.days[0].info.date);
                 const dayInfo = document.createElement("h3");
                 dayInfo.className = "text-2xl font-semibold text-white mb-2";
-                dayInfo.innerText = `${days[dayIndex]} (${formattedDate})`;
+                dayInfo.innerText = `${days[dayIndex]}`;
                 dayElement.appendChild(dayInfo);
 
                 item.days[0].lessons.forEach(lesson => {
@@ -2318,7 +2338,7 @@
                     dayButton.classList.add('bg-blue-600');
                 }
                 
-                dayButton.innerHTML = `<span class="text-sm">${dayName}</span>`;
+                dayButton.innerHTML = `<span class="text-sm">${shortDays[index]}</span>`;
                 
                 dayButton.onclick = () => {
                     [...daysContainer.children].forEach(btn => btn.classList.remove('bg-blue-600'));
@@ -2397,6 +2417,7 @@
           betaExplanationModal.classList.add("translate-y-full");
           isBetaModalOpen = false;
           document.body.style.overflow = "";
+          localStorage.setItem('betaModalShown', 'true');
         }
 
         betaBadge.addEventListener("click", openBetaExplanation);
@@ -2407,6 +2428,13 @@
             closeBetaExplanation();
           }
         });
+
+        const betaModalShown = localStorage.getItem('betaModalShown');
+        if (!betaModalShown) {
+          setTimeout(() => {
+            openBetaExplanation();
+          }, 1000);
+        }
       });
     </script>
     <!-- Snow with weather -->
