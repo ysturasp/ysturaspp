@@ -776,7 +776,7 @@
       </div>
   </footer>
 
-    <div id="betaExplanationModal" class="fixed inset-x-0 bottom-0 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
+    <div id="betaExplanationModal" class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
       <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-bold text-white">Что такое Beta?</h3>
@@ -794,6 +794,29 @@
       </div>
     </div>
 
+    <div id="viewModeExplanationModal" class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
+      <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-white">Режимы просмотра расписания</h3>
+          <button id="closeViewModeExplanation" class="text-gray-400 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="text-gray-300">
+          <div class="mb-4 bg-gray-800 p-4 rounded-lg">
+            <h4 class="text-lg font-semibold text-blue-400 mb-2">Общее расписание</h4>
+            <p>Показывает общее расписание с учетом всех предметов, независимо от дат их начала и окончания. Полезно для общего ознакомления со структурой занятий на семестр.</p>
+          </div>
+          <div class="mb-4 bg-gray-800 p-4 rounded-lg">
+            <h4 class="text-lg font-semibold text-blue-400 mb-2">Актуальное по дате</h4>
+            <p>Показывает только те предметы, которые проводятся в текущую дату с учетом периодов и условий. Например, если для предмета указан период с 10.02.2025 по 10.03.2025, он будет отображаться только в этом диапазоне дат.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         const instituteSelect = document.getElementById("institute-select");
@@ -806,7 +829,10 @@
         const betaBadge = document.getElementById("betaBadge");
         const betaExplanationModal = document.getElementById("betaExplanationModal");
         const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
+        const viewModeExplanationModal = document.getElementById("viewModeExplanationModal");
+        const closeViewModeExplanationBtn = document.getElementById("closeViewModeExplanation");
         let isBetaModalOpen = false;
+        let isViewModeModalOpen = false;
 
         console.log('Beta elements:', { betaBadge, betaExplanationModal, closeBetaExplanationBtn });
 
@@ -825,6 +851,18 @@
           localStorage.setItem('betaModalShown', 'true');
         }
 
+        function openViewModeExplanation() {
+          viewModeExplanationModal.classList.remove("translate-y-full");
+          isViewModeModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeViewModeExplanation() {
+          viewModeExplanationModal.classList.add("translate-y-full");
+          isViewModeModalOpen = false;
+          document.body.style.overflow = "";
+        }
+
         if (betaBadge) {
           betaBadge.addEventListener("click", (e) => {
             console.log('Beta badge clicked');
@@ -841,9 +879,19 @@
           });
         }
 
+        if (closeViewModeExplanationBtn) {
+          closeViewModeExplanationBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeViewModeExplanation();
+          });
+        }
+
         document.addEventListener("click", (e) => {
           if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
             closeBetaExplanation();
+          }
+          if (isViewModeModalOpen && !viewModeExplanationModal.contains(e.target)) {
+            closeViewModeExplanation();
           }
         });
 
@@ -869,7 +917,7 @@
 
         try {
           const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbx89c3V4jkPz7wFEP7hHGI8fc6swu8edZkj0I_35-cF6xmQzaeYZLnRw1WGgS7Qu0j7/exec?action=directions"
+            "https://script.google.com/macros/s/AKfycbzNQ5NgTVEXMhh74j53YmyiR4UohhNMlQMH3rugMNDbL3NcH927yPHprRjjGa_hZvqq/exec?action=directions"
           );
           directionsData = await response.json();
 
@@ -954,7 +1002,7 @@
 
             try {
               const response = await fetch(
-                `https://script.google.com/macros/s/AKfycbx89c3V4jkPz7wFEP7hHGI8fc6swu8edZkj0I_35-cF6xmQzaeYZLnRw1WGgS7Qu0j7/exec?action=schedule&id=${directionId}`
+                `https://script.google.com/macros/s/AKfycbzNQ5NgTVEXMhh74j53YmyiR4UohhNMlQMH3rugMNDbL3NcH927yPHprRjjGa_hZvqq/exec?action=schedule&id=${directionId}`
               );
               const data = await response.json();
 
@@ -2125,9 +2173,85 @@
         titleContainer.appendChild(titleElement);
         scheduleContainer.appendChild(titleContainer);
 
+        const viewModeContainer = document.createElement("div");
+        viewModeContainer.className = "flex justify-center items-center";
+        
+        const viewModeSelector = document.createElement("div");
+        viewModeSelector.className = "bg-slate-800 rounded-lg p-2 flex items-center";
+        
+        const allModeBtn = document.createElement("button");
+        allModeBtn.className = "px-4 py-2 rounded-lg mr-2 transition-all";
+        allModeBtn.textContent = window.innerWidth <= 768 ? "Общее" : "Общее расписание";
+        
+        const actualModeBtn = document.createElement("button");
+        actualModeBtn.className = "px-4 py-2 rounded-lg transition-all";
+        actualModeBtn.textContent = window.innerWidth <= 768 ? "По дате" : "Актуальное по дате";
+        
+        const helpIcon = document.createElement("div");
+        helpIcon.className = "ml-2 bg-blue-600 w-6 h-6 rounded-full flex justify-center items-center cursor-pointer";
+        helpIcon.innerHTML = `<span class="text-white font-bold">?</span>`;
+        helpIcon.title = "Информация о режимах просмотра";
+        helpIcon.onclick = () => {
+            document.getElementById('viewModeExplanationModal').classList.remove('translate-y-full');
+        };
+        
+        const viewMode = localStorage.getItem("scheduleViewMode") || "all";
+        if (viewMode === "all") {
+            allModeBtn.classList.add("bg-blue-700", "text-white");
+            actualModeBtn.classList.add("bg-gray-700", "text-gray-400");
+        } else {
+            actualModeBtn.classList.add("bg-blue-700", "text-white");
+            allModeBtn.classList.add("bg-gray-700", "text-gray-400");
+        }
+        
+        allModeBtn.addEventListener("click", () => {
+            localStorage.setItem("scheduleViewMode", "all");
+            displaySchedule(data, course);
+        });
+        
+        actualModeBtn.addEventListener("click", () => {
+            localStorage.setItem("scheduleViewMode", "actual");
+            displaySchedule(data, course);
+        });
+        
+        viewModeSelector.appendChild(allModeBtn);
+        viewModeSelector.appendChild(actualModeBtn);
+        viewModeSelector.appendChild(helpIcon);
+        viewModeContainer.appendChild(viewModeSelector);
+        scheduleContainer.appendChild(viewModeContainer);
+
         const hiddenSubjects = JSON.parse(localStorage.getItem(`hiddenSubjects_${course}`)) || {};
 
+        function isLessonInDate(lesson) {
+            if (!lesson.startDate && !lesson.endDate) return true;
+            
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            if (lesson.startDate && lesson.endDate) {
+                const startParts = lesson.startDate.split('.');
+                const endParts = lesson.endDate.split('.');
+                const startDate = new Date(`${startParts[2]}-${startParts[1]}-${startParts[0]}`);
+                const endDate = new Date(`${endParts[2]}-${endParts[1]}-${endParts[0]}`);
+                
+                return today >= startDate && today <= endDate;
+            } else if (lesson.startDate) {
+                const startParts = lesson.startDate.split('.');
+                const startDate = new Date(`${startParts[2]}-${startParts[1]}-${startParts[0]}`);
+                
+                return today >= startDate;
+            } else if (lesson.endDate) {
+                const endParts = lesson.endDate.split('.');
+                const endDate = new Date(`${endParts[2]}-${endParts[1]}-${endParts[0]}`);
+                
+                return today <= endDate;
+            }
+            
+            return true;
+        }
+
         function displayDaySchedule(dayIndex) {
+            const viewMode = localStorage.getItem("scheduleViewMode") || "all";
             const dayElement = document.createElement("div");
             dayElement.className = "p-4 bg-slate-900 rounded-lg mb-4 day-schedule";
 
@@ -2170,7 +2294,10 @@
             today.setHours(0, 0, 0, 0);
 
             if (dayLessons.length === 0) {
-                return null; }
+                return null; 
+            }
+
+            let hasVisibleLessons = false;
 
             dayLessons.forEach(item => {
                 const lessonDate = new Date(item.days[0].info.date);
@@ -2184,12 +2311,31 @@
                 const dayInfo = document.createElement("h3");
                 dayInfo.className = "text-2xl font-semibold text-white mb-2";
                 dayInfo.innerText = `${days[dayIndex]}`;
-                dayElement.appendChild(dayInfo);
+                
+                if (!dayElement.querySelector('h3')) {
+                    dayElement.appendChild(dayInfo);
+                }
 
-                item.days[0].lessons.forEach(lesson => {
+                let lessonsAfterFilter = [];
+                
+                if (viewMode === "actual") {
+                    lessonsAfterFilter = item.days[0].lessons.filter(lesson => isLessonInDate(lesson));
+                } else {
+                    lessonsAfterFilter = item.days[0].lessons;
+                }
+                
+                if (lessonsAfterFilter.length === 0 && viewMode === "actual") {
+                    return;
+                }
+
+                lessonsAfterFilter.forEach(lesson => {
                     const isHidden = hiddenSubjects[lesson.lessonName] && 
-                        hiddenSubjects[lesson.lessonName].some(h => h.teacher === (lesson.teacherName || ""));
+                        hiddenSubjects[lesson.lessonName].some(h => 
+                            h.type === lesson.type || (h.teacher === (lesson.teacherName || "")));
+                    
                     if (isHidden) return;
+                    
+                    hasVisibleLessons = true;
 
                     const lessonContainer = document.createElement("div");
                     const lessonTypeColors = {
@@ -2281,13 +2427,13 @@
                 });
             });
 
-            return dayElement;
+            return hasVisibleLessons ? dayElement : null;
         }
 
         const isMobileView = window.innerWidth <= 768;
         if (isMobileView) {
             const toggleContainer = document.createElement("div");
-            toggleContainer.className = "flex justify-end items-center";
+            toggleContainer.className = "flex justify-end items-center -mt-2 mb-2";
 
             const toggleLabel = document.createElement("label");
             toggleLabel.className = "switch flex items-center";
@@ -2355,10 +2501,18 @@
             const currentDayIndex = today.getDay() - 1;
             const lastSelectedDayIndex = parseInt(localStorage.getItem('lastSelectedDayIndex')) || currentDayIndex;
             
-            const daysWithLessons = days.map((_, index) => displayDaySchedule(index) !== null);
+            const daysWithLessons = [];
+            for (let i = 0; i < 7; i++) {
+                daysWithLessons[i] = displayDaySchedule(i) !== null;
+            }
+            
+            let hasAnyDays = false;
             
             days.forEach((dayName, index) => {
-                if (!daysWithLessons[index]) return; const dayButton = document.createElement('button');
+                if (!daysWithLessons[index]) return;
+                
+                hasAnyDays = true;
+                const dayButton = document.createElement('button');
                 dayButton.className = 'flex flex-col items-center p-4 rounded-lg bg-gray-700 text-white transition-all min-w-[70px]';
                 dayButton.style.width = '70px';
                 
@@ -2382,7 +2536,17 @@
                     }
                     
                     const dayElement = displayDaySchedule(index);
-                    scheduleView.appendChild(dayElement);
+                    if (dayElement) {
+                        scheduleView.appendChild(dayElement);
+                    } else {
+                        const noLessonsElement = document.createElement('div');
+                        noLessonsElement.className = 'p-4 bg-slate-900 rounded-lg mb-4 day-schedule';
+                        noLessonsElement.innerHTML = `
+                            <h3 class="text-2xl font-semibold text-white mb-2">${days[index]}</h3>
+                            <p class="text-center text-white">Нет занятий</p>
+                        `;
+                        scheduleView.appendChild(noLessonsElement);
+                    }
                     
                     localStorage.setItem('lastSelectedDayIndex', index.toString());
                 };
@@ -2390,12 +2554,34 @@
                 daysContainer.appendChild(dayButton);
             });
             
+            if (!hasAnyDays) {
+                const noLessonsMessage = document.createElement("div");
+                noLessonsMessage.className = "text-center text-white text-xl p-4";
+                noLessonsMessage.innerText = "На этой неделе нет занятий";
+                scheduleContainer.appendChild(noLessonsMessage);
+                return;
+            }
+            
             scheduleContainer.appendChild(daysContainer);
             scheduleContainer.appendChild(scheduleView);
             
-            const initialDayIndex = lastSelectedDayIndex >= 0 ? lastSelectedDayIndex : 0;
-            const dayElement = displayDaySchedule(initialDayIndex);
-            scheduleView.appendChild(dayElement);
+            const validDayIndex = daysWithLessons[lastSelectedDayIndex] ? lastSelectedDayIndex : 
+                daysWithLessons.findIndex(hasLessons => hasLessons);
+                
+            if (validDayIndex >= 0) {
+                const dayElement = displayDaySchedule(validDayIndex);
+                if (dayElement) {
+                    scheduleView.appendChild(dayElement);
+                    
+                    const buttons = daysContainer.querySelectorAll('button');
+                    buttons.forEach((btn, idx) => {
+                        if (idx === validDayIndex - daysWithLessons.slice(0, validDayIndex)
+                            .filter(d => !d).length) {
+                            btn.classList.add('bg-blue-600');
+                        }
+                    });
+                }
+            }
         } else {
             const weekContainer = document.createElement("div");
             weekContainer.className = "grid grid-cols-1 gap-4";
@@ -2415,6 +2601,8 @@
             }
             scheduleContainer.appendChild(weekContainer);
         }
+        
+        updateHiddenSubjectsSection(course);
     }
 
       window.onload = () => {
@@ -2437,7 +2625,10 @@
         const betaBadge = document.getElementById("betaBadge");
         const betaExplanationModal = document.getElementById("betaExplanationModal");
         const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
+        const viewModeExplanationModal = document.getElementById("viewModeExplanationModal");
+        const closeViewModeExplanationBtn = document.getElementById("closeViewModeExplanation");
         let isBetaModalOpen = false;
+        let isViewModeModalOpen = false;
 
         function openBetaExplanation() {
           betaExplanationModal.classList.remove("translate-y-full");
@@ -2452,12 +2643,28 @@
           localStorage.setItem('betaModalShown', 'true');
         }
 
+        function openViewModeExplanation() {
+          viewModeExplanationModal.classList.remove("translate-y-full");
+          isViewModeModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeViewModeExplanation() {
+          viewModeExplanationModal.classList.add("translate-y-full");
+          isViewModeModalOpen = false;
+          document.body.style.overflow = "";
+        }
+
         betaBadge.addEventListener("click", openBetaExplanation);
         closeBetaExplanationBtn.addEventListener("click", closeBetaExplanation);
+        closeViewModeExplanationBtn.addEventListener("click", closeViewModeExplanation);
 
         document.addEventListener("click", (e) => {
           if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
             closeBetaExplanation();
+          }
+          if (isViewModeModalOpen && !viewModeExplanationModal.contains(e.target)) {
+            closeViewModeExplanation();
           }
         });
 
