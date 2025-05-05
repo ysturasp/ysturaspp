@@ -2192,22 +2192,50 @@
                     if (isHidden) return;
 
                     const lessonContainer = document.createElement("div");
-                    lessonContainer.className = "bg-slate-800 p-4 rounded-lg mb-2 flex";
-                    
                     const lessonTypeColors = {
                         lecture: 'border-blue-400',
                         practice: 'border-yellow-500',
                         other: 'border-white-500'
                     };
+                    lessonContainer.className = "bg-slate-800 p-4 rounded-lg mb-2 flex relative";
+                    
+                    if (lesson.additionalSlots && lesson.additionalSlots.length > 0) {
+                        lessonContainer.classList.add('multi-lesson');
+                        
+                        const timelineContainer = document.createElement("div");
+                        timelineContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
+                        
+                        const startTime = document.createElement("div");
+                        startTime.className = "text-sm font-bold";
+                        startTime.textContent = lesson.startAt;
+                        timelineContainer.appendChild(startTime);
+                        
+                        const timeline = document.createElement("div");
+                        timeline.className = "w-0.5 flex-grow my-1";
+                        timelineContainer.appendChild(timeline);
+                        
+                        const lastSlot = lesson.additionalSlots[lesson.additionalSlots.length - 1];
+                        const endTime = document.createElement("div");
+                        endTime.className = "text-sm font-bold";
+                        endTime.textContent = lastSlot.endAt;
+                        timelineContainer.appendChild(endTime);
 
-                    const timeContainer = document.createElement("div");
-                    timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
+                        lessonContainer.appendChild(timelineContainer);
+                        
+                        const multiLessonIndicator = document.createElement("div");
+                        multiLessonIndicator.className = "absolute -left-2 top-1/2 transform -translate-y-1/2 w-1 h-4/5 bg-blue-400 rounded-full";
+                        lessonContainer.appendChild(multiLessonIndicator);
+                    } else {
+                        const timeContainer = document.createElement("div");
+                        timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
 
-                    if (lesson.startAt && lesson.endAt) {
-                        timeContainer.innerHTML = `
-                            <span class="text-sm font-bold">${lesson.startAt}</span>
-                            <span class="text-sm font-bold">${lesson.endAt}</span>
-                        `;
+                        if (lesson.startAt && lesson.endAt) {
+                            timeContainer.innerHTML = `
+                                <span class="text-sm font-bold">${lesson.startAt}</span>
+                                <span class="text-sm font-bold">${lesson.endAt}</span>
+                            `;
+                        }
+                        lessonContainer.appendChild(timeContainer);
                     }
 
                     const lessonInfo = document.createElement("div");
@@ -2234,16 +2262,20 @@
                         ? `с ${lesson.startDate}`
                         : '';
 
+                    const durationText = lesson.additionalSlots && lesson.additionalSlots.length > 0
+                        ? `Занятие на ${lesson.additionalSlots.length + 1} пары`
+                        : '';
+
                     lessonInfo.innerHTML = `
                         <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                         <p class="text-sm ${typeClass}">${typeText}</p>
+                        ${durationText ? `<p class="text-sm text-blue-400">${durationText}</p>` : ''}
                         <p class="text-sm text-slate-400">${lesson.teacherName || "Преподаватель не указан"}</p>
                         <p class="text-sm text-slate-400">${lesson.auditoryName ? "Аудитория: " + lesson.auditoryName : "Аудитория не указана"}</p>
                         ${periodInfo ? `<p class="text-sm text-slate-400">${periodInfo}</p>` : ''}
                         ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : ''}
                     `;
 
-                    lessonContainer.appendChild(timeContainer);
                     lessonContainer.appendChild(lessonInfo);
                     dayElement.appendChild(lessonContainer);
                 });
