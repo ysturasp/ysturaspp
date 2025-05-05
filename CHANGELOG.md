@@ -1,3 +1,5 @@
+- add modal window explaining schedule viewing modes and corresponding logic for switching between modes (ysturasp, 2025-05-05) [1 file changed, 222 insertions(+), 15 deletions(-)]
+- add display of additional lesson slots with corresponding time and a multi-pair lesson indicator (ysturasp, 2025-05-05) [2 files changed, 45 insertions(+), 12 deletions(-)]
 -  small big fix (ysturasp, 2025-05-05) [2 files changed, 49 insertions(+), 19 deletions(-)]
 - replace url on fast api with cache (ysturasp, 2025-05-04) [1 file changed, 2 insertions(+), 2 deletions(-)]
 - add message beta schedule and section for introduce (ysturasp, 2025-05-04) [2 files changed, 92 insertions(+), 1 deletion(-)]
