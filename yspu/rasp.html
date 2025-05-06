@@ -892,8 +892,8 @@
       document.addEventListener("DOMContentLoaded", async () => {
         const instituteSelect = document.getElementById("institute-select");
         const groupSelect = document.getElementById("group-select");
-        const lastInstitut = localStorage.getItem("lastInstitut");
-        const lastGroup = localStorage.getItem("lastGroup");
+        const lastInstitut = localStorage.getItem("lastYspuInstitut");
+        const lastGroup = localStorage.getItem("lastYspuGroup");
         const mobileMenuButton = document.getElementById("mobile-menu-btn");
         const mobileMenu = document.getElementById("mobile-menu");
 
@@ -996,7 +996,7 @@
           return Math.ceil(dayOfYear/7);
         };
 
-        const lastWeek = localStorage.getItem('lastWeek') || new Date().getWeek();
+        const lastWeek = localStorage.getItem('lastYspuWeek') || new Date().getWeek();
 
         let directionsData = [];
 
@@ -1047,7 +1047,7 @@
             const selectedDirection = instituteSelect.value;
             if (selectedDirection) {
               updateGroups(selectedDirection);
-              localStorage.setItem("lastInstitut", selectedDirection);
+              localStorage.setItem("lastYspuInstitut", selectedDirection);
             }
           });
 
@@ -1077,8 +1077,8 @@
               return;
             }
 
-            localStorage.setItem("lastInstitut", directionId);
-            localStorage.setItem("lastGroup", course);
+            localStorage.setItem("lastYspuInstitut", directionId);
+            localStorage.setItem("lastYspuGroup", course);
 
             const scheduleContainer = document.getElementById("schedule");
             scheduleContainer.innerHTML = "";
@@ -2566,7 +2566,7 @@
             
             const today = new Date();
             const currentDayIndex = today.getDay() - 1;
-            const lastSelectedDayIndex = parseInt(localStorage.getItem('lastSelectedDayIndex')) || currentDayIndex;
+            const lastSelectedDayIndex = parseInt(localStorage.getItem('lastYspuSelectedDayIndex')) || currentDayIndex;
             
             const daysWithLessons = [];
             for (let i = 0; i < 7; i++) {
@@ -2615,7 +2615,7 @@
                         scheduleView.appendChild(noLessonsElement);
                     }
                     
-                    localStorage.setItem('lastSelectedDayIndex', index.toString());
+                    localStorage.setItem('lastYspuSelectedDayIndex', index.toString());
                 };
                 
                 daysContainer.appendChild(dayButton);
