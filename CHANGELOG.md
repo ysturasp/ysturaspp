@@ -1,3 +1,4 @@
+- add scripts to initialize Firebase and display the number of online users, as well as styles for user counter (ysturasp, 2025-05-06) [2 files changed, 297 insertions(+), 134 deletions(-)]
 - update link on tg mini app (ysturasp, 2025-05-05) [3 files changed, 5 insertions(+), 3 deletions(-)]
 - add modal window explaining schedule viewing modes and corresponding logic for switching between modes (ysturasp, 2025-05-05) [1 file changed, 222 insertions(+), 15 deletions(-)]
 - add display of additional lesson slots with corresponding time and a multi-pair lesson indicator (ysturasp, 2025-05-05) [2 files changed, 45 insertions(+), 12 deletions(-)]

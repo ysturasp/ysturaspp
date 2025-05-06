@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#0F172A" />
     <meta name="apple-mobile-web-app-title" content="ystuRASP" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta
       name="description"
       content="Актуальное расписание занятий ЯГПУ. Найдите свои занятия по группе"
@@ -412,6 +412,16 @@
                 top: calc(100% + 8px);
             }
         }
+
+        .pwa-section {
+            display: block;
+        }
+
+        @media (display-mode: standalone) {
+            .pwa-section {
+                display: none;
+            }
+        }
     </style>
   </head>
   <body class="bg-slate-900 text-gray-300 antialiased">
@@ -515,10 +525,7 @@
           </h2>
         </div>
 
-        <div
-          class="bg-green-100 rounded-lg py-2 px-6 mb-4 text-base text-green-700 mb-3"
-          role="alert"
-        >
+        <div class="bg-green-100 rounded-lg py-2 px-6 mb-4 text-base text-green-700 hide-in-tg pwa-section" role="alert">
           А в
           <a href="https://t.me/ysturasp_yspu_bot/ysturasp_yspu" class="font-bold"
             >мини-приложение в Telegram </a
@@ -611,7 +618,7 @@
         <div id="statistics-container" class="grid grid-cols-1 gap-4"></div>
       </section>
 
-      <section>
+      <section id="features-section" class="pwa-section hide-in-tg">
         <h2 class="text-3xl md:text-4xl font-semibold text-white mt-6">
           😎 Поясняем за наши топовые фичи
         </h2>
@@ -897,6 +904,20 @@
         const closeViewModeExplanationBtn = document.getElementById("closeViewModeExplanation");
         let isBetaModalOpen = false;
         let isViewModeModalOpen = false;
+
+        if (window.location.hash.includes('tgWebAppData')) {
+            document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
+            
+            document.querySelectorAll('.show-in-tg').forEach(el => {
+                if (window.getComputedStyle(el).display === 'flex' || el.classList.contains('flex')) {
+                    el.style.display = 'flex';
+                } else {
+                    el.style.display = 'block';
+                }
+            });
+        } else {
+            document.querySelectorAll('.show-in-tg').forEach(el => el.style.display = 'none');
+        }
 
         console.log('Beta elements:', { betaBadge, betaExplanationModal, closeBetaExplanationBtn });
 
