@@ -1,3 +1,4 @@
+- add page schedule audience and prepods for YSPU and tabbar on all page (ysturasp, 2025-05-08) [4 files changed, 2642 insertions(+)]
 - add navigation links to YSTU and YSPU in header and mobile menu for both schedule pages (ysturasp, 2025-05-06) [3 files changed, 26 insertions(+)]
 - update localStorage keys to store data about last selected institute, group, and day of week by adding prefix "Yspu" (ysturasp, 2025-05-06) [1 file changed, 8 insertions(+), 8 deletions(-)]
 - add logic pwa and tg mini app hidden (ysturasp, 2025-05-06) [2 files changed, 28 insertions(+), 6 deletions(-)]
