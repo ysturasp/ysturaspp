@@ -1,3 +1,4 @@
+- update response from API and processing data on frontend for them (ysturasp, 2025-05-08) [5 files changed, 118 insertions(+), 54 deletions(-)]
 - фвв add metrics on rasprep pages (ysturasp, 2025-05-08) [3 files changed, 145 insertions(+), 1 deletion(-)]
 - fix link way icon site (ysturasp, 2025-05-08) [2 files changed, 2 insertions(+), 1 deletion(-)]
 - update favicon to rasp page YSPU (ysturasp, 2025-05-08) [2 files changed, 2 insertions(+), 1 deletion(-)]
