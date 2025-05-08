@@ -1,3 +1,4 @@
+- fix glow in page rasp and raspprep (ysturasp, 2025-05-08) [3 files changed, 5 insertions(+), 5 deletions(-)]
 - format code in files pages YSPU (ysturasp, 2025-05-08) [4 files changed, 2906 insertions(+), 2767 deletions(-)]
 - add page schedule audience and prepods for YSPU and tabbar on all page (ysturasp, 2025-05-08) [4 files changed, 2642 insertions(+)]
 - add navigation links to YSTU and YSPU in header and mobile menu for both schedule pages (ysturasp, 2025-05-06) [3 files changed, 26 insertions(+)]
