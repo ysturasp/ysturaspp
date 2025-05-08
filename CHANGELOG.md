@@ -1,3 +1,4 @@
+- add navigation links to YSTU and YSPU in header and mobile menu for both schedule pages (ysturasp, 2025-05-06) [3 files changed, 26 insertions(+)]
 - update localStorage keys to store data about last selected institute, group, and day of week by adding prefix "Yspu" (ysturasp, 2025-05-06) [1 file changed, 8 insertions(+), 8 deletions(-)]
 - add logic pwa and tg mini app hidden (ysturasp, 2025-05-06) [2 files changed, 28 insertions(+), 6 deletions(-)]
 - add scripts to initialize Firebase and display the number of online users, as well as styles for user counter (ysturasp, 2025-05-06) [2 files changed, 297 insertions(+), 134 deletions(-)]
