@@ -662,7 +662,7 @@
             document.getElementById("week-info").innerHTML = getCurrentWeekMessage();
 
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=teachers');
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teachers');
 
                 if (response.status === 429) {
                     const retryDelay = 20 * 1000;
@@ -712,7 +712,7 @@
                         loadingOverlay.style.display = 'flex';
 
                         try {
-                            fetch(`https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=teacher&id=${teacherId}`)
+                            fetch(`https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teacher&id=${teacherId}`)
                                 .then(response => {
                                     if (response.status === 429) {
                                         let retryAfter = 20;
@@ -831,7 +831,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=teacher&id=${teacherId}`);
+                    const response = await fetch(`https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teacher&id=${teacherId}`);
                     
                     if (response.status === 429) {
                         let retryAfter = 20;
