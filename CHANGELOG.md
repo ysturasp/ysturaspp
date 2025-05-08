@@ -1,3 +1,4 @@
+- фвв add metrics on rasprep pages (ysturasp, 2025-05-08) [3 files changed, 145 insertions(+), 1 deletion(-)]
 - fix link way icon site (ysturasp, 2025-05-08) [2 files changed, 2 insertions(+), 1 deletion(-)]
 - update favicon to rasp page YSPU (ysturasp, 2025-05-08) [2 files changed, 2 insertions(+), 1 deletion(-)]
 - fix glow in page rasp and raspprep (ysturasp, 2025-05-08) [3 files changed, 5 insertions(+), 5 deletions(-)]

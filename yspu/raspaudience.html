@@ -722,7 +722,7 @@
             document.getElementById("week-info").innerHTML = getCurrentWeekMessage();
 
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbxiyuIJz3Vxu5xdUPk8Z6uaGMG-h3vMCIbKmjj6zOaqsoC_SFLhRP7N7cRwPcv0ZQhv/exec?action=auditories');
+                const response = await fetch('https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=auditories');
 
                 if (response.status === 429) {
                     const retryDelay = 20 * 1000;
@@ -772,7 +772,7 @@
                         loadingOverlay.style.display = 'flex';
 
                         try {
-                            fetch(`https://script.google.com/macros/s/AKfycbxiyuIJz3Vxu5xdUPk8Z6uaGMG-h3vMCIbKmjj6zOaqsoC_SFLhRP7N7cRwPcv0ZQhv/exec?action=auditory&id=${audienceId}`)
+                            fetch(`https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=auditory&id=${audienceId}`)
                                 .then(response => {
                                     if (response.status === 429) {
                                         let retryAfter = 20;
@@ -891,7 +891,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://script.google.com/macros/s/AKfycbxiyuIJz3Vxu5xdUPk8Z6uaGMG-h3vMCIbKmjj6zOaqsoC_SFLhRP7N7cRwPcv0ZQhv/exec?action=auditory&id=${audienceId}`);
+                    const response = await fetch(`https://script.google.com/macros/s/AKfycbyxlpp9PfpaWB3H9lTRNER-NPeaIuPTkalj2X9Uvr7FMNYY3LkVLFy1gHo2TPhSRws/exec?action=auditory&id=${audienceId}`);
 
                     if (response.status === 429) {
                         let retryAfter = 20;
@@ -930,20 +930,22 @@
             }
 
             function displaySchedule(data) {
-                const scheduleContainer = document.getElementById('schedule');
-                scheduleContainer.innerHTML = '';
+                const scheduleContainer = document.getElementById("schedule");
+                scheduleContainer.innerHTML = "";
 
-                const titleElement = document.createElement('h2');
+                console.log('Полученные данные:', data);
+
+                const titleElement = document.createElement("h2");
                 titleElement.style.background = 'radial-gradient(rgb(0 96 255 / 74%) 10%, rgba(255, 255, 255, 0) 100%)';
                 titleElement.className = 'p-4 md:pr-20 md:pl-20 md:ml-20 md:mr-20 sm:ml-0 sm:mr-0 rounded-lg text-center text-xl lg:text-3xl md:text-xl font-bold text-white shadow-lg transition';
-                titleElement.innerText = `Расписание аудитории ${data.number}`;
+                titleElement.innerText = `Расписание аудитории ${data.items[0].courseInfo.number}`;
 
                 const titleContainer = document.createElement('div');
                 titleContainer.className = 'flex justify-center md:items-center mb-4';
                 titleContainer.appendChild(titleElement);
                 scheduleContainer.appendChild(titleContainer);
 
-                if (!data.schedule || data.schedule.length === 0) {
+                if (!data.items || data.items.length === 0) {
                     const noScheduleMessage = document.createElement('div');
                     noScheduleMessage.className = 'text-center text-white text-xl p-4';
                     noScheduleMessage.innerHTML = 'В этой аудитории нет занятий';
@@ -951,13 +953,34 @@
                     return;
                 }
 
-                const scheduleByDays = data.schedule.reduce((acc, lesson) => {
-                    if (!acc[lesson.day]) {
-                        acc[lesson.day] = [];
+                const scheduleByDays = {};
+
+                data.items[0].days.forEach(day => {
+                    const dayNumber = day.info.type;
+                    
+                    if (!scheduleByDays[dayNumber]) {
+                        scheduleByDays[dayNumber] = [];
                     }
-                    acc[lesson.day].push(lesson);
-                    return acc;
-                }, {});
+
+                    day.lessons.forEach(lesson => {
+                        console.log('Обработка занятия:', lesson);
+                        scheduleByDays[dayNumber].push({
+                            time: lesson.timeRange,
+                            subject: lesson.lessonName,
+                            type: lesson.type,
+                            teacher: lesson.teacherName,
+                            auditory: lesson.auditoryName || 'онлайн',
+                            isDistant: lesson.isDistant,
+                            isStream: lesson.isStream,
+                            isDivision: lesson.isDivision,
+                            number: lesson.number,
+                            startAt: lesson.startAt,
+                            endAt: lesson.endAt,
+                            groups: lesson.groups,
+                            direction: lesson.direction
+                        });
+                    });
+                });
 
                 Object.keys(scheduleByDays)
                     .sort((a, b) => parseInt(a) - parseInt(b))
@@ -969,11 +992,7 @@
                         dayElement.innerHTML = `<h3 class="text-2xl font-semibold text-white mb-2">${dayName}</h3>`;
 
                         scheduleByDays[dayNumber]
-                            .sort((a, b) => {
-                                const timeA = a.time.split('-')[0];
-                                const timeB = b.time.split('-')[0];
-                                return timeA.localeCompare(timeB);
-                            })
+                            .sort((a, b) => a.number - b.number)
                             .forEach(lesson => {
                                 const lessonElement = document.createElement('div');
                                 lessonElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
@@ -998,21 +1017,22 @@
 
                                 const timeContainer = document.createElement('div');
                                 timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${borderColorClass} pr-2 w-14 mr-2`;
-                                const [startTime, endTime] = lesson.time.split('-');
                                 timeContainer.innerHTML = `
-                                    <span class="text-sm font-bold">${startTime}</span>
-                                    <span class="text-sm font-bold">${endTime}</span>
+                                    <span class="text-sm font-bold">${lesson.startAt}</span>
+                                    <span class="text-sm font-bold">${lesson.endAt}</span>
                                 `;
 
                                 const lessonInfo = document.createElement('div');
                                 lessonInfo.innerHTML = `
                                     <p class="text-lg font-bold text-white">${lesson.subject}</p>
                                     <p class="text-sm ${textColorClass}">${lessonTypeText}</p>
-                                    <p class="text-sm text-slate-400">${lesson.direction}</p>
-                                    <p class="text-sm text-slate-400">Группа: ${lesson.group}</p>
+                                    ${lesson.isStream ? '<p class="text-sm text-purple-400">Поток</p>' : ''}
+                                    ${lesson.isDivision ? '<p class="text-sm text-green-400">Подгруппа</p>' : ''}
                                     <a href="/yspu/raspprep?teacher=${encodeURIComponent(lesson.teacher)}" class="text-sm text-blue-400 hover-bold">
-                                        ${lesson.teacher}
+                                        Преподаватель: ${lesson.teacher}
                                     </a>
+                                    ${lesson.groups ? `<p class="text-sm text-gray-400 mt-1">Группы: ${lesson.groups}</p>` : ''}
+                                    ${lesson.direction ? `<p class="text-sm text-gray-400">Направления: ${lesson.direction}</p>` : ''}
                                 `;
 
                                 lessonElement.appendChild(timeContainer);
