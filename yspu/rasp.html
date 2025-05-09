@@ -2876,6 +2876,69 @@
         }, 1000);
       }
     });
+
+    function updateMetaTags(groupNumber, direction) {
+        document.title = `Расписание группы ${groupNumber} ${direction} | ystuRASP`;
+
+        const descriptionMeta = document.querySelector('meta[name="description"]');
+        if (descriptionMeta) {
+            descriptionMeta.setAttribute('content', `Актуальное расписание занятий группы ${groupNumber} ${direction} ЯГПУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+        }
+
+        const keywordsMeta = document.querySelector('meta[name="keywords"]');
+        if (keywordsMeta) {
+            keywordsMeta.setAttribute('content', `расписание группы ${groupNumber}, ${groupNumber} ЯГПУ, расписание ${direction}, ЯГПУ расписание занятий, расписание пар ЯГПУ`);
+        }
+
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) {
+            ogTitle.setAttribute('content', `Расписание группы ${groupNumber} ${direction} | ystuRASP`);
+        }
+
+        const ogDescription = document.querySelector('meta[property="og:description"]');
+        if (ogDescription) {
+            ogDescription.setAttribute('content', `Актуальное расписание занятий группы ${groupNumber} ${direction} ЯГПУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+        }
+
+        const canonicalLink = document.querySelector('link[rel="canonical"]');
+        if (!canonicalLink) {
+            const link = document.createElement('link');
+            link.rel = 'canonical';
+            link.href = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(groupNumber)}`;
+            document.head.appendChild(link);
+        } else {
+            canonicalLink.href = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(groupNumber)}`;
+        }
+
+        const mainHeading = document.querySelector('h1');
+        if (!mainHeading) {
+            const heading = document.createElement('h1');
+            heading.className = 'sr-only';
+            heading.textContent = `Расписание группы ${groupNumber} ${direction} ЯГПУ`;
+            document.querySelector('main').insertBefore(heading, document.querySelector('main').firstChild);
+        } else {
+            mainHeading.textContent = `Расписание группы ${groupNumber} ${direction} ЯГПУ`;
+        }
+    }
+
+    // ... existing code ...
+
+    scheduleForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const groupNumber = groupSelect.value;
+        const selectedOption = groupSelect.options[groupSelect.selectedIndex];
+        const direction = selectedOption.text;
+
+        if (!groupNumber) {
+            return;
+        }
+
+        updateMetaTags(groupNumber, direction);
+
+        // ... rest of the existing submit handler code ...
+    });
+
+    // ... existing code ...
   </script>
 
   <script>
