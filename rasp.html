@@ -957,6 +957,10 @@
         .peer + div svg {
             display: none;
         }
+
+        #weeksListModal {
+            z-index: 51;
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -1090,53 +1094,10 @@
                     <div>
                         <div class="flex items-center space-x-2">
                             <label for="week-select" class="block text-white mb-2">Выберите неделю:</label>
-
-                            <a tabindex="0" id="message" role="link" aria-label="tooltip 2"
-                                class="focus:outline-none focus:ring-gray-300 rounded-full relative"
-                                onmouseover="showTooltip(2)" onfocus="showTooltip(2)" onmouseout="hideTooltip(2)">
-                                <div class="cursor-pointer">
-                                    <svg aria-haspopup="true" xmlns="http://www.w3.org/2000/svg"
-                                        class="icon icon-tabler mb-2 icon-tabler-info-circle" width="25" height="25"
-                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="#A0AEC0" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" />
-                                        <circle cx="12" cy="12" r="9" />
-                                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                                        <polyline points="11 12 12 12 12 16 13 16" />
-                                    </svg>
-                                </div>
-                                <div id="tooltip2" role="tooltip"
-                                    class="z-20 w-33 absolute transition duration-150 -in-out left-0 ml-8 shadow-lg bg-indigo-700 p-4 rounded">
-                                    <svg class="absolute left-0 -ml-2 bottom-0 top-0 h-full" width="9px" height="16px"
-                                    viewBox="0 0 9 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                    xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                        <g id="Tooltips-" transform="translate(-874.000000, -1029.000000)"
-                                            fill="#4c51bf">
-                                            <g id="Group-3-Copy-16" transform="translate(850.000000, 975.000000)">
-                                                <g id="Group-2" transform="translate(24.000000, 0.000000)">
-                                                    <polygon id="Triangle"
-                                                        transform="translate(4.500000, -7.000000) rotate(-90.000000) translate(-4.500000, -62.000000)"
-                                                        points="4.5 57.5 12.5 66.5 -3.5 66.5"></polygon>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </g>
-                                </svg>
-                                <p class="text-sm font-bold text-white pb-1">Выберите порядковый номер, соответствующий
-                                    первому дню недели</p>
-                                <p id="warningMessage" class="text-slate-400"></p>
-                                <p class="text-xs leading-4 text-white pb-3">
-                                <p class="text-slate-400" id="weeksList">
-                                </p>
-                                <div class="flex justify-between">
-                                    <div class="flex items-center">
-                                        <button onclick="hideTooltip(2); event.preventDefault();"
-                                            class="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 focus:bg-indigo-400 focus:outline-none focus:text-white bg-white transition duration-150 ease-in-out hover:bg-gray-200 rounded text-indigo-700 px-5 py-1 text-xs">Понятно</button>
-                                    </div>
-                                </div>
-                            </div>
                         </a>
+                        <div class="ml-2 mb-2 bg-blue-600 w-6 h-6 rounded-full flex justify-center items-center cursor-pointer" title="Выберите неделю" onclick="openWeeksListModal()">
+                            <span class="text-white font-bold">?</span>
+                        </div>
                     </div>
 
                     <select id="week-select" class="w-full p-2 bg-slate-900 text-white rounded-lg">
@@ -1734,6 +1695,27 @@
         </div>
     </div>
 
+    <div id="weeksListModal"
+        class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
+        <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Выберите порядковый номер, соответствующий
+                    первому дню недели</h3>
+                <button id="closeWeeksListModal" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                </button>
+            </div>
+            <div class="text-gray-300">
+                <p class="text-slate-400 bg-gray-800 p-4 rounded-lg" id="weeksList">
+            </div>
+            <button onclick="closeWeeksListModal()" class="w-full bg-blue-600 mt-4 text-white rounded-lg px-4 py-3 hover:bg-blue-700 transition-all">
+                ок, пон
+            </button>
+        </div>
+    </div>
+
     <div id="notesFeatureModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden transition-opacity duration-300">
         <div class="flex md:items-center md:justify-center h-full md:min-h-screen md:p-4" style="background-color: #0b0f15ad;">
             <div class="w-full h-full md:h-auto md:max-w-2xl bg-slate-800 md:rounded-lg shadow-xl flex flex-col ring-1">
@@ -1885,6 +1867,37 @@
 
     <script src="linear.js"></script>
     <script>       
+        document.addEventListener('DOMContentLoaded', () => {
+            const weeksListModal = document.getElementById('weeksListModal');
+            const closeWeeksListModalBtn = document.getElementById('closeWeeksListModal');
+
+            closeWeeksListModalBtn.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'medium');
+                weeksListModal.classList.add('translate-y-full');
+            });
+
+            weeksListModal.addEventListener('click', (event) => {
+                if (event.target === weeksListModal) {
+                    triggerHapticFeedback('impact', 'medium');
+                    weeksListModal.classList.add('translate-y-full');
+                }
+            });
+            
+            
+        });
+
+        function openWeeksListModal() {
+            const modal = document.getElementById('weeksListModal');
+            triggerHapticFeedback('impact', 'medium');
+            modal.classList.remove('translate-y-full');
+        }
+
+        function closeWeeksListModal() {
+            const modal = document.getElementById('weeksListModal');
+            triggerHapticFeedback('impact', 'medium');
+            modal.classList.add('translate-y-full');
+        }
+
         function showNotesFeatureModal() {
             const modal = document.getElementById('notesFeatureModal');
             triggerHapticFeedback('impact', 'medium');
