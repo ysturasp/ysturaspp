@@ -693,6 +693,8 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const audienceFromURL = urlParams.get('audience');
 
+                updateMetaTags(audienceFromURL);
+
                 if (audienceFromURL) {
                     inputElement.value = audienceFromURL;
                     inputElement.dataset.audienceId = audienceFromURL;
@@ -907,20 +909,13 @@
 
             scheduleForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
-                const audienceName = inputElement.value.trim();
+                const audienceId = inputElement.dataset.audienceId;
                 const week = parseInt(weekSelect.value, 10);
 
-                if (!audienceName || !week) {
+                if (!audienceId || !week) {
                     return;
                 }
 
-                const audience = audiences.find(aud => aud.name === audienceName);
-                if (!audience) {
-                    console.error('Аудитория не найдена');
-                    return;
-                }
-
-                const audienceId = audience.name;
                 localStorage.setItem('lastAudience', audienceId);
                 localStorage.setItem('lastWeek', week);
 
@@ -1040,7 +1035,6 @@
                     filteredWeek.days = filteredWeek.days.filter(day => {
                         const lessonDate = new Date(day.info.date);
 
-                        // Для весеннего семестра 2025 года
                         if (lessonDate.getFullYear() === 2025 && lessonDate.getMonth() >= 1 && lessonDate.getMonth() <= 5) {
                             return true;
                         }
@@ -1418,6 +1412,50 @@
                 triggerHapticFeedback('light');
             });
         });
+
+        function updateMetaTags(audienceName) {
+            document.title = `Расписание аудитории ${audienceName} | ystuRASP`;
+            
+            const descriptionMeta = document.querySelector('meta[name="description"]');
+            if (descriptionMeta) {
+                descriptionMeta.setAttribute('content', `Актуальное расписание занятий в аудитории ${audienceName} ЯГТУ. Информация о занятости аудитории, расписание лекций и практик.`);
+            }
+            
+            const keywordsMeta = document.querySelector('meta[name="keywords"]');
+            if (keywordsMeta) {
+                keywordsMeta.setAttribute('content', `расписание аудитории ${audienceName}, ${audienceName} ЯГТУ, аудитория ${audienceName} расписание, ЯГТУ аудитории расписание, занятость ${audienceName}`);
+            }
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) {
+                ogTitle.setAttribute('content', `Расписание аудитории ${audienceName} | ystuRASP`);
+            }
+            
+            const ogDescription = document.querySelector('meta[property="og:description"]');
+            if (ogDescription) {
+                ogDescription.setAttribute('content', `Актуальное расписание занятий в аудитории ${audienceName} ЯГТУ. Информация о занятости аудитории, расписание лекций и практик.`);
+            }
+            
+            const canonicalLink = document.querySelector('link[rel="canonical"]');
+            if (!canonicalLink) {
+                const link = document.createElement('link');
+                link.rel = 'canonical';
+                link.href = `${window.location.origin}${window.location.pathname}?audience=${encodeURIComponent(audienceName)}`;
+                document.head.appendChild(link);
+            } else {
+                canonicalLink.href = `${window.location.origin}${window.location.pathname}?audience=${encodeURIComponent(audienceName)}`;
+            }
+            
+            const mainHeading = document.querySelector('h1');
+            if (!mainHeading) {
+                const heading = document.createElement('h1');
+                heading.className = 'sr-only';
+                heading.textContent = `Расписание аудитории ${audienceName} в ЯГТУ`;
+                document.querySelector('main').insertBefore(heading, document.querySelector('main').firstChild);
+            } else {
+                mainHeading.textContent = `Расписание аудитории ${audienceName} в ЯГТУ`;
+            }
+        }
     </script>
 
     <!-- Snow with weather -->

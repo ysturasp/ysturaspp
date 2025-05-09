@@ -618,6 +618,8 @@
                 const teacherParam = urlParams.get('teacher');
                 let shouldSubmitForm = false;
 
+                updateMetaTags(teacherParam);
+
                 if (teacherParam) {
                     const teacherParamLower = teacherParam.toLowerCase();
                     const teacherParamWithSpaces = teacherParamLower.replace('_', ' ');
@@ -843,6 +845,7 @@
                         overlay.classList.add('hidden');
                         inputElement.classList.remove('ambient-focuss');
                         optionsElement.classList.remove('ambient-focus');
+                        
                     });
                     optionsElement.appendChild(optionElement);
                 });
@@ -1994,10 +1997,6 @@
                 triggerHapticFeedback('light');
             });
 
-            copyLinkButton?.addEventListener('click', (event) => {
-                triggerHapticFeedback('light');
-            });
-
             scheduleForm?.addEventListener('submit', async (event) => {
                 triggerHapticFeedback('medium');
             });
@@ -2233,6 +2232,112 @@
             } catch (error) {
                 console.error('Ошибка при получении информации о преподавателе:', error);
                 return null;
+            }
+        }
+
+        function updateMetaTags(teacherName) {
+            if (!teacherName) {
+                console.warn('teacherName не определен');
+                return;
+            }
+
+            if (teacherName.includes('_')) {
+                const [lastName, initials] = teacherName.split('_');
+                const firstName = initials[0];
+                const middleName = initials[1];
+                
+                document.title = `Расписание преподавателя ${lastName} ${initials} | ystuRASP`;
+                
+                const descriptionMeta = document.querySelector('meta[name="description"]');
+                if (descriptionMeta) {
+                    descriptionMeta.setAttribute('content', `Актуальное расписание занятий преподавателя ${lastName} ${initials} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+                }
+                
+                const keywordsMeta = document.querySelector('meta[name="keywords"]');
+                if (keywordsMeta) {
+                    keywordsMeta.setAttribute('content', `расписание ${lastName} ${initials}, ${lastName} ${initials} ЯГТУ, расписание преподавателя ${lastName} ${initials}, ${lastName} ${initials} расписание, ЯГТУ преподаватели расписание`);
+                }
+                
+                const ogTitle = document.querySelector('meta[property="og:title"]');
+                if (ogTitle) {
+                    ogTitle.setAttribute('content', `Расписание преподавателя ${lastName} ${initials} | ystuRASP`);
+                }
+                
+                const ogDescription = document.querySelector('meta[property="og:description"]');
+                if (ogDescription) {
+                    ogDescription.setAttribute('content', `Актуальное расписание занятий преподавателя ${lastName} ${initials} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+                }
+                
+                const canonicalLink = document.querySelector('link[rel="canonical"]');
+                if (!canonicalLink) {
+                    const link = document.createElement('link');
+                    link.rel = 'canonical';
+                    link.href = `${window.location.origin}${window.location.pathname}?teacher=${encodeURIComponent(teacherName)}`;
+                    document.head.appendChild(link);
+                } else {
+                    canonicalLink.href = `${window.location.origin}${window.location.pathname}?teacher=${encodeURIComponent(teacherName)}`;
+                }
+                
+                const mainHeading = document.querySelector('h1');
+                if (!mainHeading) {
+                    const heading = document.createElement('h1');
+                    heading.className = 'sr-only';
+                    heading.textContent = `Расписание преподавателя ${lastName} ${initials} в ЯГТУ`;
+                    document.querySelector('main').insertBefore(heading, document.querySelector('main').firstChild);
+                } else {
+                    mainHeading.textContent = `Расписание преподавателя ${lastName} ${initials} в ЯГТУ`;
+                }
+                return;
+            }
+
+            const nameParts = teacherName.split(' ');
+            if (nameParts.length < 3) {
+                console.warn('Некорректный формат имени преподавателя:', teacherName);
+                return;
+            }
+
+            const shortName = `${nameParts[0]} ${nameParts[1][0]}${nameParts[2][0]}`;
+            
+            document.title = `Расписание преподавателя ${shortName} | ystuRASP`;
+            
+            const descriptionMeta = document.querySelector('meta[name="description"]');
+            if (descriptionMeta) {
+                descriptionMeta.setAttribute('content', `Актуальное расписание занятий преподавателя ${teacherName} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+            }
+            
+            const keywordsMeta = document.querySelector('meta[name="keywords"]');
+            if (keywordsMeta) {
+                keywordsMeta.setAttribute('content', `расписание ${teacherName}, ${teacherName} ЯГТУ, расписание преподавателя ${shortName}, ${nameParts[0]} ${nameParts[1][0]}${nameParts[2][0]} расписание, ЯГТУ преподаватели расписание`);
+            }
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) {
+                ogTitle.setAttribute('content', `Расписание преподавателя ${shortName} | ystuRASP`);
+            }
+            
+            const ogDescription = document.querySelector('meta[property="og:description"]');
+            if (ogDescription) {
+                ogDescription.setAttribute('content', `Актуальное расписание занятий преподавателя ${teacherName} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+            }
+            
+            const canonicalLink = document.querySelector('link[rel="canonical"]');
+            if (!canonicalLink) {
+                const link = document.createElement('link');
+                link.rel = 'canonical';
+                link.href = `${window.location.origin}${window.location.pathname}?teacher=${encodeURIComponent(teacherName)}`;
+                document.head.appendChild(link);
+            } else {
+                canonicalLink.href = `${window.location.origin}${window.location.pathname}?teacher=${encodeURIComponent(teacherName)}`;
+            }
+            
+            const mainHeading = document.querySelector('h1');
+            if (!mainHeading) {
+                const heading = document.createElement('h1');
+                heading.className = 'sr-only';
+                heading.textContent = `Расписание преподавателя ${teacherName} в ЯГТУ`;
+                document.querySelector('main').insertBefore(heading, document.querySelector('main').firstChild);
+            } else {
+                mainHeading.textContent = `Расписание преподавателя ${teacherName} в ЯГТУ`;
             }
         }
     </script>

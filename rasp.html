@@ -4858,11 +4858,51 @@
                 }
             }
         
+        function updateMetaTags(groupName, institute) {
+            document.title = `Расписание группы ${groupName} | ystuRASP`;
+            
+            document.querySelector('meta[name="description"]').content = `Актуальное расписание занятий группы ${groupName} ${institute ? `института ${institute}` : ''} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`;
+            
+            document.querySelector('meta[name="keywords"]').content = `расписание группы ${groupName}, ${groupName} ЯГТУ, расписание ЯГТУ ${groupName}, расписание пар ${groupName}, ЯГТУ расписание групп, ${institute || ''}`;
+            
+            document.querySelector('meta[property="og:title"]').content = `Расписание группы ${groupName} | ystuRASP`;
+            document.querySelector('meta[property="og:description"]').content = `Актуальное расписание занятий группы ${groupName} ${institute ? `института ${institute}` : ''} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`;
+            document.querySelector('meta[property="og:url"]').content = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(groupName)}`;
+            
+            const ogDescription = document.querySelector('meta[property="og:description"]');
+            if (ogDescription) {
+                ogDescription.setAttribute('content', `Актуальное расписание занятий группы ${groupName} в ЯГТУ. Удобный просмотр лекций, практик и лабораторных работ.`);
+            }
+            
+            const canonicalLink = document.querySelector('link[rel="canonical"]');
+            if (!canonicalLink) {
+                const link = document.createElement('link');
+                link.rel = 'canonical';
+                link.href = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(groupName)}`;
+                document.head.appendChild(link);
+            } else {
+                canonicalLink.href = `${window.location.origin}${window.location.pathname}?group=${encodeURIComponent(groupName)}`;
+            }
+            
+            const mainHeading = document.querySelector('h1');
+            if (!mainHeading) {
+                const heading = document.createElement('h1');
+                heading.className = 'sr-only';
+                heading.textContent = `Расписание группы ${groupName} в ЯГТУ`;
+                document.querySelector('main').insertBefore(heading, document.querySelector('main').firstChild);
+            } else {
+                mainHeading.textContent = `Расписание группы ${groupName} в ЯГТУ`;
+            }
+        }
 
         async function initializeSchedulePage() {
             const urlParams = new URLSearchParams(window.location.search);
             const instituteParam = urlParams.get('institute');
             const groupParam = urlParams.get('group');
+
+            if (groupParam) {
+                updateMetaTags(groupParam, instituteParam);
+            }
 
             if (instituteParam) {
                 const instituteName = instituteParam.replace(/_/g, ' ');
