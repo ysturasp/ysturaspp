@@ -896,822 +896,952 @@
   </div>
 
   <script>
+    function triggerHapticFeedback(type, style) {
+        if (window.Telegram?.WebApp) {
+            if (type === 'impact') {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred(style);
+            } else if (type === 'notification') {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred(style);
+            } else if (type === 'selection') {
+                window.Telegram.WebApp.HapticFeedback.selectionChanged();
+            }
+        }
+    }
+
+    async function waitForTelegramWebApp() {
+        return new Promise((resolve) => {
+            if (window.Telegram?.WebApp) {
+                resolve(window.Telegram.WebApp);
+            } else {
+                const script = document.createElement('script');
+                script.src = 'https://telegram.org/js/telegram-web-app.js';
+                script.onload = () => {
+                    if (window.Telegram?.WebApp) {
+                        resolve(window.Telegram.WebApp);
+                    }
+                };
+                document.head.appendChild(script);
+            }
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
-      const instituteSelect = document.getElementById("institute-select");
-      const groupSelect = document.getElementById("group-select");
-      const lastInstitut = localStorage.getItem("lastYspuInstitut");
-      const lastGroup = localStorage.getItem("lastYspuGroup");
-      const mobileMenuButton = document.getElementById("mobile-menu-btn");
-      const mobileMenu = document.getElementById("mobile-menu");
-
-      const betaBadge = document.getElementById("betaBadge");
-      const betaExplanationModal = document.getElementById("betaExplanationModal");
-      const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
-      const viewModeExplanationModal = document.getElementById("viewModeExplanationModal");
-      const closeViewModeExplanationBtn = document.getElementById("closeViewModeExplanation");
-      let isBetaModalOpen = false;
-      let isViewModeModalOpen = false;
-
-      if (window.location.hash.includes('tgWebAppData')) {
-        document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
-
-        document.querySelectorAll('.show-in-tg').forEach(el => {
-          if (window.getComputedStyle(el).display === 'flex' || el.classList.contains('flex')) {
-            el.style.display = 'flex';
-          } else {
-            el.style.display = 'block';
-          }
+        window.addEventListener('pageshow', async (event) => {
+            if (event.persisted || document.referrer.includes('t.me')) {
+                await waitForTelegramWebApp();
+                triggerHapticFeedback('impact', 'medium');
+            }
         });
-      } else {
-        document.querySelectorAll('.show-in-tg').forEach(el => el.style.display = 'none');
-      }
-
-      console.log('Beta elements:', { betaBadge, betaExplanationModal, closeBetaExplanationBtn });
-
-      function openBetaExplanation() {
-        console.log('Opening beta explanation');
-        betaExplanationModal.classList.remove("translate-y-full");
-        isBetaModalOpen = true;
-        document.body.style.overflow = "hidden";
-      }
-
-      function closeBetaExplanation() {
-        console.log('Closing beta explanation');
-        betaExplanationModal.classList.add("translate-y-full");
-        isBetaModalOpen = false;
-        document.body.style.overflow = "";
-        localStorage.setItem('betaModalShown', 'true');
-      }
-
-      function openViewModeExplanation() {
-        viewModeExplanationModal.classList.remove("translate-y-full");
-        isViewModeModalOpen = true;
-        document.body.style.overflow = "hidden";
-      }
-
-      function closeViewModeExplanation() {
-        viewModeExplanationModal.classList.add("translate-y-full");
-        isViewModeModalOpen = false;
-        document.body.style.overflow = "";
-      }
-
-      if (betaBadge) {
-        betaBadge.addEventListener("click", (e) => {
-          console.log('Beta badge clicked');
-          e.stopPropagation();
-          openBetaExplanation();
-        });
-      }
-
-      if (closeBetaExplanationBtn) {
-        closeBetaExplanationBtn.addEventListener("click", (e) => {
-          console.log('Close button clicked');
-          e.stopPropagation();
-          closeBetaExplanation();
-        });
-      }
-
-      if (closeViewModeExplanationBtn) {
-        closeViewModeExplanationBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeViewModeExplanation();
-        });
-      }
-
-      document.addEventListener("click", (e) => {
-        if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
-          closeBetaExplanation();
+        
+        if (window.location.hash.includes('tgWebAppData')) {
+            await waitForTelegramWebApp();
         }
-        if (isViewModeModalOpen && !viewModeExplanationModal.contains(e.target)) {
-          closeViewModeExplanation();
-        }
-      });
 
-      window.addEventListener('load', () => {
-        const betaModalShown = localStorage.getItem('betaModalShown');
-        if (!betaModalShown) {
-          setTimeout(() => {
+        const instituteSelect = document.getElementById("institute-select");
+        const groupSelect = document.getElementById("group-select");
+        const lastInstitut = localStorage.getItem("lastYspuInstitut");
+        const lastGroup = localStorage.getItem("lastYspuGroup");
+        const mobileMenuButton = document.getElementById("mobile-menu-btn");
+        const mobileMenu = document.getElementById("mobile-menu");
+
+        const betaBadge = document.getElementById("betaBadge");
+        const betaExplanationModal = document.getElementById("betaExplanationModal");
+        const closeBetaExplanationBtn = document.getElementById("closeBetaExplanation");
+        const viewModeExplanationModal = document.getElementById("viewModeExplanationModal");
+        const closeViewModeExplanationBtn = document.getElementById("closeViewModeExplanation");
+        let isBetaModalOpen = false;
+        let isViewModeModalOpen = false;
+
+        if (window.location.hash.includes('tgWebAppData')) {
+          document.querySelectorAll('.hide-in-tg').forEach(el => el.style.display = 'none');
+
+          document.querySelectorAll('.show-in-tg').forEach(el => {
+            if (window.getComputedStyle(el).display === 'flex' || el.classList.contains('flex')) {
+              el.style.display = 'flex';
+            } else {
+              el.style.display = 'block';
+            }
+          });
+        } else {
+          document.querySelectorAll('.show-in-tg').forEach(el => el.style.display = 'none');
+        }
+
+        console.log('Beta elements:', { betaBadge, betaExplanationModal, closeBetaExplanationBtn });
+
+        function openBetaExplanation() {
+          console.log('Opening beta explanation');
+          betaExplanationModal.classList.remove("translate-y-full");
+          isBetaModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeBetaExplanation() {
+          console.log('Closing beta explanation');
+          betaExplanationModal.classList.add("translate-y-full");
+          isBetaModalOpen = false;
+          document.body.style.overflow = "";
+          localStorage.setItem('betaModalShown', 'true');
+        }
+
+        function openViewModeExplanation() {
+          viewModeExplanationModal.classList.remove("translate-y-full");
+          isViewModeModalOpen = true;
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeViewModeExplanation() {
+          viewModeExplanationModal.classList.add("translate-y-full");
+          isViewModeModalOpen = false;
+          document.body.style.overflow = "";
+        }
+
+        if (betaBadge) {
+          betaBadge.addEventListener("click", (e) => {
+            console.log('Beta badge clicked');
+            e.stopPropagation();
             openBetaExplanation();
-          }, 1500);
+          });
         }
-      });
 
-      Date.prototype.getWeek = function () {
-        var onejan = new Date(this.getFullYear(), 0, 1);
-        var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
-        var dayOfYear = ((today - onejan + 86400000) / 86400000);
-        return Math.ceil(dayOfYear / 7);
-      };
+        if (closeBetaExplanationBtn) {
+          closeBetaExplanationBtn.addEventListener("click", (e) => {
+            console.log('Close button clicked');
+            e.stopPropagation();
+            closeBetaExplanation();
+          });
+        }
 
-      const lastWeek = localStorage.getItem('lastYspuWeek') || new Date().getWeek();
+        if (closeViewModeExplanationBtn) {
+          closeViewModeExplanationBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeViewModeExplanation();
+          });
+        }
 
-      let directionsData = [];
-
-      try {
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=directions"
-        );
-        directionsData = await response.json();
-
-        instituteSelect.innerHTML = '<option value="">Выберите направление</option>';
-        directionsData.forEach((direction) => {
-          instituteSelect.innerHTML += `<option value="${direction.id}">${direction.name}</option>`;
+        document.addEventListener("click", (e) => {
+          if (isBetaModalOpen && !betaExplanationModal.contains(e.target) && e.target !== betaBadge) {
+            closeBetaExplanation();
+          }
+          if (isViewModeModalOpen && !viewModeExplanationModal.contains(e.target)) {
+            closeViewModeExplanation();
+          }
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const instituteParam = urlParams.get("institute");
-        const groupParam = urlParams.get("group");
+        window.addEventListener('load', () => {
+          const betaModalShown = localStorage.getItem('betaModalShown');
+          if (!betaModalShown) {
+            setTimeout(() => {
+              openBetaExplanation();
+            }, 1500);
+          }
+        });
 
-        if (instituteParam) {
-          const selectedDirection = directionsData.find(dir => dir.id === instituteParam);
-          if (selectedDirection) {
-            instituteSelect.value = instituteParam;
-            updateGroups(instituteParam);
+        Date.prototype.getWeek = function () {
+          var onejan = new Date(this.getFullYear(), 0, 1);
+          var today = new Date(this.getFullYear(), this.getMonth(), this.getDate());
+          var dayOfYear = ((today - onejan + 86400000) / 86400000);
+          return Math.ceil(dayOfYear / 7);
+        };
 
-            if (groupParam) {
-              groupSelect.value = groupParam;
-              setTimeout(() => {
-                document.querySelector('button[type="submit"]').click();
-              }, 100);
+        const lastWeek = localStorage.getItem('lastYspuWeek') || new Date().getWeek();
+
+        let directionsData = [];
+
+        try {
+          const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=directions"
+          );
+          directionsData = await response.json();
+
+          instituteSelect.innerHTML = '<option value="">Выберите направление</option>';
+          directionsData.forEach((direction) => {
+            instituteSelect.innerHTML += `<option value="${direction.id}">${direction.name}</option>`;
+          });
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const instituteParam = urlParams.get("institute");
+          const groupParam = urlParams.get("group");
+
+          if (instituteParam) {
+            const selectedDirection = directionsData.find(dir => dir.id === instituteParam);
+            if (selectedDirection) {
+              instituteSelect.value = instituteParam;
+              updateGroups(instituteParam);
+
+              if (groupParam) {
+                groupSelect.value = groupParam;
+                setTimeout(() => {
+                  document.querySelector('button[type="submit"]').click();
+                }, 100);
+              }
+            }
+          } else if (lastInstitut) {
+            const selectedDirection = directionsData.find(dir => dir.id === lastInstitut);
+            if (selectedDirection) {
+              instituteSelect.value = lastInstitut;
+              updateGroups(lastInstitut);
+
+              if (lastGroup) {
+                groupSelect.value = lastGroup;
+                setTimeout(() => {
+                  document.querySelector('button[type="submit"]').click();
+                }, 100);
+              }
             }
           }
-        } else if (lastInstitut) {
-          const selectedDirection = directionsData.find(dir => dir.id === lastInstitut);
-          if (selectedDirection) {
-            instituteSelect.value = lastInstitut;
-            updateGroups(lastInstitut);
 
-            if (lastGroup) {
-              groupSelect.value = lastGroup;
-              setTimeout(() => {
-                document.querySelector('button[type="submit"]').click();
-              }, 100);
+          instituteSelect.addEventListener("change", () => {
+            const selectedDirection = instituteSelect.value;
+            if (selectedDirection) {
+              updateGroups(selectedDirection);
+              localStorage.setItem("lastYspuInstitut", selectedDirection);
+            }
+          });
+
+          function updateGroups(directionId) {
+            const selectedDirection = directionsData.find(dir => dir.id === directionId);
+            if (selectedDirection) {
+              groupSelect.innerHTML = '<option value="">Выберите группу</option>';
+              const courses = selectedDirection.courses;
+
+              Object.entries(courses).forEach(([key, course]) => {
+                groupSelect.innerHTML += `<option value="${key}">${course.name}</option>`;
+              });
+
+              if (lastGroup) {
+                groupSelect.value = lastGroup;
+              }
             }
           }
-        }
 
-        instituteSelect.addEventListener("change", () => {
-          const selectedDirection = instituteSelect.value;
-          if (selectedDirection) {
-            updateGroups(selectedDirection);
-            localStorage.setItem("lastYspuInstitut", selectedDirection);
-          }
-        });
+          document.getElementById("schedule-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const directionId = instituteSelect.value;
+            const course = groupSelect.value;
 
-        function updateGroups(directionId) {
-          const selectedDirection = directionsData.find(dir => dir.id === directionId);
-          if (selectedDirection) {
-            groupSelect.innerHTML = '<option value="">Выберите группу</option>';
-            const courses = selectedDirection.courses;
-
-            Object.entries(courses).forEach(([key, course]) => {
-              groupSelect.innerHTML += `<option value="${key}">${course.name}</option>`;
-            });
-
-            if (lastGroup) {
-              groupSelect.value = lastGroup;
+            if (!directionId || !course) {
+              alert("Пожалуйста, выберите направление и группу.");
+              return;
             }
-          }
+
+            localStorage.setItem("lastYspuInstitut", directionId);
+            localStorage.setItem("lastYspuGroup", course);
+
+            const scheduleContainer = document.getElementById("schedule");
+            scheduleContainer.innerHTML = "";
+            const loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+
+            try {
+              const response = await fetch(
+                `https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=schedule&id=${directionId}`
+              );
+              const data = await response.json();
+
+              displaySchedule(data, course);
+              loadingOverlay.style.display = "none";
+            } catch (error) {
+              console.error("Ошибка при получении расписания:", error);
+              scheduleContainer.innerHTML = `<p class="text-red-500">Ошибка при получении расписания: ${error.message}</p>`;
+              loadingOverlay.style.display = "none";
+            }
+          });
+
+
+        } catch (error) {
+          console.error("Ошибка при получении направлений:", error);
+          instituteSelect.innerHTML =
+            '<option value="">Ошибка при получении направлений</option>';
         }
 
-        document.getElementById("schedule-form").addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const directionId = instituteSelect.value;
-          const course = groupSelect.value;
-
-          if (!directionId || !course) {
-            alert("Пожалуйста, выберите направление и группу.");
-            return;
-          }
-
-          localStorage.setItem("lastYspuInstitut", directionId);
-          localStorage.setItem("lastYspuGroup", course);
-
-          const scheduleContainer = document.getElementById("schedule");
-          scheduleContainer.innerHTML = "";
-          const loadingOverlay = document.getElementById("loadingOverlay");
-          loadingOverlay.style.display = "flex";
-
-          try {
-            const response = await fetch(
-              `https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=schedule&id=${directionId}`
-            );
-            const data = await response.json();
-
-            displaySchedule(data, course);
-            loadingOverlay.style.display = "none";
-          } catch (error) {
-            console.error("Ошибка при получении расписания:", error);
-            scheduleContainer.innerHTML = `<p class="text-red-500">Ошибка при получении расписания: ${error.message}</p>`;
-            loadingOverlay.style.display = "none";
-          }
-        });
-
-
-      } catch (error) {
-        console.error("Ошибка при получении направлений:", error);
-        instituteSelect.innerHTML =
-          '<option value="">Ошибка при получении направлений</option>';
-      }
-
-      function formatDate(isoDate) {
-        const date = new Date(isoDate);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-      }
-
-      function getDayName(dayNumber) {
-        const shortDays = [
-          "Пн",
-          "Вт",
-          "Ср",
-          "Чт",
-          "Пт",
-          "Сб",
-          "Вс"
-        ];
-        return shortDays[dayNumber];
-      }
-
-      mobileMenuButton.addEventListener("click", function () {
-        if (
-          mobileMenu.classList.contains("hide") ||
-          mobileMenu.classList.contains("hidden")
-        ) {
-          mobileMenu.classList.remove("hidden", "hide");
-          mobileMenu.classList.add("show");
-        } else {
-          mobileMenu.classList.remove("show");
-          mobileMenu.classList.add("hide");
-
-          mobileMenu.addEventListener(
-            "animationend",
-            () => {
-              if (mobileMenu.classList.contains("hide")) {
-                mobileMenu.classList.add("hidden");
-              }
-            },
-            { once: true }
-          );
+        function formatDate(isoDate) {
+          const date = new Date(isoDate);
+          const day = String(date.getDate()).padStart(2, "0");
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const year = date.getFullYear();
+          return `${day}.${month}.${year}`;
         }
-      });
 
-      document.addEventListener("click", function (event) {
-        if (
-          !mobileMenu.contains(event.target) &&
-          !mobileMenuButton.contains(event.target)
-        ) {
-          mobileMenu.classList.remove("show");
-          mobileMenu.classList.add("hide");
-
-          mobileMenu.addEventListener(
-            "animationend",
-            () => {
-              if (mobileMenu.classList.contains("hide")) {
-                mobileMenu.classList.add("hidden");
-              }
-            },
-            { once: true }
-          );
+        function getDayName(dayNumber) {
+          const shortDays = [
+            "Пн",
+            "Вт",
+            "Ср",
+            "Чт",
+            "Пт",
+            "Сб",
+            "Вс"
+          ];
+          return shortDays[dayNumber];
         }
-      });
 
-      mobileMenu.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", function () {
-          mobileMenu.classList.remove("show");
-          mobileMenu.classList.add("hide");
-
-          mobileMenu.addEventListener(
-            "animationend",
-            () => {
-              if (mobileMenu.classList.contains("hide")) {
-                mobileMenu.classList.add("hidden");
-              }
-            },
-            { once: true }
-          );
-        });
-      });
-
-      function toggleSubjectVisibility(
-        group,
-        subjectName,
-        lessonType,
-        teacherName,
-        isVisible
-      ) {
-        let hiddenSubjects =
-          JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-        if (!isVisible) {
-          if (!hiddenSubjects[subjectName]) {
-            hiddenSubjects[subjectName] = [];
-          }
+        mobileMenuButton.addEventListener("click", function () {
           if (
-            !hiddenSubjects[subjectName].some(
-              (h) =>
-                h.type === lessonType && h.teacher === (teacherName || "")
-            )
+            mobileMenu.classList.contains("hide") ||
+            mobileMenu.classList.contains("hidden")
           ) {
-            hiddenSubjects[subjectName].push({
-              type: lessonType,
-              teacher: teacherName || "",
+            mobileMenu.classList.remove("hidden", "hide");
+            mobileMenu.classList.add("show");
+          } else {
+            mobileMenu.classList.remove("show");
+            mobileMenu.classList.add("hide");
+
+            mobileMenu.addEventListener(
+              "animationend",
+              () => {
+                if (mobileMenu.classList.contains("hide")) {
+                  mobileMenu.classList.add("hidden");
+                }
+              },
+              { once: true }
+            );
+          }
+        });
+
+        document.addEventListener("click", function (event) {
+          if (
+            !mobileMenu.contains(event.target) &&
+            !mobileMenuButton.contains(event.target)
+          ) {
+            mobileMenu.classList.remove("show");
+            mobileMenu.classList.add("hide");
+
+            mobileMenu.addEventListener(
+              "animationend",
+              () => {
+                if (mobileMenu.classList.contains("hide")) {
+                  mobileMenu.classList.add("hidden");
+                }
+              },
+              { once: true }
+            );
+          }
+        });
+
+        mobileMenu.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", function () {
+            mobileMenu.classList.remove("show");
+            mobileMenu.classList.add("hide");
+
+            mobileMenu.addEventListener(
+              "animationend",
+              () => {
+                if (mobileMenu.classList.contains("hide")) {
+                  mobileMenu.classList.add("hidden");
+                }
+              },
+              { once: true }
+            );
+          });
+        });
+
+        function toggleSubjectVisibility(
+          group,
+          subjectName,
+          lessonType,
+          teacherName,
+          isVisible
+        ) {
+          let hiddenSubjects =
+            JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
+          if (!isVisible) {
+            if (!hiddenSubjects[subjectName]) {
+              hiddenSubjects[subjectName] = [];
+            }
+            if (
+              !hiddenSubjects[subjectName].some(
+                (h) =>
+                  h.type === lessonType && h.teacher === (teacherName || "")
+              )
+            ) {
+              hiddenSubjects[subjectName].push({
+                type: lessonType,
+                teacher: teacherName || "",
+              });
+            }
+            showHideNotification(subjectName, lessonType, teacherName);
+          } else {
+            if (hiddenSubjects[subjectName]) {
+              hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(
+                (h) =>
+                  !(h.type === lessonType && h.teacher === (teacherName || ""))
+              );
+              if (hiddenSubjects[subjectName].length === 0) {
+                delete hiddenSubjects[subjectName];
+              }
+            }
+          }
+          localStorage.setItem(
+            `hiddenSubjects_${group}`,
+            JSON.stringify(hiddenSubjects)
+          );
+          document
+            .getElementById("schedule-form")
+            .dispatchEvent(new Event("submit"));
+        }
+
+        function showHideNotification(subjectName, lessonType, teacherName) {
+          const lessonTypeName = lessonTypes[lessonType] || "Неизвестный тип";
+
+          const notification = document.createElement("div");
+          notification.className =
+            "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification";
+          notification.textContent = `${lessonTypeName} "${subjectName}" ${teacherName ? " с " + teacherName : ""
+            } теперь скрыта на протяжении всего семестра. Вы можете просмотреть скрытые предметы под расписанием.`;
+
+          document.body.appendChild(notification);
+
+          notification.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+          });
+
+          let touchStartX = 0;
+          let currentX = 0;
+          let moveX = 0;
+          let isSwiping = false;
+
+          notification.addEventListener("touchstart", (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            isSwiping = true;
+            notification.style.transition = "";
+          });
+
+          notification.addEventListener("touchmove", (e) => {
+            if (!isSwiping) return;
+
+            currentX = e.changedTouches[0].screenX;
+            moveX = currentX - touchStartX;
+
+            notification.style.transform = `translateX(${moveX}px)`;
+          });
+
+          notification.addEventListener("touchend", () => {
+            if (!isSwiping) return;
+
+            isSwiping = false;
+            if (Math.abs(moveX) > 100) {
+              const direction = moveX < 0 ? "-110%" : "110%";
+              notification.style.transition = "transform 0.5s ease";
+              notification.style.transform = `translateX(${direction})`;
+
+              setTimeout(() => {
+                notification.remove();
+              }, 500);
+            } else {
+              notification.style.transition = "transform 0.3s ease";
+              notification.style.transform = "translateX(0)";
+            }
+          });
+
+          notification.addEventListener("click", () => {
+            notification.style.transition =
+              "transform 0.5s ease, opacity 0.5s ease";
+            notification.style.transform = "translateX(100%)";
+            notification.style.opacity = "0";
+
+            setTimeout(() => {
+              notification.remove();
+            }, 500);
+          });
+
+          setTimeout(() => {
+            notification.classList.add("show");
+          }, 10);
+
+          setTimeout(() => {
+            notification.classList.remove("show");
+            notification.classList.add("hide");
+
+            setTimeout(() => {
+              notification.remove();
+            }, 500);
+          }, 5000);
+        }
+
+        function updateHiddenSubjectsSection(group) {
+          const hiddenSubjectsSection = document.getElementById(
+            "hidden-subjects-section"
+          );
+          const hiddenSubjectsContainer =
+            document.getElementById("hidden-subjects");
+          const hiddenSubjects =
+            JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
+
+          const lessonTypes = {
+            0: "none",
+            2: "Лекция",
+            4: "Практика",
+            8: "Лабораторная работа",
+            1: "Курсовой проект",
+            5: "Консультация",
+            6: "Лекция + Практика",
+            7: "Дифференцированный зачет",
+            3: "Экзамен",
+            9: "Библиотека",
+            10: "Лекция + Лабораторная работа",
+            11: "Организационное собрание",
+            12: "Не поддерживается",
+          };
+
+          hiddenSubjectsContainer.innerHTML = "";
+          for (let subject in hiddenSubjects) {
+            hiddenSubjects[subject].forEach((item) => {
+              const subjectElement = document.createElement("div");
+              subjectElement.className =
+                "bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center";
+              subjectElement.innerHTML = `
+                              <p class="text-lg font-bold text-white">${subject} (${lessonTypes[item.type]
+                }, ${item.teacher})</p>
+                              <label class="switch">
+                                  <input type="checkbox" onchange="showSubject('${group}', '${subject}', ${item.type
+                }, '${item.teacher}')">
+                                  <span class="slider round"></span>
+                              </label>
+                          `;
+              hiddenSubjectsContainer.appendChild(subjectElement);
             });
           }
-          showHideNotification(subjectName, lessonType, teacherName);
-        } else {
+
+          if (Object.keys(hiddenSubjects).length > 0) {
+            hiddenSubjectsSection.classList.remove("hidden");
+          } else {
+            hiddenSubjectsSection.classList.add("hidden");
+          }
+        }
+
+        function showSubject(group, subjectName, lessonType, teacherName) {
+          let hiddenSubjects =
+            JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
           if (hiddenSubjects[subjectName]) {
             hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(
-              (h) =>
-                !(h.type === lessonType && h.teacher === (teacherName || ""))
+              (h) => !(h.type === lessonType && h.teacher === teacherName)
             );
             if (hiddenSubjects[subjectName].length === 0) {
               delete hiddenSubjects[subjectName];
             }
           }
-        }
-        localStorage.setItem(
-          `hiddenSubjects_${group}`,
-          JSON.stringify(hiddenSubjects)
-        );
-        document
-          .getElementById("schedule-form")
-          .dispatchEvent(new Event("submit"));
-      }
-
-      function showHideNotification(subjectName, lessonType, teacherName) {
-        const lessonTypeName = lessonTypes[lessonType] || "Неизвестный тип";
-
-        const notification = document.createElement("div");
-        notification.className =
-          "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-blue-500 text-white py-2 px-4 rounded-lg z-50 notification";
-        notification.textContent = `${lessonTypeName} "${subjectName}" ${teacherName ? " с " + teacherName : ""
-          } теперь скрыта на протяжении всего семестра. Вы можете просмотреть скрытые предметы под расписанием.`;
-
-        document.body.appendChild(notification);
-
-        notification.addEventListener("touchmove", (e) => {
-          e.preventDefault();
-        });
-
-        let touchStartX = 0;
-        let currentX = 0;
-        let moveX = 0;
-        let isSwiping = false;
-
-        notification.addEventListener("touchstart", (e) => {
-          touchStartX = e.changedTouches[0].screenX;
-          isSwiping = true;
-          notification.style.transition = "";
-        });
-
-        notification.addEventListener("touchmove", (e) => {
-          if (!isSwiping) return;
-
-          currentX = e.changedTouches[0].screenX;
-          moveX = currentX - touchStartX;
-
-          notification.style.transform = `translateX(${moveX}px)`;
-        });
-
-        notification.addEventListener("touchend", () => {
-          if (!isSwiping) return;
-
-          isSwiping = false;
-          if (Math.abs(moveX) > 100) {
-            const direction = moveX < 0 ? "-110%" : "110%";
-            notification.style.transition = "transform 0.5s ease";
-            notification.style.transform = `translateX(${direction})`;
-
-            setTimeout(() => {
-              notification.remove();
-            }, 500);
-          } else {
-            notification.style.transition = "transform 0.3s ease";
-            notification.style.transform = "translateX(0)";
-          }
-        });
-
-        notification.addEventListener("click", () => {
-          notification.style.transition =
-            "transform 0.5s ease, opacity 0.5s ease";
-          notification.style.transform = "translateX(100%)";
-          notification.style.opacity = "0";
-
-          setTimeout(() => {
-            notification.remove();
-          }, 500);
-        });
-
-        setTimeout(() => {
-          notification.classList.add("show");
-        }, 10);
-
-        setTimeout(() => {
-          notification.classList.remove("show");
-          notification.classList.add("hide");
-
-          setTimeout(() => {
-            notification.remove();
-          }, 500);
-        }, 5000);
-      }
-
-      function updateHiddenSubjectsSection(group) {
-        const hiddenSubjectsSection = document.getElementById(
-          "hidden-subjects-section"
-        );
-        const hiddenSubjectsContainer =
-          document.getElementById("hidden-subjects");
-        const hiddenSubjects =
-          JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-
-        const lessonTypes = {
-          0: "none",
-          2: "Лекция",
-          4: "Практика",
-          8: "Лабораторная работа",
-          1: "Курсовой проект",
-          5: "Консультация",
-          6: "Лекция + Практика",
-          7: "Дифференцированный зачет",
-          3: "Экзамен",
-          9: "Библиотека",
-          10: "Лекция + Лабораторная работа",
-          11: "Организационное собрание",
-          12: "Не поддерживается",
-        };
-
-        hiddenSubjectsContainer.innerHTML = "";
-        for (let subject in hiddenSubjects) {
-          hiddenSubjects[subject].forEach((item) => {
-            const subjectElement = document.createElement("div");
-            subjectElement.className =
-              "bg-slate-800 p-4 rounded-lg mb-2 flex justify-between items-center";
-            subjectElement.innerHTML = `
-                            <p class="text-lg font-bold text-white">${subject} (${lessonTypes[item.type]
-              }, ${item.teacher})</p>
-                            <label class="switch">
-                                <input type="checkbox" onchange="showSubject('${group}', '${subject}', ${item.type
-              }, '${item.teacher}')">
-                                <span class="slider round"></span>
-                            </label>
-                        `;
-            hiddenSubjectsContainer.appendChild(subjectElement);
-          });
-        }
-
-        if (Object.keys(hiddenSubjects).length > 0) {
-          hiddenSubjectsSection.classList.remove("hidden");
-        } else {
-          hiddenSubjectsSection.classList.add("hidden");
-        }
-      }
-
-      function showSubject(group, subjectName, lessonType, teacherName) {
-        let hiddenSubjects =
-          JSON.parse(localStorage.getItem(`hiddenSubjects_${group}`)) || {};
-        if (hiddenSubjects[subjectName]) {
-          hiddenSubjects[subjectName] = hiddenSubjects[subjectName].filter(
-            (h) => !(h.type === lessonType && h.teacher === teacherName)
+          localStorage.setItem(
+            `hiddenSubjects_${group}`,
+            JSON.stringify(hiddenSubjects)
           );
-          if (hiddenSubjects[subjectName].length === 0) {
-            delete hiddenSubjects[subjectName];
-          }
+          document
+            .getElementById("schedule-form")
+            .dispatchEvent(new Event("submit"));
         }
-        localStorage.setItem(
-          `hiddenSubjects_${group}`,
-          JSON.stringify(hiddenSubjects)
-        );
-        document
-          .getElementById("schedule-form")
-          .dispatchEvent(new Event("submit"));
-      }
 
-      async function getStatistics(discipline, institute) {
-        const cachedData = localStorage.getItem(discipline);
+        async function getStatistics(discipline, institute) {
+          const cachedData = localStorage.getItem(discipline);
 
-        if (cachedData) {
-          console.log(`Using cached data for discipline: ${discipline}`);
-          return JSON.parse(cachedData);
-        } else {
-          let url;
-          if (institute === "Факультет социального управления") {
-            url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(
-              discipline
-            )}`;
+          if (cachedData) {
+            console.log(`Using cached data for discipline: ${discipline}`);
+            return JSON.parse(cachedData);
           } else {
-            console.error(`Неизвестный факультет: ${institute}`);
-            return null;
-          }
+            let url;
+            if (institute === "Факультет социального управления") {
+              url = `https://script.google.com/macros/s/AKfycbxdL_UC__SmYJiPHmlsD4-T1ZiglPvgnehXed1OR9Qjk_fJ3rPxrVBT5Z0Zh1CiI7sC/exec?discipline=${encodeURIComponent(
+                discipline
+              )}`;
+            } else {
+              console.error(`Неизвестный факультет: ${institute}`);
+              return null;
+            }
 
-          try {
-            console.log(
-              `Fetching data for discipline: ${discipline} from API: ${url}`
-            );
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.error) {
+            try {
+              console.log(
+                `Fetching data for discipline: ${discipline} from API: ${url}`
+              );
+              const response = await fetch(url);
+              const data = await response.json();
+              if (data.error) {
+                console.error(
+                  `API error for discipline ${discipline}: ${data.error}`
+                );
+                return null;
+              }
+              localStorage.setItem(discipline, JSON.stringify(data));
+              return data;
+            } catch (error) {
               console.error(
-                `API error for discipline ${discipline}: ${data.error}`
+                `Fetching error for discipline ${discipline}:`,
+                error
               );
               return null;
             }
-            localStorage.setItem(discipline, JSON.stringify(data));
-            return data;
-          } catch (error) {
-            console.error(
-              `Fetching error for discipline ${discipline}:`,
-              error
-            );
-            return null;
           }
         }
-      }
 
-      function formatDisciplineName(discipline) {
-        return discipline.replace(/\s*\(.*?\)\s*/g, "").trim();
-      }
+        function formatDisciplineName(discipline) {
+          return discipline.replace(/\s*\(.*?\)\s*/g, "").trim();
+        }
 
-      function countAndShowHiddenSubjects() {
-        let hiddenSubjectsCount = 0;
-        const hiddenSubjectsList = [];
+        function countAndShowHiddenSubjects() {
+          let hiddenSubjectsCount = 0;
+          const hiddenSubjectsList = [];
 
-        for (let key in localStorage) {
-          if (key.startsWith("hiddenSubjects_")) {
-            const hiddenSubjects = JSON.parse(localStorage.getItem(key));
-            if (hiddenSubjects) {
-              hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
-              hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+          for (let key in localStorage) {
+            if (key.startsWith("hiddenSubjects_")) {
+              const hiddenSubjects = JSON.parse(localStorage.getItem(key));
+              if (hiddenSubjects) {
+                hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
+                hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+              }
             }
           }
+
+          console.log("Скрытые предметы:", hiddenSubjectsList);
+
+          return hiddenSubjectsCount;
         }
 
-        console.log("Скрытые предметы:", hiddenSubjectsList);
+        function countAndShowHiddenSubjects() {
+          let hiddenSubjectsCount = 0;
+          const hiddenSubjectsList = [];
 
-        return hiddenSubjectsCount;
-      }
-
-      function countAndShowHiddenSubjects() {
-        let hiddenSubjectsCount = 0;
-        const hiddenSubjectsList = [];
-
-        for (let key in localStorage) {
-          if (key.startsWith("hiddenSubjects_")) {
-            const hiddenSubjects = JSON.parse(localStorage.getItem(key));
-            if (hiddenSubjects) {
-              hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
-              hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+          for (let key in localStorage) {
+            if (key.startsWith("hiddenSubjects_")) {
+              const hiddenSubjects = JSON.parse(localStorage.getItem(key));
+              if (hiddenSubjects) {
+                hiddenSubjectsCount += Object.keys(hiddenSubjects).length;
+                hiddenSubjectsList.push(...Object.keys(hiddenSubjects));
+              }
             }
           }
+
+          console.log("Скрытые предметы:", hiddenSubjectsList);
+
+          return hiddenSubjectsCount;
         }
 
-        console.log("Скрытые предметы:", hiddenSubjectsList);
+        const copyLinkButton = document.getElementById("copy-link-button");
 
-        return hiddenSubjectsCount;
-      }
+        copyLinkButton.addEventListener("click", () => {
+          const institute = document
+            .getElementById("institute-select")
+            .value.replace(/ /g, "_");
+          const group = document
+            .getElementById("group-select")
+            .value.replace(/ /g, "_");
+          const url = `${window.location.origin}${window.location.pathname}?institute=${institute}&group=${group}`;
 
-      const copyLinkButton = document.getElementById("copy-link-button");
+          if (navigator.clipboard) {
+            navigator.clipboard
+              .writeText(url)
+              .then(() => {
+                ShowCopyNotification();
+              })
+              .catch((err) => {
+                alert("Ошибка копирования ссылки через Clipboard API: " + err);
+              });
+          } else {
+            const textarea = document.createElement("textarea");
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              const successful = document.execCommand("copy");
+              if (successful) {
+                ShowCopyNotification();
+              } else {
+                alert(
+                  "Не удалось скопировать ссылку. Попробуйте обновить страницу."
+                );
+              }
+            } catch (err) {
+              alert("Ошибка копирования с использованием execCommand: " + err);
+            }
+            document.body.removeChild(textarea);
+          }
+        });
 
-      copyLinkButton.addEventListener("click", () => {
-        const institute = document
-          .getElementById("institute-select")
-          .value.replace(/ /g, "_");
-        const group = document
-          .getElementById("group-select")
-          .value.replace(/ /g, "_");
-        const url = `${window.location.origin}${window.location.pathname}?institute=${institute}&group=${group}`;
+        function ShowCopyNotification() {
+          const existingNotification = document.querySelector(".notification");
+          if (existingNotification) {
+            existingNotification.remove();
+          }
 
-        if (navigator.clipboard) {
-          navigator.clipboard
-            .writeText(url)
-            .then(() => {
-              ShowCopyNotification();
-            })
-            .catch((err) => {
-              alert("Ошибка копирования ссылки через Clipboard API: " + err);
-            });
-        } else {
-          const textarea = document.createElement("textarea");
-          textarea.value = url;
-          document.body.appendChild(textarea);
-          textarea.select();
-          try {
-            const successful = document.execCommand("copy");
-            if (successful) {
-              ShowCopyNotification();
+          const notification = document.createElement("div");
+          notification.className =
+            "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-green-500 text-white py-2 px-4 rounded-lg z-50 notification";
+          notification.textContent = `Ссылка на расписание успешно скопирована!`;
+
+          document.body.appendChild(notification);
+
+          notification.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+          });
+
+          let touchStartX = 0;
+          let currentX = 0;
+          let moveX = 0;
+          let isSwiping = false;
+
+          notification.addEventListener("touchstart", (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            isSwiping = true;
+            notification.style.transition = "";
+          });
+
+          notification.addEventListener("touchmove", (e) => {
+            if (!isSwiping) return;
+
+            currentX = e.changedTouches[0].screenX;
+            moveX = currentX - touchStartX;
+
+            notification.style.transform = `translateX(${moveX}px)`;
+          });
+
+          notification.addEventListener("touchend", () => {
+            if (!isSwiping) return;
+
+            isSwiping = false;
+            if (Math.abs(moveX) > 100) {
+              const direction = moveX < 0 ? "-110%" : "110%";
+              notification.style.transition = "transform 0.5s ease";
+              notification.style.transform = `translateX(${direction})`;
+
+              setTimeout(() => {
+                notification.remove();
+              }, 500);
             } else {
-              alert(
-                "Не удалось скопировать ссылку. Попробуйте обновить страницу."
-              );
+              notification.style.transition = "transform 0.3s ease";
+              notification.style.transform = "translateX(0)";
             }
-          } catch (err) {
-            alert("Ошибка копирования с использованием execCommand: " + err);
-          }
-          document.body.removeChild(textarea);
-        }
-      });
+          });
 
-      function ShowCopyNotification() {
-        const existingNotification = document.querySelector(".notification");
-        if (existingNotification) {
-          existingNotification.remove();
-        }
-
-        const notification = document.createElement("div");
-        notification.className =
-          "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-green-500 text-white py-2 px-4 rounded-lg z-50 notification";
-        notification.textContent = `Ссылка на расписание успешно скопирована!`;
-
-        document.body.appendChild(notification);
-
-        notification.addEventListener("touchmove", (e) => {
-          e.preventDefault();
-        });
-
-        let touchStartX = 0;
-        let currentX = 0;
-        let moveX = 0;
-        let isSwiping = false;
-
-        notification.addEventListener("touchstart", (e) => {
-          touchStartX = e.changedTouches[0].screenX;
-          isSwiping = true;
-          notification.style.transition = "";
-        });
-
-        notification.addEventListener("touchmove", (e) => {
-          if (!isSwiping) return;
-
-          currentX = e.changedTouches[0].screenX;
-          moveX = currentX - touchStartX;
-
-          notification.style.transform = `translateX(${moveX}px)`;
-        });
-
-        notification.addEventListener("touchend", () => {
-          if (!isSwiping) return;
-
-          isSwiping = false;
-          if (Math.abs(moveX) > 100) {
-            const direction = moveX < 0 ? "-110%" : "110%";
-            notification.style.transition = "transform 0.5s ease";
-            notification.style.transform = `translateX(${direction})`;
+          notification.addEventListener("click", () => {
+            notification.style.transition =
+              "transform 0.5s ease, opacity 0.5s ease";
+            notification.style.transform = "translateX(100%)";
+            notification.style.opacity = "0";
 
             setTimeout(() => {
               notification.remove();
             }, 500);
-          } else {
-            notification.style.transition = "transform 0.3s ease";
-            notification.style.transform = "translateX(0)";
-          }
-        });
-
-        notification.addEventListener("click", () => {
-          notification.style.transition =
-            "transform 0.5s ease, opacity 0.5s ease";
-          notification.style.transform = "translateX(100%)";
-          notification.style.opacity = "0";
+          });
 
           setTimeout(() => {
-            notification.remove();
-          }, 500);
-        });
-
-        setTimeout(() => {
-          notification.classList.add("show");
-        }, 10);
-
-        setTimeout(() => {
-          notification.classList.remove("show");
-          notification.classList.add("hide");
+            notification.classList.add("show");
+          }, 10);
 
           setTimeout(() => {
-            notification.remove();
-          }, 500);
-        }, 5000);
-      }
-
-      function showNotification(hiddenCount) {
-        const notification = document.createElement("div");
-        notification.className =
-          "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification";
-        notification.textContent = `У вас есть скрытые предметы: ${hiddenCount}. Убедитесь, что ничего лишнего не скрыто! (посмотреть их можно под расписанием)`;
-
-        document.body.appendChild(notification);
-
-        notification.addEventListener("touchmove", (e) => {
-          e.preventDefault();
-        });
-
-        let touchStartX = 0;
-        let currentX = 0;
-        let moveX = 0;
-        let isSwiping = false;
-
-        notification.addEventListener("touchstart", (e) => {
-          touchStartX = e.changedTouches[0].screenX;
-          isSwiping = true;
-          notification.style.transition = "";
-        });
-
-        notification.addEventListener("touchmove", (e) => {
-          if (!isSwiping) return;
-
-          currentX = e.changedTouches[0].screenX;
-          moveX = currentX - touchStartX;
-
-          notification.style.transform = `translateX(${moveX}px)`;
-        });
-
-        notification.addEventListener("touchend", () => {
-          if (!isSwiping) return;
-
-          isSwiping = false;
-          if (Math.abs(moveX) > 100) {
-            const direction = moveX < 0 ? "-110%" : "110%";
-            notification.style.transition = "transform 0.5s ease";
-            notification.style.transform = `translateX(${direction})`;
+            notification.classList.remove("show");
+            notification.classList.add("hide");
 
             setTimeout(() => {
               notification.remove();
             }, 500);
-          } else {
-            notification.style.transition = "transform 0.3s ease";
-            notification.style.transform = "translateX(0)";
-          }
-        });
+          }, 5000);
+        }
 
-        notification.addEventListener("click", () => {
-          notification.style.transition =
-            "transform 0.5s ease, opacity 0.5s ease";
-          notification.style.transform = "translateX(100%)";
-          notification.style.opacity = "0";
+        function showNotification(hiddenCount) {
+          const notification = document.createElement("div");
+          notification.className =
+            "fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification";
+          notification.textContent = `У вас есть скрытые предметы: ${hiddenCount}. Убедитесь, что ничего лишнего не скрыто! (посмотреть их можно под расписанием)`;
+
+          document.body.appendChild(notification);
+
+          notification.addEventListener("touchmove", (e) => {
+            e.preventDefault();
+          });
+
+          let touchStartX = 0;
+          let currentX = 0;
+          let moveX = 0;
+          let isSwiping = false;
+
+          notification.addEventListener("touchstart", (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            isSwiping = true;
+            notification.style.transition = "";
+          });
+
+          notification.addEventListener("touchmove", (e) => {
+            if (!isSwiping) return;
+
+            currentX = e.changedTouches[0].screenX;
+            moveX = currentX - touchStartX;
+
+            notification.style.transform = `translateX(${moveX}px)`;
+          });
+
+          notification.addEventListener("touchend", () => {
+            if (!isSwiping) return;
+
+            isSwiping = false;
+            if (Math.abs(moveX) > 100) {
+              const direction = moveX < 0 ? "-110%" : "110%";
+              notification.style.transition = "transform 0.5s ease";
+              notification.style.transform = `translateX(${direction})`;
+
+              setTimeout(() => {
+                notification.remove();
+              }, 500);
+            } else {
+              notification.style.transition = "transform 0.3s ease";
+              notification.style.transform = "translateX(0)";
+            }
+          });
+
+          notification.addEventListener("click", () => {
+            notification.style.transition =
+              "transform 0.5s ease, opacity 0.5s ease";
+            notification.style.transform = "translateX(100%)";
+            notification.style.opacity = "0";
+
+            setTimeout(() => {
+              notification.remove();
+            }, 500);
+          });
 
           setTimeout(() => {
-            notification.remove();
-          }, 500);
-        });
-
-        setTimeout(() => {
-          notification.classList.add("show");
-        }, 10);
-
-        setTimeout(() => {
-          notification.classList.remove("show");
-          notification.classList.add("hide");
+            notification.classList.add("show");
+          }, 10);
 
           setTimeout(() => {
-            notification.remove();
-          }, 500);
-        }, 5000);
-      }
+            notification.classList.remove("show");
+            notification.classList.add("hide");
 
-      const hiddenSubjectsCount = countAndShowHiddenSubjects();
-      if (hiddenSubjectsCount > 0) {
-        showNotification(hiddenSubjectsCount);
-      }
+            setTimeout(() => {
+              notification.remove();
+            }, 500);
+          }, 5000);
+        }
 
-      const calendarIcon = document.getElementById("calendarIcon");
-      const modal = document.getElementById("warningModal");
-      const closeModalBtn = document.getElementById("closeModalBtn");
-      const modalContent = modal.querySelector(".bg-gray-600");
+        const hiddenSubjectsCount = countAndShowHiddenSubjects();
+        if (hiddenSubjectsCount > 0) {
+          showNotification(hiddenSubjectsCount);
+        }
 
-      closeModalBtn.addEventListener("click", () => {
-        modal.classList.add("hidden");
-      });
+        const calendarIcon = document.getElementById("calendarIcon");
+        const modal = document.getElementById("warningModal");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const modalContent = modal.querySelector(".bg-gray-600");
 
-      modal.addEventListener("click", (event) => {
-        if (!modalContent.contains(event.target)) {
+        closeModalBtn.addEventListener("click", () => {
           modal.classList.add("hidden");
+        });
+
+        modal.addEventListener("click", (event) => {
+          if (!modalContent.contains(event.target)) {
+            modal.classList.add("hidden");
+          }
+        });
+
+        calendarIcon.addEventListener("click", () => {
+          modal.classList.remove("hidden");
+        });
+
+        closeModalBtn.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+
+        const targetDiv = document.querySelector(
+          ".flex.justify-between.items-center.mt-4.w-full"
+        );
+
+        function toggleVisibility() {
+          if (!instituteSelect.value || !groupSelect.value) {
+            targetDiv.style.display = "none";
+          } else {
+            targetDiv.style.display = "flex";
+          }
         }
-      });
 
-      calendarIcon.addEventListener("click", () => {
-        modal.classList.remove("hidden");
-      });
+        instituteSelect.addEventListener("change", toggleVisibility);
+        groupSelect.addEventListener("change", toggleVisibility);
 
-      closeModalBtn.addEventListener("click", () => {
-        modal.classList.add("hidden");
-      });
+        toggleVisibility();
 
-      const targetDiv = document.querySelector(
-        ".flex.justify-between.items-center.mt-4.w-full"
-      );
+        mobileMenuButton.addEventListener('click', function () {
+            triggerHapticFeedback('impact', 'light');
+        });
 
-      function toggleVisibility() {
-        if (!instituteSelect.value || !groupSelect.value) {
-          targetDiv.style.display = "none";
-        } else {
-          targetDiv.style.display = "flex";
-        }
-      }
+        copyLinkButton?.addEventListener('click', (event) => {
+            triggerHapticFeedback('impact', 'light');
+        });
 
-      instituteSelect.addEventListener("change", toggleVisibility);
-      groupSelect.addEventListener("change", toggleVisibility);
+        document.getElementById('schedule-form')?.addEventListener('submit', async (event) => {
+            triggerHapticFeedback('impact', 'medium');
+        });
 
-      toggleVisibility();
+        document.getElementById('institute-select')?.addEventListener('change', () => {
+            triggerHapticFeedback('selection');
+        });
+
+        document.getElementById('group-select')?.addEventListener('change', () => {
+            triggerHapticFeedback('selection');
+        });
+
+        document.getElementById('betaBadge')?.addEventListener('click', () => {
+            triggerHapticFeedback('impact', 'light');
+        });
+
+        document.getElementById('closeBetaExplanation')?.addEventListener('click', () => {
+            triggerHapticFeedback('impact', 'light');
+        });
+
+        document.getElementById('closeViewModeExplanation')?.addEventListener('click', () => {
+            triggerHapticFeedback('impact', 'light');
+        });
+
+        document.querySelectorAll('.bg-slate-800.rounded-lg.p-2.flex.items-center button').forEach(button => {
+            button.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'medium');
+            });
+        });
+
+        document.querySelectorAll('.flex.justify-around.p-1.md\\:p-2.mb-4.md\\:mb-0 a').forEach(link => {
+            link.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'light');
+            });
+        });
+
+        document.querySelectorAll('footer nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'light');
+            });
+        });
+
+        document.getElementById('viewToggle')?.addEventListener('change', () => {
+            triggerHapticFeedback('selection');
+        });
+
+        document.querySelectorAll('.flex.justify-center.gap-2.overflow-x-auto button').forEach(button => {
+            button.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'light');
+            });
+        });
+
+        document.querySelectorAll('.switch input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                triggerHapticFeedback('selection');
+            });
+        });
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) {
+                            node.querySelectorAll('.switch input[type="checkbox"]').forEach(checkbox => {
+                                checkbox.addEventListener('change', () => {
+                                    triggerHapticFeedback('selection');
+                                });
+                            });
+
+                            node.querySelectorAll('.flex.justify-center.gap-2.overflow-x-auto button').forEach(button => {
+                                button.addEventListener('click', () => {
+                                    triggerHapticFeedback('impact', 'light');
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
     });
 
     const weekRanges = (() => {
@@ -2260,6 +2390,7 @@
       helpIcon.innerHTML = `<span class="text-white font-bold">?</span>`;
       helpIcon.title = "Информация о режимах просмотра";
       helpIcon.onclick = () => {
+        triggerHapticFeedback('impact', 'medium');
         document.getElementById('viewModeExplanationModal').classList.remove('translate-y-full');
       };
 
@@ -2274,11 +2405,13 @@
 
       allModeBtn.addEventListener("click", () => {
         localStorage.setItem("scheduleViewMode", "all");
+        triggerHapticFeedback('impact', 'medium');
         displaySchedule(data, course);
       });
 
       actualModeBtn.addEventListener("click", () => {
         localStorage.setItem("scheduleViewMode", "actual");
+        triggerHapticFeedback('impact', 'medium');
         displaySchedule(data, course);
       });
 

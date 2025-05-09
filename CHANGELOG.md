@@ -1,3 +1,5 @@
+- update style for modal week list and del old tooltip (ysturasp, 2025-05-09) [1 file changed, 59 insertions(+), 46 deletions(-)]
+- update appearance modal for select subgroups (ysturasp, 2025-05-09) [2 files changed, 59 insertions(+), 1 deletion(-)]
 - add direction abbreviation and tooltip for full name direction (ysturasp, 2025-05-08) [4 files changed, 43 insertions(+), 13 deletions(-)]
 - update response from API and processing data on frontend for them (ysturasp, 2025-05-08) [5 files changed, 118 insertions(+), 54 deletions(-)]
 - фвв add metrics on rasprep pages (ysturasp, 2025-05-08) [3 files changed, 145 insertions(+), 1 deletion(-)]
