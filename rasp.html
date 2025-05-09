@@ -700,6 +700,61 @@
             opacity: 1;
         }
 
+        #subgroupModal {
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        #subgroupModal.hidden {
+            background-color: transparent;
+        }
+
+        #subgroupModal:not(.hidden) {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #subgroupModal .bg-slate-800 {
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        #subgroupModal:not(.hidden) .bg-slate-800 {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            #subgroupModal .bg-slate-800 {
+                transform: translateY(100%);
+                margin: 0;
+                border-radius: 1rem 1rem 0 0;
+                min-height: 90vh;
+            }
+            
+            #subgroupModal:not(.hidden) .bg-slate-800 {
+                animation: slideUp 0.3s ease-out forwards;
+            }
+
+            #subgroupModal.closing .bg-slate-800 {
+                animation: slideDown 0.3s ease-out forwards;
+            }
+
+            #subgroupModal .flex.items-center.justify-center {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            #subgroupModal .bg-slate-800 {
+                width: 100%;
+            }
+            
+            #labWorksList {
+                max-height: 60vh;
+                overflow-y: auto;
+            }
+        }
+
         @media (max-width: 768px) {
             #lessonDetailsModal .bg-slate-900 {
                 width: 100%;
@@ -1188,6 +1243,7 @@
                                     распределения подгруппы для данного предмета работает корректно (посмотреть можно в
                                     секции "Распределение подгрупп" под расписанием)
                                 </div>
+
                             </div>
                             <!-- <select id="subgroupSelect" class="w-full p-2 bg-slate-900 text-white rounded-lg">
                                 <option value="">Все подгруппы</option>
@@ -1195,7 +1251,7 @@
                                 <option value="2">Вторая подгруппа</option>
                             </select> -->
                         </div>
-                        <div id="labWorksList" class="space-y-4 max-h-80 overflow-y-auto">
+                        <div id="labWorksList" class="space-y-4 overflow-y-auto">
                         </div>
                         <div class="mt-6 flex justify-end">
                             <button id="saveSubgroupSettings"
@@ -7337,3 +7393,4 @@
 </body>
 
 </html>
+
