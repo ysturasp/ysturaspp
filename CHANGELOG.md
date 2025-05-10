@@ -1,3 +1,4 @@
+- fix big margin top and back list elements (ysturasp, 2025-05-10) [2 files changed, 5 insertions(+), 1 deletion(-)]
 - add highlight of current week to list of weeks with updated element styles (ysturasp, 2025-05-10) [1 file changed, 7 insertions(+), 2 deletions(-)]
 - add Rybbit script to all pages (ysturasp, 2025-05-09) [14 files changed, 115 insertions(+), 2 deletions(-)]
 - add dynamic generate meta tag updates for group, classroom, and faculty schedule pages at YSTU and YSPU (ysturasp, 2025-05-09) [6 files changed, 660 insertions(+), 24 deletions(-)]

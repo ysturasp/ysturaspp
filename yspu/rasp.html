@@ -933,9 +933,7 @@
             }
         });
         
-        if (window.location.hash.includes('tgWebAppData')) {
-            await waitForTelegramWebApp();
-        }
+        await waitForTelegramWebApp();
 
         const instituteSelect = document.getElementById("institute-select");
         const groupSelect = document.getElementById("group-select");
