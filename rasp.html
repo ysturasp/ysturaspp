@@ -1971,14 +1971,16 @@
             });
         });
 
-        window.addEventListener('pageshow', async (event) => {
-            if (event.persisted || document.referrer.includes('t.me')) {
-                await waitForTelegramWebApp();
-                triggerHapticFeedback('impact', 'medium');
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', async () => {
+            window.addEventListener('pageshow', async (event) => {
+                if (event.persisted || document.referrer.includes('t.me')) {
+                    await waitForTelegramWebApp();
+                    triggerHapticFeedback('impact', 'medium');
+                }
+            });
+
+            await waitForTelegramWebApp();
+
             document.getElementById('darkModeToggle').addEventListener('change', function() {
                 triggerHapticFeedback('impact', 'light');
                 settings.darkMode = this.checked;
@@ -2631,10 +2633,6 @@
                     showCustomNotification('Неверный API ключ', 'error');
                 }
             });
-            
-            if (window.location.hash.includes('tgWebAppData')) {
-                await waitForTelegramWebApp();
-            }
 
             const instituteSelect = document.getElementById('institute-select');
             const groupSelect = document.getElementById('group-select');
