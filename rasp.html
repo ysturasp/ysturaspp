@@ -5383,7 +5383,7 @@
                 const weekNumber = week.text.split(' - ')[0];
                 const date = week.text.split(' - ')[1];
                 const isCurrent = idx === currentWeekIndex;
-                return `<div class="py-1 px-2 rounded-lg mb-1 transition-all ${isCurrent ? 'bg-blue-600 text-white font-bold shadow-lg scale-105' : 'hover:bg-slate-700 cursor-pointer'}">${weekNumber} - ${date}</div>`;
+                return `<div class="px-2 rounded-lg mb-1 transition-all ${isCurrent ? 'bg-blue-600 text-white font-bold shadow-lg scale-105' : 'hover:bg-slate-700 cursor-pointer'}">${weekNumber} - ${date}</div>`;
             }).join('');
             weeksListElement.innerHTML = weeksList;
         }

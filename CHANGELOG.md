@@ -1,3 +1,7 @@
+- add highlight of current week to list of weeks with updated element styles (ysturasp, 2025-05-10) [1 file changed, 7 insertions(+), 2 deletions(-)]
+- add Rybbit script to all pages (ysturasp, 2025-05-09) [14 files changed, 115 insertions(+), 2 deletions(-)]
+- add dynamic generate meta tag updates for group, classroom, and faculty schedule pages at YSTU and YSPU (ysturasp, 2025-05-09) [6 files changed, 660 insertions(+), 24 deletions(-)]
+- add tactile feedback to interface elements (ysturasp, 2025-05-09) [2 files changed, 793 insertions(+), 658 deletions(-)]
 - update style for modal week list and del old tooltip (ysturasp, 2025-05-09) [1 file changed, 59 insertions(+), 46 deletions(-)]
 - update appearance modal for select subgroups (ysturasp, 2025-05-09) [2 files changed, 59 insertions(+), 1 deletion(-)]
 - add direction abbreviation and tooltip for full name direction (ysturasp, 2025-05-08) [4 files changed, 43 insertions(+), 13 deletions(-)]
