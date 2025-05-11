@@ -82,7 +82,22 @@ jobs:
         run: |
           npm run build:win
 
-      - name: Загрузка артефактов в релиз
+      - name: Загрузка артефактов в релиз (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: v${{ needs.create-tag.outputs.version }}
+          files: |
+            dist/*.dmg
+            dist/*-mac.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Загрузка артефактов в релиз (Windows)
+        if: matrix.os == 'windows-latest'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -90,8 +105,6 @@ jobs:
           tag_name: v${{ needs.create-tag.outputs.version }}
           files: |
             dist/*.exe
-            dist/*.dmg
-            dist/*.zip
           draft: false
           prerelease: false
           generate_release_notes: true 

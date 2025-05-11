@@ -1,6 +1,10 @@
 {
   "name": "ysturasp-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "author": {
+    "name": "ysturasp",
+    "email": "ysturasp@github.com"
+  },
   "description": "ystuRASP — десктопное приложение на базе Electron",
   "main": "main.js",
   "scripts": {
@@ -45,6 +49,8 @@
     ],
     "mac": {
       "category": "public.app-category.education",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
       "target": [
         {
           "target": "dmg",
@@ -79,7 +85,8 @@
           "type": "link",
           "path": "/Applications"
         }
-      ]
+      ],
+      "sign": false
     },
     "nsis": {
       "oneClick": false,
