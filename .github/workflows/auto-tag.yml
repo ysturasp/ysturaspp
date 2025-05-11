@@ -18,7 +18,7 @@ jobs:
       - name: Проверка кода
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Получение версии из package.json
         id: package-version
@@ -39,4 +39,4 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git tag -a "v${{ steps.package-version.outputs.current-version}}" -m "Release v${{ steps.package-version.outputs.current-version}}"
-          git push origin "v${{ steps.package-version.outputs.current-version}}" 
+          git push --force origin "v${{ steps.package-version.outputs.current-version}}" 
