@@ -1,0 +1,82 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'package.json'
+
+permissions:
+  contents: write
+
+jobs:
+  tag-and-release:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        arch: [x64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+
+    steps:
+      - name: Проверка кода
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Получение версии из package.json
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Создание тега
+        id: create_tag
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          if [ $(git tag -l "v${{ steps.package-version.outputs.current-version}}") ]; then
+            echo "Tag already exists"
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            git tag -a "v${{ steps.package-version.outputs.current-version}}" -m "Release v${{ steps.package-version.outputs.current-version}}"
+            git push origin "v${{ steps.package-version.outputs.current-version}}"
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Установка Node.js
+        if: steps.create_tag.outputs.tag_exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Установка зависимостей
+        if: steps.create_tag.outputs.tag_exists == 'false'
+        run: npm install
+
+      - name: Сборка для macOS (Universal)
+        if: matrix.os == 'macos-latest' && steps.create_tag.outputs.tag_exists == 'false'
+        run: |
+          npm run build:mac
+
+      - name: Сборка для Windows
+        if: matrix.os == 'windows-latest' && steps.create_tag.outputs.tag_exists == 'false'
+        run: |
+          npm run build:win
+
+      - name: Загрузка артефактов в релиз
+        if: steps.create_tag.outputs.tag_exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version}}
+          files: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true 
