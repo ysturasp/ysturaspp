@@ -12,17 +12,11 @@ permissions:
   contents: write
 
 jobs:
-  tag-and-release:
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
-        arch: [x64, arm64]
-        exclude:
-          - os: windows-latest
-            arch: arm64
-
+  create-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_exists: ${{ steps.create_tag.outputs.tag_exists }}
+      version: ${{ steps.package-version.outputs.current-version }}
     steps:
       - name: Проверка кода
         uses: actions/checkout@v4
@@ -48,31 +42,46 @@ jobs:
             echo "tag_exists=false" >> $GITHUB_OUTPUT
           fi
 
+  build:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_exists == 'false'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        arch: [x64, arm64]
+        exclude:
+          - os: windows-latest
+            arch: arm64
+    
+    steps:
+      - name: Проверка кода
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Установка Node.js
-        if: steps.create_tag.outputs.tag_exists == 'false'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Установка зависимостей
-        if: steps.create_tag.outputs.tag_exists == 'false'
         run: npm install
 
       - name: Сборка для macOS (Universal)
-        if: matrix.os == 'macos-latest' && steps.create_tag.outputs.tag_exists == 'false'
+        if: matrix.os == 'macos-latest'
         run: |
           npm run build:mac
 
       - name: Сборка для Windows
-        if: matrix.os == 'windows-latest' && steps.create_tag.outputs.tag_exists == 'false'
+        if: matrix.os == 'windows-latest'
         run: |
           npm run build:win
 
       - name: Загрузка артефактов в релиз
-        if: steps.create_tag.outputs.tag_exists == 'false'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.package-version.outputs.current-version}}
+          tag_name: v${{ needs.create-tag.outputs.version }}
           files: |
             dist/*.exe
             dist/*.dmg
