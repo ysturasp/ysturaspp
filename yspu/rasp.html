@@ -841,6 +841,8 @@
     </div>
   </div>
 
+  <script src="../linear.js"></script>
+
   <div id="betaExplanationModal"
     class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
     <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
@@ -1118,7 +1120,7 @@
             const course = groupSelect.value;
 
             if (!directionId || !course) {
-              alert("Пожалуйста, выберите направление и группу.");
+              showCustomNotification("Пожалуйста, выберите направление и группу.", "info");
               return;
             }
 
@@ -1528,7 +1530,7 @@
                 ShowCopyNotification();
               })
               .catch((err) => {
-                alert("Ошибка копирования ссылки через Clipboard API: " + err);
+                showCustomNotification("Ошибка копирования ссылки через Clipboard API: " + err, "error");
               });
           } else {
             const textarea = document.createElement("textarea");
@@ -1540,12 +1542,10 @@
               if (successful) {
                 ShowCopyNotification();
               } else {
-                alert(
-                  "Не удалось скопировать ссылку. Попробуйте обновить страницу."
-                );
+                showCustomNotification("Не удалось скопировать ссылку. Попробуйте обновить страницу.", "error");
               }
             } catch (err) {
-              alert("Ошибка копирования с использованием execCommand: " + err);
+              showCustomNotification("Ошибка копирования с использованием execCommand: " + err, "error");
             }
             document.body.removeChild(textarea);
           }

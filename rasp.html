@@ -2688,7 +2688,7 @@
                 const selectedInstitute = instituteSelect.value;
 
                 if (!selectedGroup || !selectedInstitute) {
-                    alert('Пожалуйста, выберите институт и группу.');
+                    showCustomNotification('Пожалуйста, выберите институт и группу.', 'info');
                     return;
                 }
 
@@ -2934,7 +2934,7 @@
                     if (savedSchedule) {
                         displaySchedule(JSON.parse(savedSchedule).schedule, lastGroup, lastWeek, true);
                     } else {
-                        alert('Сохранённое расписание не найдено.');
+                        showCustomNotification('Сохранённое расписание не найдено.', 'info');
                     }
                 });
             }
@@ -2992,7 +2992,7 @@
                         })
                         .catch(err => {
                             triggerHapticFeedback('notification', 'error');
-                            alert('Ошибка копирования ссылки через Clipboard API: ' + err);
+                            showCustomNotification('Ошибка копирования ссылки через Clipboard API: ' + err, 'info');
                         });
                 } else {
                     const textarea = document.createElement('textarea');
@@ -3006,11 +3006,11 @@
                             ShowCopyNotification();
                         } else {
                             triggerHapticFeedback('notification', 'error');
-                            alert('Не удалось скопировать ссылку. Попробуйте обновить страницу.');
+                            showCustomNotification('Не удалось скопировать ссылку. Попробуйте обновить страницу.', 'error');
                         }
                     } catch (err) {
                         triggerHapticFeedback('notification', 'error');
-                        alert('Ошибка копирования с использованием execCommand: ' + err);
+                        showCustomNotification('Ошибка копирования с использованием execCommand: ' + err, 'error');
                     }
                     document.body.removeChild(textarea);
                 }
@@ -3661,7 +3661,7 @@
             const week = parseInt(document.getElementById('week-select').value, 10);
 
             if (!group || !week) {
-                alert('Пожалуйста, выберите институт, группу и неделю.');
+                showCustomNotification('Пожалуйста, выберите институт, группу и неделю.', 'info');
                 return;
             }
 
@@ -3719,7 +3719,7 @@
                             if (savedSchedule) {
                                 displaySchedule(JSON.parse(savedSchedule).schedule, group, week, true);
                             } else {
-                                alert('Сохранённое расписание не найдено.');
+                                showCustomNotification('Сохранённое расписание не найдено.', 'info');
                             }
                         });
                     }, 4000);
@@ -3820,7 +3820,7 @@
                         if (savedSchedule) {
                             displaySchedule(JSON.parse(savedSchedule).schedule, group, week, true);
                         } else {
-                            alert('Сохранённое расписание не найдено.');
+                            showCustomNotification('Сохранённое расписание не найдено.', 'info');
                         }
                     });
 

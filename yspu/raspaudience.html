@@ -803,7 +803,7 @@
                                 ShowCopyNotification();
                             })
                             .catch(err => {
-                                alert('Ошибка копирования ссылки через Clipboard API: ' + err);
+                                showCustomNotification('Ошибка копирования ссылки через Clipboard API: ' + err, 'error');
                             });
                     } else {
                         const textarea = document.createElement('textarea');
@@ -815,10 +815,10 @@
                             if (successful) {
                                 ShowCopyNotification();
                             } else {
-                                alert('Не удалось скопировать ссылку. Попробуйте обновить страницу.');
+                                showCustomNotification('Не удалось скопировать ссылку. Попробуйте обновить страницу.', 'error');
                             }
                         } catch (err) {
-                            alert('Ошибка копирования с использованием execCommand: ' + err);
+                                showCustomNotification('Ошибка копирования с использованием execCommand: ' + err, 'error');
                         }
                         document.body.removeChild(textarea);
                     }
