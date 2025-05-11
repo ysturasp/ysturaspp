@@ -8,6 +8,10 @@ on:
     paths:
       - 'package.json'
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   check-version:
     runs-on: ubuntu-latest
