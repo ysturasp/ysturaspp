@@ -70,16 +70,22 @@ jobs:
 
       - name: Сборка для macOS (Universal)
         if: matrix.os == 'macos-latest'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           npm run build:mac
 
       - name: Сборка для Windows
         if: matrix.os == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           npm run build:win
 
       - name: Загрузка артефактов в релиз
         uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: v${{ needs.create-tag.outputs.version }}
           files: |

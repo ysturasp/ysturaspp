@@ -1,6 +1,6 @@
 {
   "name": "ysturasp-desktop",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "ystuRASP — десктопное приложение на базе Electron",
   "main": "main.js",
   "scripts": {
