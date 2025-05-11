@@ -8,7 +8,7 @@
             <div class="preloader-particles"></div>
             <div class="preloader-cat">
                 <div class="preloader-glow"></div>
-                <img src="/images/cat.png" alt="ystuRASP Cat">
+                <img src="images/cat.png" alt="ystuRASP Cat">
             </div>
             <div class="preloader-text">Загрузка ystuRASP...</div>
             <div class="preloader-progress">
