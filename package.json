@@ -1,6 +1,6 @@
 {
   "name": "ysturasp-desktop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "ysturasp",
     "email": "ysturasp@github.com"
@@ -51,6 +51,8 @@
       "category": "public.app-category.education",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
       "target": [
         {
           "target": "dmg",
@@ -62,7 +64,14 @@
         }
       ],
       "icon": "images/icon.icns",
-      "identity": null
+      "identity": null,
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "Please allow access to script browser applications to detect the current URL when you invoke the app from the browser.",
+        "NSCameraUsageDescription": "Please allow access to the camera to take photos.",
+        "NSMicrophoneUsageDescription": "Please allow access to the microphone to record audio.",
+        "NSDocumentsFolderUsageDescription": "Please allow access to the documents folder.",
+        "NSDownloadsFolderUsageDescription": "Please allow access to the downloads folder."
+      }
     },
     "win": {
       "target": [
