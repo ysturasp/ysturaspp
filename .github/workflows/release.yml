@@ -42,17 +42,17 @@ jobs:
             echo "tag_exists=false" >> $GITHUB_OUTPUT
           fi
 
-  build:
+  build-mac:
     needs: create-tag
     if: needs.create-tag.outputs.tag_exists == 'false'
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
-        arch: [x64, arm64]
-        exclude:
-          - os: windows-latest
+        include:
+          - os: macos-14-arm64
             arch: arm64
+          - os: macos-latest
+            arch: x64
+    runs-on: ${{ matrix.os }}
     
     steps:
       - name: Проверка кода
@@ -68,22 +68,17 @@ jobs:
       - name: Установка зависимостей
         run: npm install
 
-      - name: Сборка для macOS (Universal)
-        if: matrix.os == 'macos-latest'
+      - name: Сборка для macOS
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          npm run build:mac
+          if [ "${{ matrix.arch }}" = "arm64" ]; then
+            npm run build:mac
+          else
+            npm run build:mac
+          fi
 
-      - name: Сборка для Windows
-        if: matrix.os == 'windows-latest'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          npm run build:win
-
-      - name: Загрузка артефактов в релиз (macOS)
-        if: matrix.os == 'macos-latest'
+      - name: Загрузка артефактов в релиз
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -96,15 +91,37 @@ jobs:
           prerelease: false
           generate_release_notes: true
 
-      - name: Загрузка артефактов в релиз (Windows)
-        if: matrix.os == 'windows-latest'
+  build-windows:
+    needs: create-tag
+    if: needs.create-tag.outputs.tag_exists == 'false'
+    runs-on: windows-latest
+    
+    steps:
+      - name: Проверка кода
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Установка Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Установка зависимостей
+        run: npm install
+
+      - name: Сборка для Windows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: npm run build:win
+
+      - name: Загрузка артефактов в релиз
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: v${{ needs.create-tag.outputs.version }}
-          files: |
-            dist/*.exe
+          files: dist/*.exe
           draft: false
           prerelease: false
           generate_release_notes: true 
