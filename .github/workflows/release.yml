@@ -45,14 +45,7 @@ jobs:
   build-mac:
     needs: create-tag
     if: needs.create-tag.outputs.tag_exists == 'false'
-    strategy:
-      matrix:
-        include:
-          - os: macos-14-arm64
-            arch: arm64
-          - os: macos-latest
-            arch: x64
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     
     steps:
       - name: Проверка кода
@@ -71,12 +64,7 @@ jobs:
       - name: Сборка для macOS
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            npm run build:mac
-          else
-            npm run build:mac
-          fi
+        run: npm run build:mac
 
       - name: Загрузка артефактов в релиз
         uses: softprops/action-gh-release@v1
