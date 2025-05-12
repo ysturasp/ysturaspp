@@ -10,7 +10,9 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder -mw",
-    "build:mac": "electron-builder --mac --universal --arm64 --x64",
+    "build:mac-intel": "electron-builder --mac --x64",
+    "build:mac-arm": "electron-builder --mac --arm64",
+    "build:mac-universal": "electron-builder --mac --universal",
     "build:win": "electron-builder --win --x64"
   },
   "license": "MIT",
@@ -31,8 +33,7 @@
       "repo": "ysturaspp"
     }],
     "directories": {
-      "output": "dist",
-      "buildResources": "build"
+      "output": "dist"
     },
     "files": [
       "**/*",
@@ -52,27 +53,16 @@
       "category": "public.app-category.education",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist",
       "target": [
         {
-          "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "target": "dmg"
         },
         {
-          "target": "zip",
-          "arch": ["x64", "arm64"]
+          "target": "zip"
         }
       ],
       "icon": "images/icon.icns",
-      "identity": null,
-      "extendInfo": {
-        "NSAppleEventsUsageDescription": "Please allow access to script browser applications to detect the current URL when you invoke the app from the browser.",
-        "NSCameraUsageDescription": "Please allow access to the camera to take photos.",
-        "NSMicrophoneUsageDescription": "Please allow access to the microphone to record audio.",
-        "NSDocumentsFolderUsageDescription": "Please allow access to the documents folder.",
-        "NSDownloadsFolderUsageDescription": "Please allow access to the downloads folder."
-      }
+      "identity": null
     },
     "win": {
       "target": [
@@ -96,8 +86,7 @@
           "path": "/Applications"
         }
       ],
-      "sign": false,
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "sign": false
     },
     "nsis": {
       "oneClick": false,

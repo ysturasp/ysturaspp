@@ -42,10 +42,19 @@ jobs:
             echo "tag_exists=false" >> $GITHUB_OUTPUT
           fi
 
-  build-mac:
+  build:
     needs: create-tag
     if: needs.create-tag.outputs.tag_exists == 'false'
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            build_script: build:mac-arm
+          - os: macos-latest
+            build_script: build:mac-intel
+          - os: windows-latest
+            build_script: build:win
     
     steps:
       - name: Проверка кода
@@ -61,10 +70,10 @@ jobs:
       - name: Установка зависимостей
         run: npm install
 
-      - name: Сборка для macOS
+      - name: Сборка приложения
         env:
           GH_TOKEN: ${{ github.token }}
-        run: npm run build:mac
+        run: npm run ${{ matrix.build_script }}
 
       - name: Загрузка артефактов в релиз
         uses: softprops/action-gh-release@v1
@@ -75,41 +84,7 @@ jobs:
           files: |
             dist/*.dmg
             dist/*-mac.zip
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-
-  build-windows:
-    needs: create-tag
-    if: needs.create-tag.outputs.tag_exists == 'false'
-    runs-on: windows-latest
-    
-    steps:
-      - name: Проверка кода
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Установка Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Установка зависимостей
-        run: npm install
-
-      - name: Сборка для Windows
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: npm run build:win
-
-      - name: Загрузка артефактов в релиз
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          tag_name: v${{ needs.create-tag.outputs.version }}
-          files: dist/*.exe
+            dist/*.exe
           draft: false
           prerelease: false
           generate_release_notes: true 
