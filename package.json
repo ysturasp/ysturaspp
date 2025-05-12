@@ -10,7 +10,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder -mw",
-    "build:mac": "electron-builder --mac --universal",
+    "build:mac": "electron-builder --mac --universal --arm64 --x64",
     "build:win": "electron-builder --win --x64"
   },
   "license": "MIT",
@@ -31,7 +31,8 @@
       "repo": "ysturaspp"
     }],
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "**/*",
@@ -95,7 +96,8 @@
           "path": "/Applications"
         }
       ],
-      "sign": false
+      "sign": false,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
