@@ -1,3 +1,8 @@
+- bump version (ysturasp, 2025-05-12) [0 insertions(+), 0 deletions(-)]
+- replace arm to universal (ysturasp, 2025-05-12) [0 insertions(+), 0 deletions(-)]
+- update build config with 3 comad for mac arm, intel and universal (ysturasp, 2025-05-12) [3 files changed, 22 insertions(+), 94 deletions(-)]
+- update config build for arm mac (ysturasp, 2025-05-12) [2 files changed, 7 insertions(+), 17 deletions(-)]
+- add permission settings and updating build configuration for macOS and Windows in release.yml (ysturasp, 2025-05-12) [5 files changed, 97 insertions(+), 24 deletions(-)]
 - add author field to package.json, updated build settings for macOS and Windows in workflow release.yml (ysturasp, 2025-05-11) [2 files changed, 25 insertions(+), 5 deletions(-)]
 - fix not get env in build app (ysturasp, 2025-05-11) [2 files changed, 7 insertions(+), 1 deletion(-)]
 - fix uml wit not correct build (ysturasp, 2025-05-11) [2 files changed, 27 insertions(+), 18 deletions(-)]
