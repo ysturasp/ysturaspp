@@ -67,7 +67,7 @@
       "icon": "images/icon.icns",
       "identity": null,
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "generateUpdaterJSONFiles": true
+      "publish": ["github"]
     },
     "win": {
       "target": [
@@ -76,7 +76,8 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "images/icon.ico"
+      "icon": "images/icon.ico",
+      "publish": ["github"]
     },
     "dmg": {
       "contents": [

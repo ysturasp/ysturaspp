@@ -85,6 +85,8 @@ jobs:
             dist/*.dmg
             dist/*-mac.zip
             dist/*.exe
+            dist/latest*.yml
+            dist/*-mac.yml
           draft: false
           prerelease: false
           generate_release_notes: true 
