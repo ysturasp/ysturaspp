@@ -5,13 +5,9 @@ const { autoUpdater } = require('electron-updater');
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 autoUpdater.autoDownload = false;
-autoUpdater.allowDowngrade = true;
-autoUpdater.allowPrerelease = false;
+autoUpdater.allowDowngrade = false;
 autoUpdater.logger = require('electron-log');
 autoUpdater.logger.transports.file.level = 'debug';
-
-autoUpdater.disableWebInstaller = false;
-autoUpdater.autoInstallOnAppQuit = true;
 
 if (!isDev) {
   setInterval(() => {
@@ -325,12 +321,11 @@ autoUpdater.on('update-not-available', () => {
 });
 
 autoUpdater.on('error', (err) => {
-  console.error('Ошибка обновления:', err);
   sendStatusToWindow(mainWindow, `Ошибка при обновлении: ${err.message}`, 'error');
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-  const message = `Скорость: ${Math.round(progressObj.bytesPerSecond / 1024)} KB/s. Загружено ${Math.round(progressObj.percent)}%`;
+  const message = `Скорость: ${progressObj.bytesPerSecond} байт/сек. Загружено ${progressObj.percent}%`;
   sendStatusToWindow(mainWindow, message, 'info');
 });
 
