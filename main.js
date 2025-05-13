@@ -1,8 +1,17 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+
+autoUpdater.autoDownload = false;
+autoUpdater.allowDowngrade = true;
+autoUpdater.allowPrerelease = false;
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'debug';
+
+autoUpdater.disableWebInstaller = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 if (!isDev) {
   setInterval(() => {
@@ -24,8 +33,27 @@ autoUpdater.on('error', (err) => {
   console.error('Ошибка при обновлении:', err);
 });
 
+function sendStatusToWindow(win, text, type = 'info') {
+  if (win && win.webContents) {
+    win.webContents.send('update-message', { message: text, type });
+  }
+}
+
+function checkForUpdates(win) {
+  if (isDev) {
+    sendStatusToWindow(win, 'Проверка обновлений недоступна в режиме разработки', 'info');
+    return;
+  }
+
+  autoUpdater.checkForUpdates().catch((err) => {
+    sendStatusToWindow(win, `Ошибка при проверке обновлений: ${err.message}`, 'error');
+  });
+}
+
+let mainWindow;
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 350,
@@ -41,13 +69,13 @@ function createWindow() {
     }
   });
 
-  win.webContents.setZoomFactor(0.8);
+  mainWindow.webContents.setZoomFactor(0.8);
 
-  win.loadFile('index.html');
+  mainWindow.loadFile('index.html');
 
-  win.webContents.on('did-finish-load', () => {
-    win.webContents.setZoomFactor(0.8);
-    win.webContents.insertCSS(`
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.setZoomFactor(0.8);
+    mainWindow.webContents.insertCSS(`
       .titlebar {
         position: fixed;
         top: 0;
@@ -80,9 +108,48 @@ function createWindow() {
       button, a, input, select {
         -webkit-app-region: no-drag;
       }
+      .update-notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1F2937;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+      .update-notification.show {
+        opacity: 1;
+      }
+      .update-notification button {
+        background: #3B82F6;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+      .update-notification button:hover {
+        background: #2563EB;
+      }
+      .update-notification.error {
+        background: #DC2626;
+      }
+      .update-notification.info {
+        background: #1F2937;
+      }
     `);
     
-    win.webContents.executeJavaScript(`
+    mainWindow.webContents.executeJavaScript(`
       if (!document.querySelector('.titlebar')) {
         const titlebar = document.createElement('div');
         titlebar.className = 'titlebar';
@@ -134,18 +201,56 @@ function createWindow() {
           }
         }, { passive: true });
       }
+      
+      const ipc = require('electron').ipcRenderer;
+      
+      function showUpdateNotification(message, type = 'info') {
+        let notification = document.querySelector('.update-notification');
+        if (!notification) {
+          notification = document.createElement('div');
+          notification.className = 'update-notification';
+          document.body.appendChild(notification);
+        }
+        
+        notification.className = 'update-notification ' + type;
+        notification.innerHTML = message;
+        
+        setTimeout(() => {
+          notification.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 5000);
+      }
+      
+      ipc.on('update-message', (event, data) => {
+        showUpdateNotification(data.message, data.type);
+      });
+      
+      const menu = document.querySelector('nav') || document.createElement('div');
+      const checkUpdateBtn = document.createElement('button');
+      checkUpdateBtn.textContent = 'Проверить обновления';
+      checkUpdateBtn.style.marginLeft = '10px';
+      checkUpdateBtn.onclick = () => {
+        ipc.send('check-updates');
+        showUpdateNotification('Проверяем наличие обновлений...', 'info');
+      };
+      menu.appendChild(checkUpdateBtn);
     `);
+
+    checkForUpdates(mainWindow);
   });
 
-  win.webContents.on('will-navigate', (event, url) => {
+  mainWindow.webContents.on('will-navigate', (event, url) => {
     event.preventDefault();
     
     try {
       const urlPath = new URL(url).pathname;
       
       if (urlPath === '/') {
-        win.loadFile('index.html').then(() => {
-          win.webContents.setZoomFactor(0.8);
+        mainWindow.loadFile('index.html').then(() => {
+          mainWindow.webContents.setZoomFactor(0.8);
         });
         return;
       }
@@ -158,28 +263,28 @@ function createWindow() {
 
       const filePath = path.join(__dirname, fileName);
       if (require('fs').existsSync(filePath)) {
-        win.loadFile(fileName).then(() => {
-          win.webContents.setZoomFactor(0.8);
+        mainWindow.loadFile(fileName).then(() => {
+          mainWindow.webContents.setZoomFactor(0.8);
         });
       } else {
-        win.loadFile('404.html').then(() => {
-          win.webContents.setZoomFactor(0.8);
+        mainWindow.loadFile('404.html').then(() => {
+          mainWindow.webContents.setZoomFactor(0.8);
         });
       }
     } catch (error) {
       console.error('Navigation error:', error);
-      win.loadFile('404.html').then(() => {
-        win.webContents.setZoomFactor(0.8);
+      mainWindow.loadFile('404.html').then(() => {
+        mainWindow.webContents.setZoomFactor(0.8);
       });
     }
   });
 
-  win.webContents.on('did-finish-load', () => {
-    win.webContents.setZoomFactor(0.8);
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.setZoomFactor(0.8);
   });
 
   if (!isDev) {
-    win.webContents.on('before-input-event', (event, input) => {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
       if ((input.control || input.meta) && input.key.toLowerCase() === 'i') {
         event.preventDefault();
       }
@@ -201,4 +306,52 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow(mainWindow, 'Проверка обновлений...', 'info');
+});
+
+autoUpdater.on('update-available', (info) => {
+  sendStatusToWindow(
+    mainWindow,
+    `Доступна новая версия ${info.version}! <button onclick="require('electron').ipcRenderer.send('start-update')">Обновить</button>`,
+    'info'
+  );
+});
+
+autoUpdater.on('update-not-available', () => {
+  sendStatusToWindow(mainWindow, 'У вас установлена последняя версия', 'info');
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('Ошибка обновления:', err);
+  sendStatusToWindow(mainWindow, `Ошибка при обновлении: ${err.message}`, 'error');
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  const message = `Скорость: ${Math.round(progressObj.bytesPerSecond / 1024)} KB/s. Загружено ${Math.round(progressObj.percent)}%`;
+  sendStatusToWindow(mainWindow, message, 'info');
+});
+
+autoUpdater.on('update-downloaded', () => {
+  sendStatusToWindow(
+    mainWindow,
+    'Обновление загружено и будет установлено при следующем запуске. <button onclick="require(\'electron\').ipcRenderer.send(\'restart-app\')">Перезапустить сейчас</button>',
+    'info'
+  );
+});
+
+ipcMain.on('check-updates', () => {
+  checkForUpdates(mainWindow);
+});
+
+ipcMain.on('start-update', () => {
+  autoUpdater.downloadUpdate().catch((err) => {
+    sendStatusToWindow(mainWindow, `Ошибка при загрузке обновления: ${err.message}`, 'error');
+  });
+});
+
+ipcMain.on('restart-app', () => {
+  autoUpdater.quitAndInstall();
 }); 
