@@ -1,3 +1,8 @@
+- add logic to handle additional lesson slots in raspprep.html (ysturasp, 2025-05-21) [3 files changed, 85 insertions(+), 21 deletions(-)]
+- update settings auto update in main.js (ysturasp, 2025-05-13) [3 files changed, 7 insertions(+), 9 deletions(-)]
+- update version to 1.0.5, add support for logging updates and improving update verification mechanism in main.js (ysturasp, 2025-05-13) [4 files changed, 199 insertions(+), 31 deletions(-)]
+- bump version v1.0.4 (ysturasp, 2025-05-12) [0 insertions(+), 0 deletions(-)]
+- add icon in project for native app (ysturasp, 2025-05-12) [3 files changed, 5 insertions(+)]
 - bump version (ysturasp, 2025-05-12) [0 insertions(+), 0 deletions(-)]
 - replace arm to universal (ysturasp, 2025-05-12) [0 insertions(+), 0 deletions(-)]
 - update build config with 3 comad for mac arm, intel and universal (ysturasp, 2025-05-12) [3 files changed, 22 insertions(+), 94 deletions(-)]

@@ -1049,7 +1049,7 @@
 
         try {
           const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbz3GHGEuJnFrSat8dsP3A34PC5QO8FfFlTxPHCxKb83Tb5J2-FmcDVz0BRMcIH7SeAh/exec?action=directions"
+            "https://script.google.com/macros/s/AKfycbyhJhMvV-m2yZHN99gT3cirCi82CJBro9iduUwNkdRXUKfrO-CrTHDmZ8y9J1nut3I_/exec?action=directions"
           );
           directionsData = await response.json();
 
@@ -1134,7 +1134,7 @@
 
             try {
               const response = await fetch(
-                `https://script.google.com/macros/s/AKfycbz3GHGEuJnFrSat8dsP3A34PC5QO8FfFlTxPHCxKb83Tb5J2-FmcDVz0BRMcIH7SeAh/exec?action=schedule&id=${directionId}`
+                `https://script.google.com/macros/s/AKfycbyhJhMvV-m2yZHN99gT3cirCi82CJBro9iduUwNkdRXUKfrO-CrTHDmZ8y9J1nut3I_/exec?action=schedule&id=${directionId}`
               );
               const data = await response.json();
 
@@ -2552,7 +2552,7 @@
 
               const startTime = document.createElement("div");
               startTime.className = "text-sm font-bold";
-              startTime.textContent = lesson.startAt;
+              startTime.textContent = lesson.timeInfo?.customStartTime || lesson.startAt;
               timelineContainer.appendChild(startTime);
 
               const timeline = document.createElement("div");
@@ -2562,7 +2562,7 @@
               const lastSlot = lesson.additionalSlots[lesson.additionalSlots.length - 1];
               const endTime = document.createElement("div");
               endTime.className = "text-sm font-bold";
-              endTime.textContent = lastSlot.endAt;
+              endTime.textContent = lesson.timeInfo?.customEndTime || lastSlot.endAt;
               timelineContainer.appendChild(endTime);
 
               lessonContainer.appendChild(timelineContainer);
@@ -2575,10 +2575,12 @@
               timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
 
               if (lesson.startAt && lesson.endAt) {
+                const displayStartTime = lesson.timeInfo?.customStartTime || lesson.startAt;
+                const displayEndTime = lesson.timeInfo?.customEndTime || lesson.endAt;
                 timeContainer.innerHTML = `
-                                <span class="text-sm font-bold">${lesson.startAt}</span>
-                                <span class="text-sm font-bold">${lesson.endAt}</span>
-                            `;
+                    <span class="text-sm font-bold">${displayStartTime}</span>
+                    <span class="text-sm font-bold">${displayEndTime}</span>
+                `;
               }
               lessonContainer.appendChild(timeContainer);
             }
@@ -2615,8 +2617,8 @@
                         <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                         <p class="text-sm ${typeClass}">${typeText}</p>
                         ${durationText ? `<p class="text-sm text-blue-400">${durationText}</p>` : ''}
-                        <p class="text-sm text-slate-400">${lesson.teacherName || "Преподаватель не указан"}</p>
-                        <p class="text-sm text-slate-400">${lesson.auditoryName ? "Аудитория: " + lesson.auditoryName : "Аудитория не указана"}</p>
+                        <p class="text-sm text-slate-400">${lesson.teacherName ? `<a href="/yspu/raspprep?teacher=${encodeURIComponent(lesson.teacherName)}" class="hover:text-blue-400 transition-all">${lesson.teacherName}</a>` : "Преподаватель не указан"}</p>
+                        ${!lesson.isDistant ? `<p class="text-sm text-slate-400">${lesson.auditoryName ? `<a href="/yspu/raspaudience?audience=${encodeURIComponent(lesson.auditoryName)}" class="hover:text-blue-400 transition-all">Аудитория: ${lesson.auditoryName}</a>` : "Аудитория не указана"}</p>` : ''}
                         ${periodInfo ? `<p class="text-sm text-slate-400">${periodInfo}</p>` : ''}
                         ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : ''}
                     `;
