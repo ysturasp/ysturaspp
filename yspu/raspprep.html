@@ -659,7 +659,7 @@
             document.getElementById("week-info").innerHTML = getCurrentWeekMessage();
 
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teachers');
+                const response = await fetch('https://script.google.com/macros/s/AKfycbz3GHGEuJnFrSat8dsP3A34PC5QO8FfFlTxPHCxKb83Tb5J2-FmcDVz0BRMcIH7SeAh/exec?action=teachers');
 
                 if (response.status === 429) {
                     const retryDelay = 20 * 1000;
@@ -711,7 +711,7 @@
                         loadingOverlay.style.display = 'flex';
 
                         try {
-                            fetch(`https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teacher&id=${teacherId}`)
+                            fetch(`https://script.google.com/macros/s/AKfycbz3GHGEuJnFrSat8dsP3A34PC5QO8FfFlTxPHCxKb83Tb5J2-FmcDVz0BRMcIH7SeAh/exec?action=teacher&id=${teacherId}`)
                                 .then(response => {
                                     if (response.status === 429) {
                                         let retryAfter = 20;
@@ -1030,7 +1030,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://script.google.com/macros/s/AKfycbxsKs4KMC5GUbdw5-WTd0oizhvgG-b2STVWGEpfUJsPTbgS5cgg_ZRdvEmeZuO7e-pw/exec?action=teacher&id=${teacherId}`);
+                    const response = await fetch(`https://script.google.com/macros/s/AKfycbz3GHGEuJnFrSat8dsP3A34PC5QO8FfFlTxPHCxKb83Tb5J2-FmcDVz0BRMcIH7SeAh/exec?action=teacher&id=${teacherId}`);
                     
                     if (response.status === 429) {
                         let retryAfter = 20;
@@ -1118,6 +1118,28 @@
                     }
 
                     day.lessons.forEach(lesson => {
+                        let totalLessons = 1;
+                        let actualStartAt = lesson.startAt;
+                        let actualEndAt = lesson.endAt;
+
+                        if (lesson.originalTimeTitle) {
+                            const timeRanges = lesson.originalTimeTitle.split(',').map(t => t.trim());
+                            totalLessons = timeRanges.length;
+                            
+                            const firstTimeRange = timeRanges[0].match(/\d{1,2}\.\d{2}-\d{1,2}\.\d{2}/);
+                            const lastTimeRange = timeRanges[timeRanges.length - 1].match(/\d{1,2}\.\d{2}-\d{1,2}\.\d{2}/);
+                            
+                            if (firstTimeRange && lastTimeRange) {
+                                actualStartAt = firstTimeRange[0].split('-')[0].replace('.', ':');
+                                actualEndAt = lastTimeRange[0].split('-')[1].replace('.', ':');
+                            }
+                        } else if (lesson.additionalSlots) {
+                            totalLessons = lesson.additionalSlots.length + 1;
+                            if (lesson.additionalSlots.length > 0) {
+                                actualEndAt = lesson.additionalSlots[lesson.additionalSlots.length - 1].endAt;
+                            }
+                        }
+
                         scheduleByDays[dayNumber].push({
                             time: lesson.timeRange,
                             subject: lesson.lessonName,
@@ -1128,10 +1150,13 @@
                             isStream: lesson.isStream,
                             isDivision: lesson.isDivision,
                             number: lesson.number,
-                            startAt: lesson.startAt,
-                            endAt: lesson.endAt,
+                            startAt: actualStartAt,
+                            endAt: actualEndAt,
                             groups: lesson.groups,
-                            direction: lesson.direction
+                            direction: lesson.direction,
+                            additionalSlots: lesson.additionalSlots,
+                            originalTimeTitle: lesson.originalTimeTitle,
+                            totalLessons: totalLessons
                         });
                     });
                 });
@@ -1149,7 +1174,11 @@
                             .sort((a, b) => a.number - b.number)
                             .forEach(lesson => {
                                 const lessonElement = document.createElement('div');
-                                lessonElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex';
+                                lessonElement.className = 'bg-slate-800 p-4 rounded-lg mb-2 flex relative';
+
+                                if (lesson.additionalSlots && lesson.additionalSlots.length > 0) {
+                                    lessonElement.classList.add('multi-lesson');
+                                }
 
                                 let borderColorClass = 'border-slate-300';
                                 let textColorClass = 'text-slate-400';
@@ -1169,18 +1198,54 @@
                                     lessonTypeText = 'Другое';
                                 }
 
-                                const timeContainer = document.createElement('div');
-                                timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${borderColorClass} pr-2 w-14 mr-2`;
-                                timeContainer.innerHTML = `
-                                    <span class="text-sm font-bold">${lesson.startAt}</span>
-                                    <span class="text-sm font-bold">${lesson.endAt}</span>
-                                `;
+                                if (lesson.additionalSlots && lesson.additionalSlots.length > 0) {
+                                    const timelineContainer = document.createElement("div");
+                                    timelineContainer.className = `flex flex-col items-end justify-between border-r-2 ${borderColorClass} pr-2 w-14 mr-2`;
 
-                                const lessonInfo = document.createElement('div');
-                                lessonInfo.className = 'flex-grow';
+                                    const startTime = document.createElement("div");
+                                    startTime.className = "text-sm font-bold";
+                                    startTime.textContent = lesson.startAt;
+                                    timelineContainer.appendChild(startTime);
+
+                                    const timeline = document.createElement("div");
+                                    timeline.className = "w-0.5 flex-grow my-1";
+                                    timelineContainer.appendChild(timeline);
+
+                                    const lastSlot = lesson.additionalSlots[lesson.additionalSlots.length - 1];
+                                    const endTime = document.createElement("div");
+                                    endTime.className = "text-sm font-bold";
+                                    endTime.textContent = lastSlot.endAt;
+                                    timelineContainer.appendChild(endTime);
+
+                                    lessonElement.appendChild(timelineContainer);
+
+                                    const multiLessonIndicator = document.createElement("div");
+                                    multiLessonIndicator.className = "absolute -left-2 top-1/2 transform -translate-y-1/2 w-1 h-4/5 bg-blue-400 rounded-full";
+                                    lessonElement.appendChild(multiLessonIndicator);
+                                } else {
+                                    const timeContainer = document.createElement("div");
+                                    timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${borderColorClass} pr-2 w-14 mr-2`;
+
+                                    if (lesson.startAt && lesson.endAt) {
+                                        timeContainer.innerHTML = `
+                                            <span class="text-sm font-bold">${lesson.startAt}</span>
+                                            <span class="text-sm font-bold">${lesson.endAt}</span>
+                                        `;
+                                    }
+                                    lessonElement.appendChild(timeContainer);
+                                }
+
+                                const lessonInfo = document.createElement("div");
+                                lessonInfo.className = "flex-grow";
+
+                                const durationText = lesson.totalLessons > 1
+                                    ? `<p class="text-sm text-blue-400">Занятие на ${lesson.totalLessons} пары</p>`
+                                    : '';
+
                                 lessonInfo.innerHTML = `
                                     <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.subject}</p>
                                     <p class="text-sm ${textColorClass}">${lessonTypeText}</p>
+                                    ${durationText}
                                     ${lesson.isStream ? '<p class="text-sm text-purple-400">Поток</p>' : ''}
                                     ${lesson.isDivision ? '<p class="text-sm text-green-400">Подгруппа</p>' : ''}
                                     ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : `<a href="/yspu/raspaudience?audience=${encodeURIComponent(lesson.auditory)}" class="text-sm text-blue-400 hover-bold">${lesson.auditory ? `Аудитория: ${lesson.auditory}` : 'Аудитория не указана'}</a>`}
@@ -1199,7 +1264,6 @@
                                     })() : ''}
                                 `;
 
-                                lessonElement.appendChild(timeContainer);
                                 lessonElement.appendChild(lessonInfo);
                                 dayElement.appendChild(lessonElement);
                             });
