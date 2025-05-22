@@ -1,3 +1,5 @@
+- optimize time and subject parsing function, add support for multiple teachers, and improving data string processing (ysturasp, 2025-05-22) [3 files changed, 168 insertions(+), 31 deletions(-)]
+- update link to api for YSPU schedule (ysturasp, 2025-05-22) [5 files changed, 9 insertions(+), 8 deletions(-)]
 - update display time lesson in raspprep.html for YSPU schedule page (ysturasp, 2025-05-21) [5 files changed, 22 insertions(+), 15 deletions(-)]
 - add logic to handle additional lesson slots in raspprep.html (ysturasp, 2025-05-21) [3 files changed, 85 insertions(+), 21 deletions(-)]
 - update settings auto update in main.js (ysturasp, 2025-05-13) [3 files changed, 7 insertions(+), 9 deletions(-)]
