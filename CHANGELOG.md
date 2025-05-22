@@ -1,3 +1,4 @@
+- update display time lesson in raspprep.html for YSPU schedule page (ysturasp, 2025-05-21) [5 files changed, 22 insertions(+), 15 deletions(-)]
 - add logic to handle additional lesson slots in raspprep.html (ysturasp, 2025-05-21) [3 files changed, 85 insertions(+), 21 deletions(-)]
 - update settings auto update in main.js (ysturasp, 2025-05-13) [3 files changed, 7 insertions(+), 9 deletions(-)]
 - update version to 1.0.5, add support for logging updates and improving update verification mechanism in main.js (ysturasp, 2025-05-13) [4 files changed, 199 insertions(+), 31 deletions(-)]
