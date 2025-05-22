@@ -718,7 +718,7 @@
             document.getElementById("week-info").innerHTML = getCurrentWeekMessage();
 
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbzZytloo14jwp5WZGWF3yTxhfRxxBMJVx4YpkI5Mu8HqvXdO-e3_olvXTrpmBs1HfP2/exec?action=auditories');
+                const response = await fetch('https://script.google.com/macros/s/AKfycbydDgYH4DgaIqe3K2JDJnrgWfu5hcBoizeDzxu-bwe2VgpOIQC08CgSshtObMzIAqGr/exec?action=auditories');
 
                 if (response.status === 429) {
                     const retryDelay = 20 * 1000;
@@ -916,7 +916,7 @@
                         loadingOverlay.style.display = 'flex';
 
                         try {
-                            fetch(`https://script.google.com/macros/s/AKfycbzZytloo14jwp5WZGWF3yTxhfRxxBMJVx4YpkI5Mu8HqvXdO-e3_olvXTrpmBs1HfP2/exec?action=auditory&id=${audienceId}`)
+                            fetch(`https://script.google.com/macros/s/AKfycbydDgYH4DgaIqe3K2JDJnrgWfu5hcBoizeDzxu-bwe2VgpOIQC08CgSshtObMzIAqGr/exec?action=auditory&id=${audienceId}`)
                                 .then(response => {
                                     if (response.status === 429) {
                                         let retryAfter = 20;
@@ -1079,7 +1079,7 @@
                 loadingOverlay.style.display = 'flex';
 
                 try {
-                    const response = await fetch(`https://script.google.com/macros/s/AKfycbzZytloo14jwp5WZGWF3yTxhfRxxBMJVx4YpkI5Mu8HqvXdO-e3_olvXTrpmBs1HfP2/exec?action=auditory&id=${audienceId}`);
+                    const response = await fetch(`https://script.google.com/macros/s/AKfycbydDgYH4DgaIqe3K2JDJnrgWfu5hcBoizeDzxu-bwe2VgpOIQC08CgSshtObMzIAqGr/exec?action=auditory&id=${audienceId}`);
 
                     if (response.status === 429) {
                         let retryAfter = 20;

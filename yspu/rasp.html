@@ -472,6 +472,82 @@
         display: none;
       }
     }
+
+    .time-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-right: 0.5rem;
+      margin-left: -0.5rem;
+      margin-right: 0.5rem;
+      min-width: 4rem;
+    }
+
+    .time-slot {
+      position: relative;
+      padding: 0.25rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .time-slot.custom {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(30, 41, 59, 0.5) 100%);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      animation: customTimePulse 2s infinite;
+    }
+
+    .time-slot .tooltip {
+      position: absolute;
+      top: -2rem;
+      left: 50%;
+      transform: translateX(-50%) scale(0.95);
+      background: rgba(30, 41, 59, 0.95);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      color: #fff;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      z-index: 10;
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+
+    .time-slot:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) scale(1);
+    }
+
+    .time-divider {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 1px;
+      background: rgba(148, 163, 184, 0.2);
+      z-index: -1;
+    }
+
+    @keyframes customTimePulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.2);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+      }
+    }
   </style>
 </head>
 
@@ -1049,7 +1125,7 @@
 
         try {
           const response = await fetch(
-            "https://script.google.com/macros/s/AKfycbzZytloo14jwp5WZGWF3yTxhfRxxBMJVx4YpkI5Mu8HqvXdO-e3_olvXTrpmBs1HfP2/exec?action=directions"
+            "https://script.google.com/macros/s/AKfycbydDgYH4DgaIqe3K2JDJnrgWfu5hcBoizeDzxu-bwe2VgpOIQC08CgSshtObMzIAqGr/exec?action=directions"
           );
           directionsData = await response.json();
 
@@ -1134,7 +1210,7 @@
 
             try {
               const response = await fetch(
-                `https://script.google.com/macros/s/AKfycbzZytloo14jwp5WZGWF3yTxhfRxxBMJVx4YpkI5Mu8HqvXdO-e3_olvXTrpmBs1HfP2/exec?action=schedule&id=${directionId}`
+                `https://script.google.com/macros/s/AKfycbydDgYH4DgaIqe3K2JDJnrgWfu5hcBoizeDzxu-bwe2VgpOIQC08CgSshtObMzIAqGr/exec?action=schedule&id=${directionId}`
               );
               const data = await response.json();
 
@@ -2295,6 +2371,17 @@
         "Воскресенье"
       ];
 
+      function formatPeriodInfo(lesson) {
+        if (lesson.startDate && lesson.endDate) {
+          return `с ${lesson.startDate} по ${lesson.endDate}`;
+        } else if (lesson.startDate) {
+          return `с ${lesson.startDate}`;
+        } else if (lesson.endDate) {
+          return `до ${lesson.endDate}`;
+        }
+        return '';
+      }
+
       const groupSelect = document.getElementById("group-select");
       const selectedOption = groupSelect.options[groupSelect.selectedIndex];
       if (!selectedOption || !selectedOption.value) {
@@ -2498,6 +2585,18 @@
 
         let hasVisibleLessons = false;
 
+        const skipLessons = new Set();
+
+        dayLessons.forEach(item => {
+          item.days[0].lessons.forEach(lesson => {
+            if (lesson.additionalSlots) {
+              lesson.additionalSlots.forEach(slot => {
+                skipLessons.add(slot.number);
+              });
+            }
+          });
+        });
+
         dayLessons.forEach(item => {
           const lessonDate = new Date(item.days[0].info.date);
           const isToday = lessonDate.getTime() === today.getTime();
@@ -2528,6 +2627,10 @@
           }
 
           lessonsAfterFilter.forEach(lesson => {
+            if (skipLessons.has(lesson.number)) {
+              return;
+            }
+
             const isHidden = hiddenSubjects[lesson.lessonName] &&
               hiddenSubjects[lesson.lessonName].some(h =>
                 h.type === lesson.type || (h.teacher === (lesson.teacherName || "")));
@@ -2548,21 +2651,37 @@
               lessonContainer.classList.add('multi-lesson');
 
               const timelineContainer = document.createElement("div");
-              timelineContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
+              timelineContainer.className = `time-container border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'}`;
 
               const startTime = document.createElement("div");
-              startTime.className = "text-sm font-bold";
-              startTime.textContent = lesson.timeInfo?.customStartTime || lesson.startAt;
+              startTime.className = `time-slot ${lesson.timeInfo?.customStartTime ? 'custom' : ''}`;
+              const startTimeText = lesson.timeInfo?.customStartTime || lesson.startAt;
+              startTime.innerHTML = `
+                ${startTimeText}
+                ${lesson.timeInfo?.customStartTime ? `
+                  <div class="tooltip">
+                    Изменено с ${lesson.startAt}
+                  </div>
+                ` : ''}
+              `;
               timelineContainer.appendChild(startTime);
 
               const timeline = document.createElement("div");
-              timeline.className = "w-0.5 flex-grow my-1";
+              timeline.className = "time-divider";
               timelineContainer.appendChild(timeline);
 
               const lastSlot = lesson.additionalSlots[lesson.additionalSlots.length - 1];
               const endTime = document.createElement("div");
-              endTime.className = "text-sm font-bold";
-              endTime.textContent = lesson.timeInfo?.customEndTime || lastSlot.endAt;
+              endTime.className = `time-slot ${lesson.timeInfo?.customEndTime ? 'custom' : ''}`;
+              const endTimeText = lesson.timeInfo?.customEndTime || lastSlot.endAt;
+              endTime.innerHTML = `
+                ${endTimeText}
+                ${lesson.timeInfo?.customEndTime ? `
+                  <div class="tooltip">
+                    Изменено с ${lastSlot.endAt}
+                  </div>
+                ` : ''}
+              `;
               timelineContainer.appendChild(endTime);
 
               lessonContainer.appendChild(timelineContainer);
@@ -2572,15 +2691,40 @@
               lessonContainer.appendChild(multiLessonIndicator);
             } else {
               const timeContainer = document.createElement("div");
-              timeContainer.className = `flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 w-14 mr-2`;
+              timeContainer.className = `time-container border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'}`;
 
               if (lesson.startAt && lesson.endAt) {
                 const displayStartTime = lesson.timeInfo?.customStartTime || lesson.startAt;
                 const displayEndTime = lesson.timeInfo?.customEndTime || lesson.endAt;
-                timeContainer.innerHTML = `
-                    <span class="text-sm font-bold">${displayStartTime}</span>
-                    <span class="text-sm font-bold">${displayEndTime}</span>
+                
+                const startTimeSlot = document.createElement("div");
+                startTimeSlot.className = `time-slot ${lesson.timeInfo?.customStartTime ? 'custom' : ''}`;
+                startTimeSlot.innerHTML = `
+                  ${displayStartTime}
+                  ${lesson.timeInfo?.customStartTime ? `
+                    <div class="tooltip">
+                      Изменено с ${lesson.startAt}
+                    </div>
+                  ` : ''}
                 `;
+                
+                const timeline = document.createElement("div");
+                timeline.className = "time-divider";
+                
+                const endTimeSlot = document.createElement("div");
+                endTimeSlot.className = `time-slot ${lesson.timeInfo?.customEndTime ? 'custom' : ''}`;
+                endTimeSlot.innerHTML = `
+                  ${displayEndTime}
+                  ${lesson.timeInfo?.customEndTime ? `
+                    <div class="tooltip">
+                      Изменено с ${lesson.endAt}
+                    </div>
+                  ` : ''}
+                `;
+                
+                timeContainer.appendChild(startTimeSlot);
+                timeContainer.appendChild(timeline);
+                timeContainer.appendChild(endTimeSlot);
               }
               lessonContainer.appendChild(timeContainer);
             }
@@ -2603,11 +2747,7 @@
             const typeClass = typeClasses[lesson.type] || 'text-slate-400';
             const typeText = typeTexts[lesson.type] || 'Занятие';
 
-            const periodInfo = lesson.startDate && lesson.endDate
-              ? `с ${lesson.startDate} по ${lesson.endDate}`
-              : lesson.startDate
-                ? `с ${lesson.startDate}`
-                : '';
+            const periodInfo = formatPeriodInfo(lesson);
 
             const durationText = lesson.additionalSlots && lesson.additionalSlots.length > 0
               ? `Занятие на ${lesson.additionalSlots.length + 1} пары`
@@ -2617,7 +2757,11 @@
                         <p class="lg:text:md md:text-md sm:text:sm font-bold text-white">${lesson.lessonName}</p>
                         <p class="text-sm ${typeClass}">${typeText}</p>
                         ${durationText ? `<p class="text-sm text-blue-400">${durationText}</p>` : ''}
-                        <p class="text-sm text-slate-400">${lesson.teacherName ? `<a href="/yspu/raspprep?teacher=${encodeURIComponent(lesson.teacherName)}" class="hover:text-blue-400 transition-all">${lesson.teacherName}</a>` : "Преподаватель не указан"}</p>
+                        ${lesson.teacherName ? 
+                          `<p class="text-sm text-slate-400">${lesson.teacherName.split(', ').map(teacher => 
+                            `<a href="/yspu/raspprep?teacher=${encodeURIComponent(teacher.trim())}" class="hover:text-blue-400 transition-all">${teacher.trim()}</a>`
+                          ).join(', ')}</p>` 
+                          : "<p class=\"text-sm text-slate-400\">Преподаватель не указан</p>"}
                         ${!lesson.isDistant ? `<p class="text-sm text-slate-400">${lesson.auditoryName ? `<a href="/yspu/raspaudience?audience=${encodeURIComponent(lesson.auditoryName)}" class="hover:text-blue-400 transition-all">Аудитория: ${lesson.auditoryName}</a>` : "Аудитория не указана"}</p>` : ''}
                         ${periodInfo ? `<p class="text-sm text-slate-400">${periodInfo}</p>` : ''}
                         ${lesson.isDistant ? '<p class="text-sm text-red-400">Дистанционно</p>' : ''}
@@ -2920,9 +3064,6 @@
             mainHeading.textContent = `Расписание группы ${groupNumber} ${direction} ЯГПУ`;
         }
     }
-
-    // ... existing code ...
-
     scheduleForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const groupNumber = groupSelect.value;
@@ -2934,11 +3075,7 @@
         }
 
         updateMetaTags(groupNumber, direction);
-
-        // ... rest of the existing submit handler code ...
     });
-
-    // ... existing code ...
   </script>
 
   <script>
