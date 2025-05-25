@@ -1,3 +1,7 @@
+- fix not correct build for mac os (ysturasp, 2025-05-25) [0 insertions(+), 0 deletions(-)]
+- add reset all hidden subjects and update link to api for YSPU schedule (ysturasp, 2025-05-25) [5 files changed, 91 insertions(+), 9 deletions(-)]
+- refactor window controls in main.js to support platform-specific title bar and add IPC handlers for minimize, maximize, and close actions; update version to 1.0.6 (ysturasp, 2025-05-24) [3 files changed, 290 insertions(+), 10 deletions(-)]
+- update title for schedule page YSTU (ysturasp, 2025-05-22) [2 files changed, 4 insertions(+), 2 deletions(-)]
 - optimize time and subject parsing function, add support for multiple teachers, and improving data string processing (ysturasp, 2025-05-22) [3 files changed, 168 insertions(+), 31 deletions(-)]
 - update link to api for YSPU schedule (ysturasp, 2025-05-22) [5 files changed, 9 insertions(+), 8 deletions(-)]
 - update display time lesson in raspprep.html for YSPU schedule page (ysturasp, 2025-05-21) [5 files changed, 22 insertions(+), 15 deletions(-)]
