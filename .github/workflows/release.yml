@@ -51,8 +51,6 @@ jobs:
         include:
           - os: macos-latest
             build_script: build:mac-universal
-          - os: macos-latest
-            build_script: build:mac-intel
           - os: windows-latest
             build_script: build:win
     
