@@ -1,3 +1,4 @@
+- update header for schedule audience and prepods (ysturasp, 2025-05-26) [5 files changed, 39 insertions(+), 4 deletions(-)]
 - update emoji to unicode view for normal display in search list (ysturasp, 2025-05-25) [2 files changed, 6 insertions(+), 2 deletions(-)]
 - fix not correct build for mac os (ysturasp, 2025-05-25) [0 insertions(+), 0 deletions(-)]
 - add reset all hidden subjects and update link to api for YSPU schedule (ysturasp, 2025-05-25) [5 files changed, 91 insertions(+), 9 deletions(-)]
