@@ -961,6 +961,24 @@
         #weeksListModal {
             z-index: 51;
         }
+
+        #examsChangedModal {
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            #examsChangedModal .bg-slate-900 {
+                transform: translateY(100%);
+            }
+            
+            #examsChangedModal:not(.hidden) .bg-slate-900 {
+                animation: slideUp 0.3s ease-out forwards;
+            }
+        
+            #examsChangedModal.closing .bg-slate-900 {
+                animation: slideDown 0.3s ease-out forwards;
+            }
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
@@ -1471,6 +1489,27 @@
                         class="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-200 rounded-lg hover:bg-blue-300">Закрыть</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="examsChangedModal" class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
+        <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Экзамены такие экзамены</h3>
+                <button id="closeExamsChangedModal" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                </button>
+            </div>
+            <div class="text-gray-300 overflow-y-auto rounded-lg" style="max-height: calc(85vh - 80px);">
+                <div class="bg-gray-800 p-4 rounded-lg" id="examsChangedText">
+                    В экзаменах появились изменения!
+                </div>
+            </div>
+            <button onclick="closeExamsChangedModal()" class="w-full bg-blue-600 mt-4 text-white rounded-lg px-4 py-3 hover:bg-blue-700 transition-all">
+                окак, благодарю
+            </button>
         </div>
     </div>
 
@@ -3101,161 +3140,152 @@
                 }, 5000);
             }
 
-            function showNotification(hiddenCount) {
-                const notification = document.createElement('div');
-                notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification';
-                notification.textContent = `У вас есть скрытые предметы: ${hiddenCount}. Убедитесь, что ничего лишнего не скрыто! (посмотреть их можно под расписанием)`;
+            function showExamsChangedModalDiff(diff) {
+                console.log('Показываем модальное окно с изменениями:', diff);
+                const modal = document.getElementById('examsChangedModal');
+                const text = document.getElementById('examsChangedText');
+                let html = '';
+                
+                if (diff.changed.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-yellow-400 text-lg font-bold mb-2">🔄 Изменены:</div>';
+                    diff.changed.forEach(pair => {
+                        html += `
+                            <div class="mb-4 bg-slate-800/50 border border-yellow-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${pair.old.subject}</div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-red-900/20 p-2 rounded border border-red-500">
+                                        <div class="text-red-400 mb-1">❌ Было:</div>
+                                        <div class="ml-2">
+                                            <div>📅 Дата: ${pair.old.date}</div>
+                                            <div>🏛️ Аудитория: ${pair.old.auditory}</div>
+                                            <div>👨‍🏫 Преподаватель: ${pair.old.teacher || 'Не указан'}</div>
+                                            </div>
+                                            </div>
+                                    <div class="bg-green-900/20 p-2 rounded border border-green-500">
+                                        <div class="text-green-400 mb-1">✅ Стало:</div>
+                                        <div class="ml-2">
+                                            <div>📅 Дата: ${pair.new.date}</div>
+                                            <div>🏛️ Аудитория: ${pair.new.auditory}</div>
+                                            <div>👨‍🏫 Преподаватель: ${pair.new.teacher || 'Не указан'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
 
-                document.body.appendChild(notification);
+                if (diff.added.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-green-400 text-lg font-bold mb-2">✨ Добавлены:</div>';
+                    diff.added.forEach(exam => {
+                    html += `
+                            <div class="mb-3 bg-slate-800/50 border border-green-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${exam.subject}</div>
+                                <div class="ml-2">
+                                    <div>📅 Дата: ${exam.date}</div>
+                                    <div>🏛️ Аудитория: ${exam.auditory}</div>
+                                    <div>👨‍🏫 Преподаватель: ${exam.teacher || 'Не указан'}</div>
+                            </div>
+                        </div>
+                    `;
+                    });
+                    html += '</div>';
+                }
 
-                notification.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
+                if (diff.removed.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-red-400 text-lg font-bold mb-2">🗑️ Удалены:</div>';
+                    diff.removed.forEach(exam => {
+                    html += `
+                            <div class="mb-3 bg-slate-800/50 border border-red-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${exam.subject}</div>
+                                <div class="ml-2">
+                                    <div>📅 Дата: ${exam.date}</div>
+                                    <div>🏛️ Аудитория: ${exam.auditory}</div>
+                                    <div>👨‍🏫 Преподаватель: ${exam.teacher || 'Не указан'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                text.innerHTML = html;
+                
+                modal.style.display = 'block';
+                requestAnimationFrame(() => {
+                    modal.classList.remove('translate-y-full');
                 });
+            }
 
-                let touchStartX = 0;
-                let currentX = 0;
-                let moveX = 0;
-                let isSwiping = false;
+            function closeExamsChangedModal() {
+                const modal = document.getElementById('examsChangedModal');
+                modal.classList.add('translate-y-full');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
 
-                notification.addEventListener('touchstart', (e) => {
-                    touchStartX = e.changedTouches[0].screenX;
-                    isSwiping = true;
-                    notification.style.transition = '';
-                });
+            document.getElementById('closeExamsChangedModal').onclick = closeExamsChangedModal;
+            window.closeExamsChangedModal = closeExamsChangedModal;
 
-                notification.addEventListener('touchmove', (e) => {
-                    if (!isSwiping) return;
+            const currentExams = getAllExamsFromStatistics(sortedSubjects);
+            const group = document.getElementById('group-select').value;
+            const savedExamsRaw = localStorage.getItem('savedExamsList');
+            let savedExams = {};
+            try {
+                savedExams = savedExamsRaw ? JSON.parse(savedExamsRaw) : {};
+                console.log('Загруженные сохранённые экзамены:', savedExams);
+            } catch (e) {
+                console.error('Ошибка при загрузке сохранённых экзаменов:', e);
+                savedExams = {};
+            }
 
-                    currentX = e.changedTouches[0].screenX;
-                    moveX = currentX - touchStartX;
+            const savedGroupExams = savedExams[group] || [];
+            const diff = diffExams(savedGroupExams, currentExams);
+            
+            if (diff.added.length > 0 || diff.removed.length > 0 || diff.changed.length > 0) {
+                console.log('Есть изменения или новые экзамены, показываем модальное окно');
+                showExamsChangedModalDiff(diff);
+            }
 
-                    notification.style.transform = `translateX(${moveX}px)`;
-                });
+            savedExams[group] = currentExams;
+            localStorage.setItem('savedExamsList', JSON.stringify(savedExams));
 
-                notification.addEventListener('touchend', () => {
-                    if (!isSwiping) return;
-
-                    isSwiping = false;
-                    if (Math.abs(moveX) > 100) {
-                        triggerHapticFeedback('impact', 'medium');
-                        const direction = moveX < 0 ? '-110%' : '110%';
-                        notification.style.transition = 'transform 0.5s ease';
-                        notification.style.transform = `translateX(${direction})`;
-
-                        setTimeout(() => {
-                            notification.remove();
-                        }, 500);
-                    } else {
-                        notification.style.transition = 'transform 0.3s ease';
-                        notification.style.transform = 'translateX(0)';
+            const style = document.createElement('style');
+            style.textContent = `
+                #examsChangedModal {
+                    transition: transform 0.3s ease-out;
+                }
+                #examsChangedModal .bg-slate-900 {
+                    display: flex;
+                    flex-direction: column;
+                }
+                #examsChangedText {
+                    overflow-y: auto;
+                }
+                @media (max-width: 640px) {
+                    #examsChangedModal .bg-slate-900 {
+                        max-height: 85vh;
+                        margin: 0;
+                        border-radius: 16px 16px 0 0;
                     }
-                });
-
-                notification.addEventListener('click', () => {
-                    notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-                    notification.style.transform = 'translateX(100%)';
-                    notification.style.opacity = '0';
-
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 500);
-                });
-
-                setTimeout(() => {
-                    notification.classList.add('show');
-                }, 10);
-
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    notification.classList.add('hide');
-
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 500);
-                }, 5000);
-            }
-
-            const hiddenSubjectsCount = countAndShowHiddenSubjects();
-            if (hiddenSubjectsCount > 0) {
-                showNotification(hiddenSubjectsCount);
-            }
-
-            const calendarIcon = document.getElementById('calendarIcon');
-            const modal = document.getElementById('warningModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const modalContent = modal.querySelector('.bg-gray-600');
-
-            closeModalBtn.addEventListener('click', () => {
-                triggerHapticFeedback('impact', 'light');
-                modal.classList.add('hidden');
-            });
-
-            modal.addEventListener('click', (event) => {
-                if (!modalContent.contains(event.target)) {
-                    triggerHapticFeedback('impact', 'light');
-                    modal.classList.add('hidden');
+                    .grid.grid-cols-2 {
+                        grid-template-columns: 1fr;
+                        gap: 8px;
+                    }
+                    #examsChangedText {
+                        font-size: 0.9rem;
+                    }
+                    #examsChangedModal .text-lg {
+                        font-size: 1rem;
+                    }
                 }
-            });
-
-            calendarIcon.addEventListener('click', () => {
-                triggerHapticFeedback('impact', 'medium');
-                modal.classList.remove('hidden');
-            });
-
-            closeModalBtn.addEventListener('click', () => {
-                triggerHapticFeedback('impact', 'light');
-                modal.classList.add('hidden');
-            });
-
-            averageToggle.addEventListener('change', () => {
-                triggerHapticFeedback('selection');
-                const averageElements = document.querySelectorAll('.average-score');
-                averageElements.forEach(element => {
-                    element.style.display = averageToggle.checked ? 'inline' : 'none';
-                });
-            });
-
-            const targetDiv = document.querySelector('.flex.justify-between.items-center.mt-4.w-full');
-
-            function toggleVisibility() {
-                if (!instituteSelect.value || !groupSelect.value) {
-                    targetDiv.style.display = 'none';
-                } else {
-                    targetDiv.style.display = 'flex';
-                }
-            }
-
-            instituteSelect.addEventListener('change', toggleVisibility);
-            groupSelect.addEventListener('change', toggleVisibility);
-
-            toggleVisibility();
-
-            const leftButton = document.createElement('button');
-            leftButton.innerText = '👈';
-            leftButton.className = 'p-2 mr-2 text-3xl bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all';
-            leftButton.onclick = () => {
-                triggerHapticFeedback('impact', 'light');
-                changeWeek(week - 1);
-            };
-
-            const rightButton = document.createElement('button');
-            rightButton.innerText = '👉';
-            rightButton.className = 'p-2 ml-2 text-3xl bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all';
-            rightButton.onclick = () => {
-                triggerHapticFeedback('impact', 'light');
-                changeWeek(week + 1);
-            };
-            
-            
-            titleContainer.appendChild(leftButton);
-            titleContainer.appendChild(titleElement);
-            titleContainer.appendChild(rightButton);
-
-            saveSubgroupSettings.addEventListener('click', () => {
-                triggerHapticFeedback('impact', 'medium');
-                updateLabWorksList();
-                subgroupModal.classList.remove('hidden');
-            });
+            `;
+            document.head.appendChild(style);
         });
 
         const weekRanges = (() => {
@@ -3371,7 +3401,7 @@
         const mobileMenu = document.getElementById('mobile-menu');
 
         mobileMenuButton.addEventListener('click', function () {
-            triggerHapticFeedback('impact', 'light');
+            triggerHapticFeedback('impact', 'soft');
             if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
                 mobileMenu.classList.remove('hidden', 'hide');
                 mobileMenu.classList.add('show');
@@ -3656,7 +3686,7 @@
                     notification.classList.add('hide');
                     setTimeout(() => {
                         notification.remove();
-                    }, 500);
+                    }, 5000);
                 }, 5000);
             });
         }
@@ -5372,6 +5402,293 @@
                 gridContainer.appendChild(subjectDiv);
             });
 
+            function getAllExamsFromStatistics(sortedSubjects) {
+                const exams = [];
+                const group = document.getElementById('group-select').value;
+
+                for (let week = 1; week <= 18; week++) {
+                    const scheduleData = JSON.parse(localStorage.getItem(`${group}_${week}`));
+                    if (scheduleData && scheduleData.data) {
+                        scheduleData.data.items.forEach(weekItem => {
+                            if (weekItem.days) {
+                                weekItem.days.forEach(day => {
+                                    if (day && day.lessons) {
+                                        day.lessons.forEach(lesson => {
+                                            if (lesson.type === 256) {
+                                                const date = new Date(day.info.date);
+                                                const formattedDate = [
+                                                    String(date.getDate()).padStart(2, '0'),
+                                                    String(date.getMonth() + 1).padStart(2, '0'),
+                                                    date.getFullYear()
+                                                ].join('.');
+
+                                                exams.push({
+                                                    subject: lesson.lessonName,
+                                                    date: formattedDate,
+                                                    auditory: lesson.auditoryName,
+                                                    teacher: lesson.teacherName
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+                console.log('Найденные экзамены:', exams);
+                return exams;
+            }
+
+            function diffExams(oldExams, newExams) {
+                console.log('Сравниваем экзамены:', {old: oldExams, new: newExams});
+                const added = [];
+                const removed = [];
+                const changed = [];
+
+                const oldMap = {};
+                oldExams.forEach(e => {
+                    oldMap[e.subject + '|' + e.teacher] = e;
+                });
+                const newMap = {};
+                newExams.forEach(e => {
+                    newMap[e.subject + '|' + e.teacher] = e;
+                });
+
+                newExams.forEach(e => {
+                    const key = e.subject + '|' + e.teacher;
+                    if (!oldMap[key]) {
+                        added.push(e);
+                    } else {
+                        const old = oldMap[key];
+                        if (old.date !== e.date || old.auditory !== e.auditory) {
+                            changed.push({
+                                old,
+                                new: e
+                            });
+                        }
+                    }
+                });
+                oldExams.forEach(e => {
+                    const key = e.subject + '|' + e.teacher;
+                    if (!newMap[key]) {
+                        removed.push(e);
+                    }
+                });
+
+                const result = { added, removed, changed };
+                console.log('Найденные изменения:', result);
+                return result;
+            }
+
+            function showExamsChangedModalDiff(diff) {
+                console.log('Показываем модальное окно с изменениями:', diff);
+                const modal = document.getElementById('examsChangedModal');
+                const text = document.getElementById('examsChangedText');
+                let html = '';
+                
+                function truncateForMobile(str, type) {
+                    if (window.innerWidth <= 640) {
+                        if (type === 'teacher') {
+                            return str ? str : 'Не указан';
+                        } else if (type === 'auditory') {
+                            return str ? str : '';
+                        }
+                    }
+                    return str || 'Не указан';
+                }
+
+                if (diff.changed.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-yellow-400 text-lg font-bold mb-2">🔄 Изменены:</div>';
+                    diff.changed.forEach(pair => {
+                    html += `
+                            <div class="mb-4 bg-slate-800/50 border border-yellow-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${pair.old.subject}</div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-red-900/20 p-2 rounded border border-red-500">
+                                        <div class="text-red-400 mb-1">❌ Было:</div>
+                                        <div class="ml-2">
+                                            <div>📅 Дата: ${pair.old.date}</div>
+                                            <div>🏛️ ${window.innerWidth <= 640 ? 'Ауд:' : 'Аудитория:'} ${pair.old.auditory}</div>
+                                            <div>👨‍🏫 ${window.innerWidth <= 640 ? 'Препод:' : 'Преподаватель:'} ${pair.old.teacher || 'Не указан'}</div>
+                                    </div>
+                                    </div>
+                                    <div class="bg-green-900/20 p-2 rounded border border-green-500">
+                                        <div class="text-green-400 mb-1">✅ Стало:</div>
+                                        <div class="ml-2">
+                                            <div>📅 Дата: ${pair.new.date}</div>
+                                            <div>🏛️ ${window.innerWidth <= 640 ? 'Ауд:' : 'Аудитория:'} ${pair.new.auditory}</div>
+                                            <div>👨‍🏫 ${window.innerWidth <= 640 ? 'Препод:' : 'Преподаватель:'} ${pair.new.teacher || 'Не указан'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                if (diff.added.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-green-400 text-lg font-bold mb-2">✨ Добавлены:</div>';
+                    diff.added.forEach(exam => {
+                    html += `
+                            <div class="mb-3 bg-slate-800/50 border border-green-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${exam.subject}</div>
+                                <div class="ml-2">
+                                    <div>📅 Дата: ${exam.date}</div>
+                                    <div>🏛️ ${window.innerWidth <= 640 ? 'Ауд:' : 'Аудитория:'} ${exam.auditory}</div>
+                                    <div>👨‍🏫 ${window.innerWidth <= 640 ? 'Препод:' : 'Преподаватель:'} ${exam.teacher || 'Не указан'}</div>
+                            </div>
+                        </div>
+                    `;
+                    });
+                    html += '</div>';
+                }
+
+                if (diff.removed.length > 0) {
+                    html += '<div class="mb-4">';
+                    html += '<div class="text-red-400 text-lg font-bold mb-2">🗑️ Удалены:</div>';
+                    diff.removed.forEach(exam => {
+                        html += `
+                            <div class="mb-3 bg-slate-800/50 border border-red-500 p-3 rounded-lg">
+                                <div class="text-lg font-medium mb-2">${exam.subject}</div>
+                                <div class="ml-2">
+                                    <div>📅 Дата: ${exam.date}</div>
+                                    <div>🏛️ ${window.innerWidth <= 640 ? 'Ауд:' : 'Аудитория:'} ${exam.auditory}</div>
+                                    <div>👨‍🏫 ${window.innerWidth <= 640 ? 'Препод:' : 'Преподаватель:'} ${exam.teacher || 'Не указан'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+                
+                text.innerHTML = html;
+                
+                modal.style.display = 'block';
+                requestAnimationFrame(() => {
+                    modal.classList.remove('translate-y-full');
+                });
+            }
+            
+            function showAllExams() {
+                const group = document.getElementById('group-select').value;
+                if (!group) {
+                    showCustomNotification('Сначала выберите группу', 'warning');
+                    return;
+                }
+
+                const currentExams = getAllExamsFromStatistics(sortedSubjects);
+                if (currentExams.length === 0) {
+                    showCustomNotification('Экзаменов пока нет', 'info');
+                    return;
+                }
+
+                const modal = document.getElementById('examsChangedModal');
+                const text = document.getElementById('examsChangedText');
+                const title = modal.querySelector('h3');
+                title.textContent = '📚 Список экзаменов:';
+
+                let html = '<div class="mb-4">';
+                
+                currentExams.sort((a, b) => {
+                    const dateA = a.date.split('.').reverse().join('-');
+                    const dateB = b.date.split('.').reverse().join('-');
+                    return new Date(dateA) - new Date(dateB);
+                });
+
+                currentExams.forEach(exam => {
+                    html += `
+                        <div class="mb-3 bg-slate-800/50 border border-blue-500 p-3 rounded-lg">
+                            <div class="text-lg font-medium mb-2">${exam.subject}</div>
+                            <div class="ml-2">
+                                <div>📅 Дата: ${exam.date}</div>
+                                <div>🏛️ ${window.innerWidth <= 640 ? 'Ауд:' : 'Аудитория:'} ${exam.auditory}</div>
+                                <div>👨‍🏫 ${window.innerWidth <= 640 ? 'Препод:' : 'Преподаватель:'} ${exam.teacher || 'Не указан'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                text.innerHTML = html;
+                modal.style.display = 'block';
+                requestAnimationFrame(() => {
+                    modal.classList.remove('translate-y-full');
+                });
+            }
+
+            document.getElementById('showAllExamsButton').addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'medium');
+                showAllExams();
+            });
+
+            function closeExamsChangedModal() {
+                const modal = document.getElementById('examsChangedModal');
+                modal.classList.add('translate-y-full');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+
+            document.getElementById('closeExamsChangedModal').onclick = closeExamsChangedModal;
+            window.closeExamsChangedModal = closeExamsChangedModal;
+
+            const currentExams = getAllExamsFromStatistics(sortedSubjects);
+            const group = document.getElementById('group-select').value;
+            const savedExamsRaw = localStorage.getItem('savedExamsList');
+            let savedExams = {};
+            try {
+                savedExams = savedExamsRaw ? JSON.parse(savedExamsRaw) : {};
+                console.log('Загруженные сохранённые экзамены:', savedExams);
+            } catch (e) {
+                console.error('Ошибка при загрузке сохранённых экзаменов:', e);
+                savedExams = {};
+            }
+
+            const savedGroupExams = savedExams[group] || [];
+            const diff = diffExams(savedGroupExams, currentExams);
+            
+            if (diff.added.length > 0 || diff.removed.length > 0 || diff.changed.length > 0) {
+                console.log('Есть изменения или новые экзамены, показываем модальное окно');
+                showExamsChangedModalDiff(diff);
+            }
+
+            savedExams[group] = currentExams;
+            localStorage.setItem('savedExamsList', JSON.stringify(savedExams));
+
+            const style = document.createElement('style');
+            style.textContent = `
+                #examsChangedModal {
+                    transition: transform 0.3s ease-out;
+                }
+                #examsChangedModal .bg-slate-900 {
+                    display: flex;
+                    flex-direction: column;
+                }
+                #examsChangedText {
+                    overflow-y: auto;
+                }
+                @media (max-width: 640px) {
+                    #examsChangedModal .bg-slate-900 {
+                        max-height: 85vh;
+                        border-radius: 16px 16px 0 0;
+                    }
+                    .grid.grid-cols-2 {
+                        grid-template-columns: 1fr;
+                        gap: 8px;
+                    }
+                    #examsChangedText {
+                        font-size: 0.9rem;
+                    }
+                    #examsChangedModal .text-lg {
+                        font-size: 1rem;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
 
             container.appendChild(gridContainer);
             document.getElementById('subject-statistics').classList.remove('hidden');
@@ -7172,7 +7489,11 @@
                 }
             });
         </script>
-    
+
+        <button id="showAllExamsButton" class="fixed bottom-44 right-6 text-white rounded-full transition-all z-50">
+            <img src="https://ysturasp.github.io/tg_emoji/Objects/Graduation Cap.webp" alt="Показать экзамены" class="w-11 h-11">
+        </button>
+        
         <button id="settingsButton" class="fixed bottom-24 right-4 bg-blue-700 text-white rounded-full p-4 shadow-lg hover:bg-blue-600 transition-all">
             <svg class="w-6 h-6 animate-spin-slow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
