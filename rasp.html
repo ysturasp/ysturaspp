@@ -3140,6 +3140,112 @@
                 }, 5000);
             }
 
+            function showNotification(hiddenCount) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto bg-red-500 text-white py-2 px-4 rounded-lg z-50 notification';
+                notification.textContent = `У вас есть скрытые предметы: ${hiddenCount}. Убедитесь, что ничего лишнего не скрыто! (посмотреть их можно под расписанием)`;
+
+                document.body.appendChild(notification);
+
+                notification.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                });
+
+                let touchStartX = 0;
+                let currentX = 0;
+                let moveX = 0;
+                let isSwiping = false;
+
+                notification.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    isSwiping = true;
+                    notification.style.transition = '';
+                });
+
+                notification.addEventListener('touchmove', (e) => {
+                    if (!isSwiping) return;
+
+                    currentX = e.changedTouches[0].screenX;
+                    moveX = currentX - touchStartX;
+
+                    notification.style.transform = `translateX(${moveX}px)`;
+                });
+
+                notification.addEventListener('touchend', () => {
+                    if (!isSwiping) return;
+
+                    isSwiping = false;
+                    if (Math.abs(moveX) > 100) {
+                        triggerHapticFeedback('impact', 'medium');
+                        const direction = moveX < 0 ? '-110%' : '110%';
+                        notification.style.transition = 'transform 0.5s ease';
+                        notification.style.transform = `translateX(${direction})`;
+
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 500);
+                    } else {
+                        notification.style.transition = 'transform 0.3s ease';
+                        notification.style.transform = 'translateX(0)';
+                    }
+                });
+
+                notification.addEventListener('click', () => {
+                    notification.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                });
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 500);
+                }, 5000);
+            }
+
+            const hiddenSubjectsCount = countAndShowHiddenSubjects();
+            if (hiddenSubjectsCount > 0) {
+                showNotification(hiddenSubjectsCount);
+            }
+
+            const calendarIcon = document.getElementById('calendarIcon');
+            const modal = document.getElementById('warningModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalContent = modal.querySelector('.bg-gray-600');
+
+            closeModalBtn.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'light');
+                modal.classList.add('hidden');
+            });
+
+            modal.addEventListener('click', (event) => {
+                if (!modalContent.contains(event.target)) {
+                    triggerHapticFeedback('impact', 'light');
+                    modal.classList.add('hidden');
+                }
+            });
+
+            calendarIcon.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'medium');
+                modal.classList.remove('hidden');
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                triggerHapticFeedback('impact', 'light');
+                modal.classList.add('hidden');
+            });
+
             function showExamsChangedModalDiff(diff) {
                 console.log('Показываем модальное окно с изменениями:', diff);
                 const modal = document.getElementById('examsChangedModal');
