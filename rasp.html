@@ -1492,8 +1492,8 @@
         </div>
     </div>
 
-    <div id="examsChangedModal" class="fixed inset-x-0 -bottom-1 z-50 transform translate-y-full transition-transform duration-300 ease-in-out">
-        <div class="bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
+    <div id="examsChangedModal" class="fixed inset-0 z-50 transform translate-y-full transition-transform duration-300 ease-in-out bg-black/50">
+        <div class="absolute bottom-0 left-0 right-0 bg-slate-900 rounded-t-2xl p-6 max-w-lg mx-3 md:mx-auto shadow-xl ring-1">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-white">Экзамены такие экзамены</h3>
                 <button id="closeExamsChangedModal" class="text-gray-400 hover:text-white">
@@ -3326,6 +3326,22 @@
                     modal.classList.remove('translate-y-full');
                 });
             }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    const modal = document.getElementById('examsChangedModal');
+                    if (!modal.classList.contains('translate-y-full')) {
+                        closeExamsChangedModal();
+                    }
+                }
+            });
+
+            document.getElementById('examsChangedModal').addEventListener('click', function(event) {
+                const modalContent = this.querySelector('.bg-slate-900');
+                if (!modalContent.contains(event.target)) {
+                    closeExamsChangedModal();
+                }
+            });
 
             function closeExamsChangedModal() {
                 const modal = document.getElementById('examsChangedModal');

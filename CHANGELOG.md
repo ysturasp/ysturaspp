@@ -1,3 +1,5 @@
+- fix text message in modal calendar emoji (ysturasp, 2025-05-29) [0 insertions(+), 0 deletions(-)]
+- fix not display: revert function notification for hidden subjects (ysturasp, 2025-05-28) [5 files changed, 110 insertions(+), 3 deletions(-)]
 - add modal notification for exam create update and delete (ysturasp, 2025-05-27) [2 files changed, 466 insertions(+), 144 deletions(-)]
 - update title for YSTU and YSPU schedules by add links to corresponding pages in mobile menu (ysturasp, 2025-05-26) [5 files changed, 17 insertions(+)]
 - update header for schedule audience and prepods (ysturasp, 2025-05-26) [5 files changed, 39 insertions(+), 4 deletions(-)]
