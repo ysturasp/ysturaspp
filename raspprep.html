@@ -1702,8 +1702,15 @@
                             lessons.map(lesson => 
                             `<div class="bg-slate-800 p-4 rounded-lg mb-2 flex">
                                 <div class="flex flex-col items-end justify-between border-r-2 ${lessonTypeColors[lesson.type] || 'border-slate-300'} pr-2 py-2 w-14 mr-2">
-                                    <span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
-                                    <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>
+                                    ${lesson.timeRange ? 
+                                        `<span class="text-sm font-bold">${lesson.timeRange.split('-')[0].trim()}</span>
+                                         <span class="text-sm font-bold">${lesson.timeRange.split('-')[1].trim()}</span>` : 
+                                        `<div class="flex items-center justify-center w-full h-full">
+                                            <img src="https://ysturasp.github.io/tg_emoji/Smileys/Not Understang Face.gif" 
+                                                 class="w-10 h-10"
+                                                 style="filter: brightness(1.2);">
+                                         </div>`
+                                    }
                                 </div>
                                 
                                 <div>
