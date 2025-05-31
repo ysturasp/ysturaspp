@@ -1,3 +1,4 @@
+- add processing for not found date in schedule prepods (ysturasp, 2025-05-30) [2 files changed, 10 insertions(+), 2 deletions(-)]
 - add rules to close exam modal by esc and outside the modal (ysturasp, 2025-05-29) [2 files changed, 20 insertions(+), 2 deletions(-)]
 - fix text message in modal calendar emoji (ysturasp, 2025-05-29) [0 insertions(+), 0 deletions(-)]
 - fix not display: revert function notification for hidden subjects (ysturasp, 2025-05-28) [5 files changed, 110 insertions(+), 3 deletions(-)]
