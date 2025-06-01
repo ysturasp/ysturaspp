@@ -6463,54 +6463,155 @@
                         }
                     });
 
+                    let touchStartX = 0;
+                    let touchStartY = 0;
+                    let touchMoveX = 0;
+                    let touchMoveY = 0;
+                    let isHorizontalSwipe = false;
+                    let isTouchMove = false;
+                    let lastTouchTime = 0;
+                    let lastTouchX = 0;
+                    let swipeVelocity = 0;
+
                     function dragStart(e) {
-                        isDragging = true;
-                        startPos = e.type === 'mousedown' ? e.pageX : e.touches[0].clientX;
+                        if (e.type === 'mousedown') {
+                            isDragging = true;
+                            startPos = e.pageX;
+                        } else if (e.type === 'touchstart') {
+                            touchStartX = e.touches[0].clientX;
+                            touchStartY = e.touches[0].clientY;
+                            lastTouchX = touchStartX;
+                            lastTouchTime = Date.now();
+                            isTouchMove = false;
+                            isHorizontalSwipe = false;
+                            swipeVelocity = 0;
+                        }
                         prevTranslate = currentPosition;
                         carouselContainer.style.cursor = 'grabbing';
                     }
 
                     function drag(e) {
-                        if (!isDragging) return;
-                        e.preventDefault();
-                        const currentPos = e.type === 'mousemove' ? e.pageX : e.touches[0].clientX;
-                        const diff = (currentPos - startPos) * 3.5;
-                        currentPosition = prevTranslate + diff;
+                        if (e.type === 'mousemove' && !isDragging) return;
+                        
+                        if (e.type === 'touchmove') {
+                            const currentTime = Date.now();
+                            touchMoveX = e.touches[0].clientX;
+                            touchMoveY = e.touches[0].clientY;
+                            
+                            if (!isTouchMove) {
+                                const deltaX = Math.abs(touchMoveX - touchStartX);
+                                const deltaY = Math.abs(touchMoveY - touchStartY);
+                                
+                                if (deltaX > 5 || deltaY > 5) {
+                                    isHorizontalSwipe = deltaX > deltaY;
+                                    isTouchMove = true;
+                                }
+                            }
+                            
+                            if (!isHorizontalSwipe) return;
 
-                        if (currentPosition > 0) {
-                            currentPosition = currentPosition * 0.3;
-                        } else if (currentPosition < -(carouselContainer.scrollWidth - carouselContainer.clientWidth)) {
-                            const overscroll = currentPosition + (carouselContainer.scrollWidth - carouselContainer.clientWidth);
-                            currentPosition = -(carouselContainer.scrollWidth - carouselContainer.clientWidth) + overscroll * 0.3;
+                            const timeDiff = currentTime - lastTouchTime;
+                            if (timeDiff > 0) {
+                                swipeVelocity = (touchMoveX - lastTouchX) / timeDiff;
+                            }
+                            
+                            lastTouchX = touchMoveX;
+                            lastTouchTime = currentTime;
+                            
+                            e.preventDefault();
+                            const diff = (touchMoveX - touchStartX) * 1.2;
+                            currentPosition = prevTranslate + diff;
+                        } else {
+                            e.preventDefault();
+                            const currentPos = e.pageX;
+                            const diff = (currentPos - startPos) * 2;
+                            currentPosition = prevTranslate + diff;
                         }
 
-                        updateCarousel();
+                        const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                        if (currentPosition > 0) {
+                            currentPosition = currentPosition * 0.4;
+                        } else if (currentPosition < maxScroll) {
+                            const overscroll = currentPosition - maxScroll;
+                            currentPosition = maxScroll + (overscroll * 0.4);
+                        }
+
+                        requestAnimationFrame(() => {
+                            updateCarousel();
+                        });
                     }
 
-                    function dragEnd() {
-                        if (!isDragging) return;
+                    function dragEnd(e) {
+                        if (e.type.includes('mouse') && !isDragging) return;
                         isDragging = false;
                         carouselContainer.style.cursor = 'grab';
 
+                        if (!isTouchMove && e.type === 'touchend') return;
+
                         const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                        const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
                         let snapPosition;
 
-                        const swipeDirection = currentPosition < prevTranslate ? -1 : 1;
-                        const swipeStrength = Math.abs(currentPosition - prevTranslate);
+                        const currentSlideIndex = Math.abs(currentPosition / slideWidth);
+                        const fractionalPart = currentSlideIndex - Math.floor(currentSlideIndex);
 
-                        if (swipeStrength > slideWidth * 0.1) {
-                            snapPosition = Math.round((currentPosition - (slideWidth * 0.3 * swipeDirection)) / slideWidth) * slideWidth;
+                        if (e.type === 'touchend' && Math.abs(swipeVelocity) > 0.5) {
+                            const direction = swipeVelocity > 0 ? 1 : -1;
+                            const slidesToScroll = Math.min(3, Math.max(1, Math.floor(Math.abs(swipeVelocity) * 2)));
+                            
+                            const targetIndex = Math.round(currentSlideIndex) - (slidesToScroll * direction);
+                            snapPosition = -(targetIndex * slideWidth);
                         } else {
-                            snapPosition = Math.round(currentPosition / slideWidth) * slideWidth;
+                            if (fractionalPart < 0.3) {
+                                snapPosition = -(Math.floor(currentSlideIndex) * slideWidth);
+                            } else if (fractionalPart > 0.7) {
+                                snapPosition = -(Math.ceil(currentSlideIndex) * slideWidth);
+                            } else {
+                                const direction = currentPosition < prevTranslate ? Math.ceil : Math.floor;
+                                snapPosition = -(direction(currentSlideIndex) * slideWidth);
+                            }
                         }
 
-                        currentPosition = Math.min(0, Math.max(snapPosition, -(carouselContainer.scrollWidth - carouselContainer.clientWidth)));
-                        carouselContainer.style.transition = 'transform 0.3s ease-out';
-                        updateCarousel();
+                        currentPosition = Math.min(0, Math.max(snapPosition, maxScroll));
+
+                        currentPosition = Math.round(currentPosition / slideWidth) * slideWidth;
+                        
+                        carouselContainer.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                        requestAnimationFrame(() => {
+                            updateCarousel();
+                        });
 
                         setTimeout(() => {
                             carouselContainer.style.transition = '';
                         }, 300);
+
+                        isTouchMove = false;
+                        isHorizontalSwipe = false;
+                        swipeVelocity = 0;
+                    }
+
+                    function updateCarousel() {
+                        const slideWidth = carouselContainer.children[0].offsetWidth + 16;
+                        currentPosition = Math.round(currentPosition / slideWidth) * slideWidth;
+                        
+                        carouselContainer.style.transform = `translate3d(${currentPosition}px, 0, 0)`;
+
+                        const maxScroll = -(carouselContainer.scrollWidth - carouselContainer.clientWidth);
+                        prevButton.classList.toggle('hidden', currentPosition >= 0);
+                        nextButton.classList.toggle('hidden', currentPosition <= maxScroll);
+
+                        const visibleSlides = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+                        const activeIndex = Math.round(Math.abs(currentPosition) / (slideWidth * visibleSlides));
+
+                        dotsContainer.querySelectorAll('button').forEach((dot, index) => {
+                            if (index === activeIndex) {
+                                dot.classList.add('bg-blue-400', 'w-4');
+                                dot.classList.remove('bg-gray-600');
+                            } else {
+                                dot.classList.remove('bg-blue-400', 'w-4');
+                                dot.classList.add('bg-gray-600');
+                            }
+                        });
                     }
 
                     prevButton.addEventListener('click', () => {
@@ -6533,26 +6634,6 @@
                             carouselContainer.style.transition = '';
                         }, 300);
                     });
-
-                    function updateCarousel() {
-                        carouselContainer.style.transform = `translateX(${currentPosition}px)`;
-
-                        prevButton.classList.toggle('hidden', currentPosition >= 0);
-                        nextButton.classList.toggle('hidden', currentPosition <= -(carouselContainer.scrollWidth - carouselContainer.clientWidth));
-
-                        const slideWidth = carouselContainer.children[0].offsetWidth + 16;
-                        const activeIndex = Math.round(Math.abs(currentPosition) / (slideWidth * visibleSlides));
-
-                        dotsContainer.querySelectorAll('button').forEach((dot, index) => {
-                            if (index === activeIndex) {
-                                dot.classList.add('bg-blue-400', 'w-4');
-                                dot.classList.remove('bg-gray-600');
-                            } else {
-                                dot.classList.remove('bg-blue-400', 'w-4');
-                                dot.classList.add('bg-gray-600');
-                            }
-                        });
-                    }
 
                     updateCarousel();
                 }
