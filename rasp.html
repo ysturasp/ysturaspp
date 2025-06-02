@@ -4633,6 +4633,24 @@
                         dayElement.appendChild(lessonContainer);
                     });
 
+                    let allLessonsHidden = true;
+                    day.lessons.forEach(lesson => {
+                        const isHidden = hiddenSubjects[lesson.lessonName] && hiddenSubjects[lesson.lessonName].some(h => h.type === lesson.type && h.teacher === (lesson.teacherName || ''));
+                        if (!isHidden) {
+                            allLessonsHidden = false;
+                        }
+                    });
+
+                    if (allLessonsHidden && day.lessons.length > 0) {
+                        const hiddenMessage = document.createElement('div');
+                        hiddenMessage.className = 'text-center text-gray-400 italic mt-2 flex items-center justify-center gap-2';
+                        hiddenMessage.innerHTML = `
+                            <img src="https://ysturasp.github.io/tg_emoji/People/Eyes.webp" alt="Скрыто" class="w-6 h-6">
+                            <span>В этот день все занятия скрыты</span>
+                        `;
+                        dayElement.appendChild(hiddenMessage);
+                    }
+
                     scheduleContainer.appendChild(dayElement);
                 }
 

@@ -1,3 +1,4 @@
+- improve drag handling for carousel, and update transition animations (ysturasp, 2025-06-01) [2 files changed, 124 insertions(+), 42 deletions(-)]
 - fix grid column in carusel subgroups (ysturasp, 2025-05-31) [2 files changed, 69 insertions(+), 77 deletions(-)]
 - add processing for not found date in schedule prepods (ysturasp, 2025-05-30) [2 files changed, 10 insertions(+), 2 deletions(-)]
 - add rules to close exam modal by esc and outside the modal (ysturasp, 2025-05-29) [2 files changed, 20 insertions(+), 2 deletions(-)]
