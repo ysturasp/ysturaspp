@@ -4192,11 +4192,16 @@
                     }
                 }
 
-                if (e.key.toLowerCase() === 't') {
+                if (e.key.toLowerCase() === 't' || e.key.toLowerCase() === 'е') {
                     e.preventDefault();
                     const today = new Date();
                     const todayStr = today.toISOString().split('T')[0];
                     const currentWeek = weekRanges.find(range => todayStr >= range.start && todayStr <= range.end);
+
+                    if (!currentWeek) {
+                        showCustomNotification('Текущая неделя не найдена, вероятно, сейчас каникулы!', 'error');
+                        return;
+                    }
 
                     const weekNumber = currentWeek.text.split(' ')[0];
 
