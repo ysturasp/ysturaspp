@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0F172A">
+    <meta name="apple-mobile-web-app-title" content="ystuRASP">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Библиотека компонентов ystuRASP - коллекция красивых и функциональных UI элементов">
+    <link rel="icon" href="images/cat.png" type="image/png">
+    <title>Библиотека компонентов - ystuRASP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Unbounded:wght@200;300;400;500;600;700&display=swap');
+        
+        ::selection {
+            background-color: #ffc935;
+            color: #000000;
+            border-radius: 5px;
+            padding: 1.2em;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: #0F172A;
+            overflow-x: hidden;
+            letter-spacing: 0.01em;
+        }
+
+        h1, h2 {
+            font-family: 'Unbounded', cursive;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+        }
+
+        .component-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .component-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .code-preview {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .code-preview.show {
+            max-height: 1000px;
+        }
+
+        .notification {
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-in-out, height 0.3s ease-in-out, margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+            margin-left: auto;
+            overflow: hidden;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.hide {
+            opacity: 0;
+            transform: translateX(100%);
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            height: 0 !important;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: end;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show .modal-overlay {
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .input-field {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0F172A, #1E293B);
+        }
+
+        .gradient-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .sphere-1 {
+            top: 10%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0));
+            animation-delay: -5s;
+        }
+
+        .sphere-2 {
+            top: 40%;
+            right: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at center, rgba(147, 51, 234, 0.4), rgba(147, 51, 234, 0));
+            animation-delay: -2s;
+        }
+
+        .sphere-3 {
+            bottom: -10%;
+            left: 30%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle at center, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0));
+            animation-delay: -8s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(50px, 50px); }
+            50% { transform: translate(0, 100px); }
+            75% { transform: translate(-50px, 50px); }
+        }
+
+        .code-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .code-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .code-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            }
+
+        .code-modal.show .code-modal-overlay {
+                opacity: 1;
+            }
+
+        .code-modal-content {
+            position: relative;
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 1rem;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-modal.show .code-modal-content {
+            transform: scale(1);
+                opacity: 1;
+            }
+
+        .code-tabs {
+            display: flex;
+            gap: 1px;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            }
+
+        .code-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .code-tab:hover {
+            color: #e2e8f0;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .code-tab.active {
+            color: white;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .code-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding: 0;
+        }
+
+        .code-block {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .code-block.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 1.5rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .code-block pre code {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            tab-size: 4;
+            background: transparent !important;
+        }
+
+        pre[class*="language-"],
+        code[class*="language-"] {
+            background: transparent !important;
+        }
+
+        .token {
+            background: transparent !important;
+        }
+
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+            color: #608b4e;
+        }
+
+        .token.punctuation {
+            color: #808080;
+        }
+
+        .token.property,
+        .token.tag,
+        .token.boolean,
+        .token.number,
+        .token.constant,
+        .token.symbol,
+        .token.deleted {
+            color: #b5cea8;
+        }
+
+        .token.selector,
+        .token.attr-name,
+        .token.string,
+        .token.char,
+        .token.builtin,
+        .token.inserted {
+            color: #ce9178;
+        }
+
+        .token.operator,
+        .token.entity,
+        .token.url,
+        .language-css .token.string,
+        .style .token.string {
+            color: #d4d4d4;
+        }
+
+        .token.atrule,
+        .token.attr-value,
+        .token.keyword {
+            color: #c586c0;
+        }
+
+        .token.function,
+        .token.class-name {
+            color: #dcdcaa;
+        }
+
+        .token.regex,
+        .token.important,
+        .token.variable {
+            color: #d16969;
+        }
+
+        .code-block pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 4px;
+        }
+
+        .code-block pre::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+            z-index: 10;
+        }
+
+        .copy-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: #e2e8f0;
+            opacity: 1;
+        }
+
+        .copy-button.copied {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+
+        .copy-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        @keyframes copyFeedback {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .copy-button.copied {
+            animation: copyFeedback 0.3s ease;
+        }
+
+        .code-toggle-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1.25rem;
+            border: none;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            border-radius: 9999px;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .code-toggle-btn::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .code-toggle-btn:hover {
+            color: #e2e8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .code-toggle-btn:hover::before {
+            opacity: 1;
+        }
+
+        .code-toggle-btn .icon-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            position: relative;
+        }
+
+        .code-toggle-btn .icon-container svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .code-toggle-btn:hover .icon-container svg {
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 640px) {
+            .code-toggle-btn {
+                width: 3rem;
+                height: 3rem;
+                justify-content: center;
+            }
+
+            .code-toggle-btn span {
+                display: none;
+            }
+
+            .code-toggle-btn .icon-container {
+                margin: 0;
+            }
+        }
+
+        .code-toggle-btn.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2));
+            color: #e2e8f0;
+        }
+
+        .code-toggle-btn.active .icon-container svg {
+            transform: rotate(90deg);
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOutScale {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-30%) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        #mobile-menu {
+            background-color: rgb(25 36 53);
+        }
+
+        #mobile-menu.show {
+            display: block;
+            animation: fadeInScale 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        #mobile-menu.hide {
+            animation: fadeOutScale 0.2s ease-in forwards;
+        }
+
+        #notifications-container {
+            pointer-events: none;
+        }
+
+        #notifications-container > * {
+            pointer-events: auto;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+
+        .ambient-focus {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(1, 21, 51, 0.931);
+            box-shadow: 0 0 200px rgb(0, 57, 117);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+        }
+
+        .custom-select {
+            position: relative;
+        }
+
+        .select-button {
+            line-height: 1.2;
+            position: relative;
+            width: 100%;
+            text-align: left;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-button:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .select-button:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .select-button::after {
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0.75rem;
+            height: 0.75rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: transform 0.3s ease;
+        }
+
+        .select-button.active::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .select-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .select-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .select-option:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .select-option.selected {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .select-option:first-child {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        .select-option:last-child {
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        .select-option .check-icon {
+            width: 1rem;
+            height: 1rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .select-option.selected .check-icon {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300 antialiased">
+    <div id="notifications-container" class="fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto z-50 flex flex-col-reverse gap-3"></div>
+    <div class="animated-background">
+        <div class="gradient-sphere sphere-1"></div>
+        <div class="gradient-sphere sphere-2"></div>
+        <div class="gradient-sphere sphere-3"></div>
+    </div>
+
+    <header class="container mx-auto sticky top-4 px-3 md:px-0 z-50">
+        <div style="background-color: #1e293bad; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);" class="rounded-lg px-3 py-2 md:px-5 md:py-3 ring-1 ring-slate-900/5 shadow-xl flex justify-between items-center transition-all">
+            <nav class="hidden lg:flex gap-x-4">
+                <a href="/" class="text-blue-500 font-semibold text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <img src="images/cat.png" class="w-10 h-10 mr-2" />
+                    <span class="text-sm md:text-base">ystuRASP Главная</span>
+                </a>
+                <a href="/stat" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Статистика
+                </a>
+                <a href="/rasp" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Расписание
+                </a>
+                <a href="/campus" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Кампус
+                </a>
+                <a href="/data" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    Данные
+                </a>
+                <a href="/about" class="text-sm md:text-base hover:text-blue-400 transition-all flex items-center">
+                    <span class="text-sm md:text-base"> </span>
+                    О нас
+                </a>
+            </nav>
+            <div class="relative lg:hidden">
+                <button id="mobile-menu-btn" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all">
+                    <svg class="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="https://boosty.to/ysturasp.me/donate" class="p-1 md:p-2 bg-blue-700 text-white rounded-lg text-sm md:text-sm hover:bg-blue-600 transition-all border-2 border-blue-700 hover:border-blue-600">
+                    Поддержать проект <span class="text-xl align-middle">💸</span>
+                </a>
+                <a href="https://id.ystuty.ru/" target="_blank" class="p-1 md:p-2 bg-slate-900 text-white rounded-lg text-sm md:text-sm transition-all flex items-center justify-center border-2 border-blue-500 hover:border-blue-400">
+                    <span class="text-xl">👤</span>
+                </a>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-slate-800 rounded-lg mt-4 px-3 py-2 md:px-6 md:py-3 ring-1 ring-slate-900/5 shadow-xl absolute top-full left-3 right-3 hidden">
+            <a href="/" class="block py-2 text-blue-500 font-semibold text-sm md:text-base">ystuRASP Главная</a>
+            <a href="/stat" class="block py-2 hover:text-blue-400 text-sm md:text-base">Статистика</a>
+            <a href="/rasp" class="block py-2 hover:text-blue-400 text-sm md:text-base">Расписание</a>
+            <a href="/campus" class="block py-2 hover:text-blue-400 text-sm md:text-base">Кампус</a>
+            <a href="/data" class="block py-2 hover:text-blue-400 text-sm md:text-base">Данные</a>
+            <a href="/about" class="block py-2 hover:text-blue-400 text-sm md:text-base">О нас</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-12 px-4">
+        <div class="mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Библиотека компонентов ysturasp
+                <span class="inline-block">✨</span>
+            </h1>
+            <p class="text-sm md:text-lg text-slate-400 mb-12">
+                Коллекция красивых и функциональных UI элементов для вашего проекта. 
+                Все компоненты созданы с использованием Tailwind CSS и чистого JavaScript
+            </p>
+
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div class="component-card rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Уведомления</h2>
+                            <p class="text-slate-400">Красивые всплывающие уведомления с анимацией и поддержкой свайпа</p>
+                        </div>
+                        <button onclick="toggleCode(this)" class="code-toggle-btn">
+                            <div class="icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <span>Код</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="showNotification('Успешное действие!', 'success')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
+                            Успех
+                        </button>
+                        <button onclick="showNotification('Произошла ошибка!', 'error')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">
+                            Ошибка
+                        </button>
+                        <button onclick="showNotification('Информационное сообщение', 'info')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                            Инфо
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-card rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Модальное окно</h2>
+                            <p class="text-slate-400">Стильное модальное окно с плавной анимацией появления</p>
+                        </div>
+                        <button onclick="toggleCode(this)" class="code-toggle-btn">
+                            <div class="icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <span>Код</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="showModal('demoModal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+                            Открыть модальное окно
+                        </button>
+                    </div>
+                </div>
+
+                <div class="component-card rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Переключатель</h2>
+                            <p class="text-slate-400">Стильный переключатель с плавной анимацией</p>
+                        </div>
+                        <button onclick="toggleCode(this)" class="code-toggle-btn">
+                            <div class="icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <span>Код</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="component-card rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Выпадающий список</h2>
+                            <p class="text-slate-400">Кастомный выпадающий список</p>
+                        </div>
+                        <button onclick="toggleCode(this)" class="code-toggle-btn">
+                            <div class="icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <span>Код</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4">
+                        <div class="custom-select w-full max-w-md">
+                            <button class="select-button text-gray-400">
+                                Выберите вариант
+                            </button>
+                            <input type="hidden" name="selected-priority" value="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-card rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Поле ввода с эффектом</h2>
+                            <p class="text-slate-400">Красивое поле ввода с эффектом размытия при фокусе</p>
+                        </div>
+                        <button onclick="toggleCode(this)" class="code-toggle-btn">
+                            <div class="icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <span>Код</span>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4">
+                        <div class="relative w-full max-w-md">
+                            <input type="text" 
+                                   class="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none border border-gray-700 transition-all"
+                                   placeholder="Введите текст..."
+                                   onfocus="this.classList.add('ambient-focus')"
+                                   onblur="this.classList.remove('ambient-focus')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="demoModal" class="modal">
+            <div class="modal-overlay" onclick="hideModal('demoModal')"></div>
+            <div class="modal-content">
+                <div class="max-w-lg mx-auto">
+                    <div class="bg-gray-900 rounded-t-2xl p-6 mx-3 shadow-xl ring-1 ring-slate-700/5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-white">Демо модальное окно</h3>
+                            <button onclick="hideModal('demoModal')" class="text-gray-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-slate-300">
+                                Это демонстрационное модальное окно. Оно появляется с плавной анимацией снизу и имеет полупрозрачный оверлей
+                            </p>
+                            <div class="pt-4">
+                                <button onclick="hideModal('demoModal')" class="w-full bg-blue-600 text-white rounded-lg px-4 py-3 hover:bg-blue-700 transition-all">
+                                    Закрыть
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="codeModal" class="code-modal">
+        <div class="code-modal-overlay" onclick="hideCodeModal()"></div>
+        <div class="code-modal-content">
+            <div class="flex justify-between items-center p-4 border-b border-slate-700/50">
+                <h3 class="text-xl font-bold text-white" id="codeModalTitle">Код компонента</h3>
+                <button onclick="hideCodeModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="code-tabs">
+                <button class="code-tab active" onclick="switchCodeTab(this, 'html')">HTML</button>
+                <button class="code-tab" onclick="switchCodeTab(this, 'css')">CSS</button>
+                <button class="code-tab" onclick="switchCodeTab(this, 'js')">JavaScript</button>
+            </div>
+            <div class="code-content">
+                <div class="code-block show" data-tab="html">
+                    <button class="copy-button" onclick="copyCode('html')">
+                        <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="copy-text">Копировать</span>
+                    </button>
+                    <pre><code class="language-html" id="htmlCode"></code></pre>
+                </div>
+                <div class="code-block" data-tab="css">
+                    <button class="copy-button" onclick="copyCode('css')">
+                        <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="copy-text">Копировать</span>
+                    </button>
+                    <pre><code class="language-css" id="cssCode"></code></pre>
+                </div>
+                <div class="code-block" data-tab="js">
+                    <button class="copy-button" onclick="copyCode('js')">
+                        <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="copy-text">Копировать</span>
+                    </button>
+                    <pre><code class="language-javascript" id="jsCode"></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-6 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="w-full md:w-1/3 text-center md:text-left">
+                    <h2 class="text-white text-lg font-bold">ystuRASP</h2>
+                    <p class="text-slate-400 mt-2">Экосистема для студентов</p>
+                </div>
+                <div class="w-full md:w-1/3 text-center mt-4 md:mt-0">
+                    <nav class="flex justify-center gap-4">
+                        <a href="https://t.me/ysturasp" class="text-slate-400 hover:text-white transition-all">
+                            <div class="w-14 h-14 bg-white rounded p-1">
+                                <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" class="mx-auto my-1 w-10 h-10">
+                            </div>
+                        </a>
+                        <a href="https://boosty.to/ysturasp.me" class="text-slate-400 hover:text-white transition-all">
+                            <div class="w-14 h-14 bg-white rounded p-1">
+                                <img src="https://boosty.to/favicon.ico" alt="Boosty" class="mx-auto my-1 w-10 h-10">
+                            </div>
+                        </a>
+                        <a href="https://github.com/ysturasp" class="text-slate-400 hover:text-white transition-all">
+                            <div class="w-14 h-14 bg-white rounded p-1">
+                                <img src="images/github-mark.png" alt="GitHub" class="mx-auto my-1 w-10 h-10">
+                            </div>
+                        </a>
+                    </nav>
+                </div>
+                <div class="w-full md:w-1/3 text-center md:text-right mt-4 md:mt-0">
+                    <p class="text-slate-400">© 2024 Made with ❤️ by ystuRASP</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', function() {
+            if (mobileMenu.classList.contains('hide') || mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden', 'hide');
+                mobileMenu.classList.add('show');
+            } else {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        });
+
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hide');
+                
+                mobileMenu.addEventListener('animationend', () => {
+                    if (mobileMenu.classList.contains('hide')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }, { once: true });
+            });
+        });
+
+        function initializeDropdowns() {
+            const dropdownsContainer = document.getElementById('dropdowns-container');
+            const options = [
+                { value: '0', icon: '⚪️', text: 'Вариант 1' },
+                { value: '1', icon: '🔴', text: 'Вариант 2' },
+                { value: '2', icon: '🟡', text: 'Вариант 3' },
+                { value: '3', icon: '🟢', text: 'Вариант 4' },
+                { value: '4', icon: '🔵', text: 'Вариант 5' }
+            ];
+
+            document.querySelectorAll('.custom-select').forEach((select, index) => {
+                const button = select.querySelector('.select-button');
+                const input = select.querySelector('input[type="hidden"]');
+                
+                const dropdown = document.createElement('div');
+                const rect = button.getBoundingClientRect();
+                
+                dropdown.className = 'select-dropdown bg-slate-800 border border-slate-700 rounded-lg shadow-xl';
+                dropdown.style.position = 'absolute';
+                dropdown.style.visibility = 'hidden';
+                dropdown.style.opacity = '0';
+                dropdown.style.transform = 'translateY(-10px)';
+                dropdown.style.transition = 'all 0.3s ease';
+                dropdown.style.width = button.offsetWidth + 'px';
+                dropdown.style.top = (rect.bottom + 8) + 'px';
+                dropdown.style.left = rect.left + 'px';
+                dropdown.style.pointerEvents = 'auto';
+                dropdown.style.zIndex = '9999';
+                
+                const dropdownContent = document.createElement('div');
+                dropdownContent.className = 'p-2';
+                
+                options.forEach(option => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'select-option p-2 hover:bg-slate-700 rounded-lg cursor-pointer flex items-center gap-3';
+                    optionElement.dataset.value = option.value;
+                    
+                    const iconSpan = document.createElement('span');
+                    iconSpan.className = 'text-slate-300';
+                    iconSpan.textContent = option.icon;
+                    
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'text-slate-300';
+                    textSpan.textContent = option.text;
+                    
+                    optionElement.appendChild(iconSpan);
+                    optionElement.appendChild(textSpan);
+                    dropdownContent.appendChild(optionElement);
+                    
+                    optionElement.addEventListener('click', () => {
+                        const value = option.value;
+                        const icon = option.icon;
+                        const text = option.text;
+                        
+                        const buttonContent = document.createElement('span');
+                        buttonContent.className = 'text-sm rounded flex items-center gap-2 w-full';
+                        
+                        const iconSpan = document.createElement('span');
+                        iconSpan.className = 'text-slate-300';
+                        iconSpan.textContent = icon;
+                        
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'text-slate-300';
+                        textSpan.textContent = text;
+                        
+                        buttonContent.appendChild(iconSpan);
+                        buttonContent.appendChild(textSpan);
+                        
+                        button.innerHTML = '';
+                        button.appendChild(buttonContent);
+                        button.classList.remove('text-gray-400');
+                        input.value = value;
+                        
+                        hideDropdown();
+                    });
+                });
+                
+                dropdown.appendChild(dropdownContent);
+                dropdownsContainer.appendChild(dropdown);
+                
+                function showDropdown() {
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.opacity = '1';
+                    dropdown.style.transform = 'translateY(0)';
+                    button.classList.add('active');
+                }
+                
+                function hideDropdown() {
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.opacity = '0';
+                    dropdown.style.transform = 'translateY(-10px)';
+                    button.classList.remove('active');
+                }
+                
+                function closeAllDropdowns() {
+                    document.querySelectorAll('.select-dropdown').forEach(d => {
+                        d.style.visibility = 'hidden';
+                        d.style.opacity = '0';
+                        d.style.transform = 'translateY(-10px)';
+                    });
+                    document.querySelectorAll('.select-button').forEach(b => b.classList.remove('active'));
+                }
+                
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = dropdown.style.visibility === 'visible';
+                    closeAllDropdowns();
+                    if (!isOpen) {
+                        showDropdown();
+                    }
+                });
+                
+                window.addEventListener('scroll', () => {
+                    if (dropdown.style.visibility === 'visible') {
+                        const newRect = button.getBoundingClientRect();
+                        dropdown.style.top = (newRect.bottom + 8) + 'px';
+                        dropdown.style.left = newRect.left + 'px';
+                    }
+                });
+                
+                window.addEventListener('resize', () => {
+                    const newRect = button.getBoundingClientRect();
+                    dropdown.style.width = button.offsetWidth + 'px';
+                    dropdown.style.top = (newRect.bottom + 8) + 'px';
+                    dropdown.style.left = newRect.left + 'px';
+                });
+            });
+            
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.select-dropdown').forEach(d => {
+                    d.style.visibility = 'hidden';
+                    d.style.opacity = '0';
+                    d.style.transform = 'translateY(-10px)';
+                });
+                document.querySelectorAll('.select-button').forEach(b => b.classList.remove('active'));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeDropdowns);
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notifications-container');
+            const notification = document.createElement('div');
+            notification.className = `py-2 px-4 rounded-lg notification ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            } text-white shadow-lg`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            const height = notification.offsetHeight;
+            notification.style.height = height + 'px';
+            
+            let touchStartX = 0;
+            let currentX = 0;
+            let moveX = 0;
+            let isSwiping = false;
+
+            notification.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                isSwiping = true;
+                notification.style.transition = '';
+            });
+
+            notification.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+
+                currentX = e.changedTouches[0].screenX;
+                moveX = currentX - touchStartX;
+
+                notification.style.transform = `translateX(${moveX}px)`;
+            });
+
+            notification.addEventListener('touchend', () => {
+                if (!isSwiping) return;
+
+                isSwiping = false;
+                if (Math.abs(moveX) > 100) {
+                    const direction = moveX < 0 ? '-110%' : '110%';
+                    notification.style.transition = 'all 0.5s ease';
+                    notification.style.transform = `translateX(${direction})`;
+                    notification.classList.add('hide');
+
+                    setTimeout(() => {
+                        if (container.contains(notification)) {
+                            container.removeChild(notification);
+                        }
+                    }, 500);
+                } else {
+                    notification.style.transition = 'transform 0.3s ease';
+                    notification.style.transform = 'translateX(0)';
+                }
+            });
+
+            notification.addEventListener('click', () => {
+                notification.style.transition = 'all 0.5s ease';
+                notification.style.transform = 'translateX(100%)';
+                notification.classList.add('hide');
+
+                setTimeout(() => {
+                    if (container.contains(notification)) {
+                        container.removeChild(notification);
+                    }
+                }, 500);
+            });
+
+            requestAnimationFrame(() => {
+                notification.classList.add('show');
+            });
+
+            setTimeout(() => {
+                notification.classList.add('hide');
+
+                setTimeout(() => {
+                    if (container.contains(notification)) {
+                        container.removeChild(notification);
+                    }
+                }, 500);
+            }, 5000);
+        }
+
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('show');
+        }
+
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+        }
+
+        function toggleCode(button) {
+            const card = button.closest('.component-card');
+            const componentTitle = card.querySelector('h2').textContent;
+            button.classList.add('active');
+            
+            const codeData = getComponentCode(componentTitle);
+            
+            showCodeModal(
+                componentTitle,
+                codeData.html,
+                codeData.css,
+                codeData.js
+            );
+
+            const codeModal = document.getElementById('codeModal');
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        if (!codeModal.classList.contains('show')) {
+                            button.classList.remove('active');
+                        }
+                    }
+                });
+            });
+
+            observer.observe(codeModal, {
+                attributes: true
+            });
+        }
+
+        function showCodeModal(title, html, css, js) {
+            const modal = document.getElementById('codeModal');
+            document.getElementById('codeModalTitle').textContent = title;
+            
+            document.getElementById('htmlCode').textContent = html;
+            document.getElementById('cssCode').textContent = css;
+            document.getElementById('jsCode').textContent = js;
+            
+            Prism.highlightAll();
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    hideCodeModal();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+        }
+
+        function hideCodeModal() {
+            const modal = document.getElementById('codeModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function switchCodeTab(tab, type) {
+            document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            document.querySelectorAll('.code-block').forEach(block => block.classList.remove('show'));
+            document.querySelector(`.code-block[data-tab="${type}"]`).classList.add('show');
+        }
+
+        const componentsCode = {
+            'Уведомления': {
+                html: `<div id="notifications-container" class="fixed bottom-5 right-5 left-5 sm:right-10 sm:left-auto z-50 flex flex-col-reverse gap-3"></div>
+
+<div class="flex flex-wrap gap-4">
+  <button onclick="showNotification('Успешное действие!', 'success')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all">
+    Успех
+  </button>
+  <button onclick="showNotification('Произошла ошибка!', 'error')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all">
+    Ошибка
+  </button>
+  <button onclick="showNotification('Информационное сообщение', 'info')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+    Инфо
+  </button>
+</div>`,
+                css: `.notification {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease-in-out, height 0.3s ease-in-out, margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+    margin-left: auto;
+    overflow: hidden;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.hide {
+    opacity: 0;
+    transform: translateX(100%);
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 0 !important;
+}
+
+#notifications-container {
+    pointer-events: none;
+}
+
+#notifications-container > * {
+    pointer-events: auto;
+}`,
+                js: `function showNotification(message, type = 'success') {
+    const container = document.getElementById('notifications-container');
+    const notification = document.createElement('div');
+    notification.className = \`py-2 px-4 rounded-lg notification \${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+    } text-white shadow-lg\`;
+    notification.textContent = message;
+    
+    container.appendChild(notification);
+    
+    const height = notification.offsetHeight;
+    notification.style.height = height + 'px';
+    
+    let touchStartX = 0;
+    let currentX = 0;
+    let moveX = 0;
+    let isSwiping = false;
+
+    notification.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        isSwiping = true;
+        notification.style.transition = '';
+    });
+
+    notification.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+
+        currentX = e.changedTouches[0].screenX;
+        moveX = currentX - touchStartX;
+
+        notification.style.transform = \`translateX(\${moveX}px)\`;
+    });
+
+    notification.addEventListener('touchend', () => {
+        if (!isSwiping) return;
+
+        isSwiping = false;
+        if (Math.abs(moveX) > 100) {
+            const direction = moveX < 0 ? '-110%' : '110%';
+            notification.style.transition = 'all 0.5s ease';
+            notification.style.transform = \`translateX(\${direction})\`;
+            notification.classList.add('hide');
+
+            setTimeout(() => {
+                if (container.contains(notification)) {
+                    container.removeChild(notification);
+                }
+            }, 500);
+        } else {
+            notification.style.transition = 'transform 0.3s ease';
+            notification.style.transform = 'translateX(0)';
+        }
+    });
+
+    notification.addEventListener('click', () => {
+        notification.style.transition = 'all 0.5s ease';
+        notification.style.transform = 'translateX(100%)';
+        notification.classList.add('hide');
+
+        setTimeout(() => {
+            if (container.contains(notification)) {
+                container.removeChild(notification);
+            }
+        }, 500);
+    });
+
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+    });
+
+    setTimeout(() => {
+        notification.classList.add('hide');
+
+        setTimeout(() => {
+            if (container.contains(notification)) {
+                container.removeChild(notification);
+            }
+        }, 500);
+    }, 5000);
+}`
+            },
+            'Модальное окно': {
+                html: `<button onclick="showModal('demoModal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all">
+  Открыть модальное окно
+</button>
+
+<div id="demoModal" class="modal">
+    <div class="modal-overlay" onclick="hideModal('demoModal')"></div>
+    <div class="modal-content">
+        <div class="max-w-lg mx-auto">
+            <div class="bg-gray-900 rounded-t-2xl p-6 mx-3 shadow-xl ring-1 ring-slate-700/5">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-white">Демо модальное окно</h3>
+                    <button onclick="hideModal('demoModal')" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-gray-300">
+                        Это демонстрационное модальное окно. Оно появляется с плавной анимацией снизу и имеет полупрозрачный оверлей
+                    </p>
+                    <div class="pt-4">
+                        <button onclick="hideModal('demoModal')" class="w-full bg-blue-600 text-white rounded-lg px-4 py-3 hover:bg-blue-700 transition-all">
+                            Закрыть
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`,
+                css: `.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: end;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.show .modal-overlay {
+    opacity: 1;
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}`,
+                js: `function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+}
+
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+}`
+            },
+            'Выпадающий список': {
+                html: `<div class="custom-select w-full max-w-md">
+    <button class="select-button text-gray-400">
+        Выберите вариант
+    </button>
+    <input type="hidden" name="selected-priority" value="">
+</div>
+
+<div id="dropdowns-container" style="position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>`,
+                css: `.custom-select {
+    position: relative;
+}
+
+.select-button {
+    position: relative;
+    width: 100%;
+    text-align: left;
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.select-button:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.select-button:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.select-button::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.75rem;
+    height: 0.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: transform 0.3s ease;
+}
+
+.select-button.active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1e293b;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 100;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.select-dropdown.show {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.select-option {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.select-option:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.select-option.selected {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+}
+
+.select-option:first-child {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+.select-option:last-child {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.select-option .check-icon {
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.select-option.selected .check-icon {
+    opacity: 1;
+}
+
+.select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.select-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(59, 130, 246, 0.3);
+    border-radius: 3px;
+}
+
+.select-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(59, 130, 246, 0.5);
+}`,
+                js: `function initializeDropdowns() {
+    const dropdownsContainer = document.getElementById('dropdowns-container');
+    const options = [
+        { value: '0', icon: '⚪️', text: 'Вариант 1' },
+        { value: '1', icon: '🔴', text: 'Вариант 2' },
+        { value: '2', icon: '🟡', text: 'Вариант 3' },
+        { value: '3', icon: '🟢', text: 'Вариант 4' },
+        { value: '4', icon: '🔵', text: 'Вариант 5' }
+    ];
+
+    document.querySelectorAll('.custom-select').forEach((select, index) => {
+        const button = select.querySelector('.select-button');
+        const input = select.querySelector('input[type="hidden"]');
+        
+        const dropdown = document.createElement('div');
+        const rect = button.getBoundingClientRect();
+        
+        dropdown.className = 'select-dropdown bg-slate-800 border border-slate-700 rounded-lg shadow-xl';
+        dropdown.style.position = 'absolute';
+        dropdown.style.visibility = 'hidden';
+        dropdown.style.opacity = '0';
+        dropdown.style.transform = 'translateY(-10px)';
+        dropdown.style.transition = 'all 0.3s ease';
+        dropdown.style.width = button.offsetWidth + 'px';
+        dropdown.style.top = (rect.bottom + 8) + 'px';
+        dropdown.style.left = rect.left + 'px';
+        dropdown.style.pointerEvents = 'auto';
+        dropdown.style.zIndex = '9999';
+        
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'p-2';
+        
+        options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'select-option p-2 hover:bg-slate-700 rounded-lg cursor-pointer flex items-center gap-3';
+            optionElement.dataset.value = option.value;
+            
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'text-slate-300';
+            iconSpan.textContent = option.icon;
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text-slate-300';
+            textSpan.textContent = option.text;
+            
+            optionElement.appendChild(iconSpan);
+            optionElement.appendChild(textSpan);
+            dropdownContent.appendChild(optionElement);
+            
+            optionElement.addEventListener('click', () => {
+                const value = option.value;
+                const icon = option.icon;
+                const text = option.text;
+                
+                const buttonContent = document.createElement('span');
+                buttonContent.className = 'text-sm rounded flex items-center gap-2 w-full';
+                
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'text-slate-300';
+                iconSpan.textContent = icon;
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-slate-300';
+                textSpan.textContent = text;
+                
+                buttonContent.appendChild(iconSpan);
+                buttonContent.appendChild(textSpan);
+                
+                button.innerHTML = '';
+                button.appendChild(buttonContent);
+                button.classList.remove('text-gray-400');
+                input.value = value;
+                
+                hideDropdown();
+            });
+        });
+        
+        dropdown.appendChild(dropdownContent);
+        dropdownsContainer.appendChild(dropdown);
+        
+        function showDropdown() {
+            dropdown.style.visibility = 'visible';
+            dropdown.style.opacity = '1';
+            dropdown.style.transform = 'translateY(0)';
+            button.classList.add('active');
+        }
+        
+        function hideDropdown() {
+            dropdown.style.visibility = 'hidden';
+            dropdown.style.opacity = '0';
+            dropdown.style.transform = 'translateY(-10px)';
+            button.classList.remove('active');
+        }
+        
+        function closeAllDropdowns() {
+            document.querySelectorAll('.select-dropdown').forEach(d => {
+                d.style.visibility = 'hidden';
+                d.style.opacity = '0';
+                d.style.transform = 'translateY(-10px)';
+            });
+            document.querySelectorAll('.select-button').forEach(b => b.classList.remove('active'));
+        }
+        
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.style.visibility === 'visible';
+            closeAllDropdowns();
+            if (!isOpen) {
+                showDropdown();
+            }
+        });
+        
+        window.addEventListener('scroll', () => {
+            if (dropdown.style.visibility === 'visible') {
+                const newRect = button.getBoundingClientRect();
+                dropdown.style.top = (newRect.bottom + 8) + 'px';
+                dropdown.style.left = newRect.left + 'px';
+            }
+        });
+        
+        window.addEventListener('resize', () => {
+            const newRect = button.getBoundingClientRect();
+            dropdown.style.width = button.offsetWidth + 'px';
+            dropdown.style.top = (newRect.bottom + 8) + 'px';
+            dropdown.style.left = newRect.left + 'px';
+        });
+    });
+    
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.select-dropdown').forEach(d => {
+            d.style.visibility = 'hidden';
+            d.style.opacity = '0';
+            d.style.transform = 'translateY(-10px)';
+        });
+        document.querySelectorAll('.select-button').forEach(b => b.classList.remove('active'));
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeDropdowns);`
+            },
+            'Переключатель': {
+                html: `<label class="switch">
+    <input type="checkbox">
+    <span class="slider round"></span>
+</label>`,
+                css: `.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+}`,
+                js: ``
+            },
+            'Поле ввода с эффектом': {
+                html: `<div class="relative w-full max-w-md">
+    <input type="text" 
+           class="w-full p-3 bg-slate-800 text-white rounded-lg focus:outline-none border border-slate-700 transition-all"
+           placeholder="Введите текст..."
+           onfocus="this.classList.add('ambient-focus')"
+           onblur="this.classList.remove('ambient-focus')">
+</div>`,
+                css: `.ambient-focus {
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(1, 21, 51, 0.931);
+    box-shadow: 0 0 200px rgb(0, 57, 117);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 9999;
+}`,
+                js: ``
+            }
+        };
+
+        function getComponentCode(title) {
+            return componentsCode[title] || {
+                html: 'Code not found',
+                css: 'Code not found',
+                js: 'Code not found'
+            };
+        }
+
+        function copyCode(type) {
+            const codeElement = document.getElementById(`${type}Code`);
+            const button = codeElement.parentElement.parentElement.querySelector('.copy-button');
+            const buttonText = button.querySelector('.copy-text');
+            const originalText = buttonText.textContent;
+            const textToCopy = codeElement.textContent;
+
+            const updateButtonState = (success = true) => {
+                button.classList.add('copied');
+                buttonText.textContent = success ? 'Скопировано!' : 'Ошибка!';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    buttonText.textContent = originalText;
+                }, 2000);
+            };
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            if (isIOS) {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    textarea.style.top = '0';
+                    textarea.style.left = '0';
+                    document.body.appendChild(textarea);
+
+                    const range = document.createRange();
+                    range.selectNodeContents(textarea);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    textarea.setSelectionRange(0, textarea.value.length);
+
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    updateButtonState(true);
+                } catch (err) {
+                    console.error('Ошибка при копировании (iOS):', err);
+                    updateButtonState(false);
+                }
+            } else {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => updateButtonState(true))
+                    .catch(err => {
+                        console.error('Ошибка при копировании:', err);
+                        try {
+                            const textarea = document.createElement('textarea');
+                            textarea.value = textToCopy;
+                            textarea.style.position = 'fixed';
+                            textarea.style.opacity = '0';
+                            textarea.style.top = '0';
+                            textarea.style.left = '0';
+                            document.body.appendChild(textarea);
+                            textarea.focus();
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            updateButtonState(true);
+                        } catch (fallbackErr) {
+                            console.error('Ошибка при fallback копировании:', fallbackErr);
+                            updateButtonState(false);
+                        }
+                    });
+            }
+        }
+    </script>
+    <div id="dropdowns-container" style="position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+</body>
+</html>
